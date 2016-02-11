@@ -6,7 +6,6 @@ import som.vmobjects.SArray;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.profiles.ValueProfile;
 
 public final class SArguments {
 
