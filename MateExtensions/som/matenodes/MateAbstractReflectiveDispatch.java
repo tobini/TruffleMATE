@@ -33,8 +33,10 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
   }
 
   public DirectCallNode createDispatch(final SInvokable metaMethod) {
-    return MateUniverse.current().getTruffleRuntime()
+    DirectCallNode node = MateUniverse.current().getTruffleRuntime()
         .createDirectCallNode(metaMethod.getCallTarget());
+    node.forceInlining();
+    return node;
   }
 
   public abstract static class MateDispatchFieldAccessor extends
@@ -221,7 +223,9 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
   }
   
   public static DirectCallNode createDirectCall(SInvokable methodToActivate){
-    return DirectCallNode.create(methodToActivate.getCallTarget());
+    DirectCallNode node = DirectCallNode.create(methodToActivate.getCallTarget()); 
+    node.forceInlining();
+    return node;
   }
   
   public static IndirectCallNode createIndirectCall(){
