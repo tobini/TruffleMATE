@@ -1,5 +1,6 @@
 package som.primitives.reflection;
 
+import som.interpreter.SArguments;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
 import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
@@ -23,6 +24,6 @@ public abstract class PerformInSuperclassPrim extends TernaryExpressionNode {
       final Object receiver, final SSymbol selector, final DynamicObject clazz) {
     CompilerAsserts.neverPartOfCompilation("PerformInSuperclassPrim");
     SInvokable invokable = SClass.lookupInvokable(clazz, selector);
-    return call.call(frame, invokable.getCallTarget(), new Object[] {receiver});
+    return call.call(frame, invokable.getCallTarget(), new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), receiver});
   }
 }
