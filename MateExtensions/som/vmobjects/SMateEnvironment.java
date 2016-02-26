@@ -46,7 +46,7 @@ public class SMateEnvironment extends SObject {
       case MessageLookup: case MessageActivation: 
         field = Message_IDX;
         break;
-      case ExecutorReadField: case ExecutorWriteField: 
+      case ExecutorReadField: case ExecutorWriteField: case ExecutorReturn: 
         field = Semantics_IDX;
         break;
       case LayoutReadField: case LayoutWriteField: 
@@ -75,6 +75,9 @@ public class SMateEnvironment extends SObject {
         break;
       case ExecutorWriteField: 
         selector = Universe.current().symbolFor("write:value:");
+        break;
+      case ExecutorReturn: 
+        selector = Universe.current().symbolFor("return:");
         break;
       case LayoutReadField: 
         selector = Universe.current().symbolFor("read:");

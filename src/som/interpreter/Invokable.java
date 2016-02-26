@@ -3,6 +3,7 @@ package som.interpreter;
 import som.compiler.MethodGenerationContext;
 import som.compiler.Variable.Local;
 import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.MateReturnNode;
 import som.vm.MateUniverse;
 import som.vm.Universe;
 
@@ -15,7 +16,7 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class Invokable extends RootNode implements MateNode{
 
-  @Child protected ExpressionNode  expressionOrSequence;
+  @Child protected ExpressionNode expressionOrSequence;
 
   protected final ExpressionNode uninitializedBody;
 
@@ -54,8 +55,8 @@ public abstract class Invokable extends RootNode implements MateNode{
   
   public void wrapIntoMateNode() {
     if (this.asMateNode() != null) this.replace(this.asMateNode());
-    MateifyVisitor visitor = new MateifyVisitor();
-    uninitializedBody.accept(visitor);
+    this.expressionOrSequence.replace(new MateReturnNode(this.expressionOrSequence));
+    uninitializedBody.accept(new MateifyVisitor());
   }
   
   private ExpressionNode mateifyUninitializedNode(ExpressionNode uninitialized){
