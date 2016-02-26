@@ -8,8 +8,10 @@ import som.vm.MateUniverse;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vm.constants.ReflectiveOp;
+import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
 import som.vmobjects.SMateEnvironment;
+import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObject;
 
 import com.oracle.truffle.api.Assumption;
@@ -21,7 +23,6 @@ import com.oracle.truffle.api.nodes.NodeCost;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.SourceSection;
-import com.oracle.truffle.object.Locations.ConstantLocation;
 
 public abstract class MateAbstractSemanticNodes {
 
@@ -74,19 +75,18 @@ public abstract class MateAbstractSemanticNodes {
     public abstract SInvokable executeGeneric(VirtualFrame frame,
         Object receiver);
 
-    @Specialization(guards = "!isSReflectiveObject(receiver)")
+    @Specialization(guards = "isSReflectiveObject(receiver) || (isSObject(receiver) || isSClass(receiver))")
     public SInvokable doStandardSOMForPrimitives(final VirtualFrame frame,
         final DynamicObject receiver) {
       return null;
     }
     
-    @Specialization(guards = {"receiver.getShape().getRoot() == rootShape"}, limit = "10")
+    @Specialization(guards = {"receiver.getShape() == cachedShape"}, limit = "10")
     public SInvokable doSReflectiveObject(
         final VirtualFrame frame,
         final DynamicObject receiver,
-        @Cached("receiver.getShape().getRoot()") final Shape rootShape,
-        @Cached("getEnvironmentLocationOf(receiver.getShape())") final ConstantLocation cachedLocation,
-        @Cached("getEnvironment(receiver, cachedLocation)") final DynamicObject cachedEnvironment,
+        @Cached("receiver.getShape()") final Shape cachedShape,
+        @Cached("getEnvironment(cachedShape)") final DynamicObject cachedEnvironment,
         @Cached("environmentReflectiveMethod(cachedEnvironment, reflectiveOperation)") final SInvokable method) {
       return method;
     }
@@ -106,16 +106,20 @@ public abstract class MateAbstractSemanticNodes {
       return SMateEnvironment.methodImplementing(environment, operation);
     }
     
-    public static DynamicObject getEnvironment(DynamicObject receiver, ConstantLocation location){
-      return (DynamicObject)location.get(receiver);
-    }
-    
-    public static ConstantLocation getEnvironmentLocationOf(Shape shape){
-      return (ConstantLocation) shape.getProperty(SReflectiveObject.ENVIRONMENT).getLocation();
+    public static DynamicObject getEnvironment(Shape shape){
+      return SReflectiveObject.getEnvironment(shape);
     }
     
     public static boolean isSReflectiveObject(DynamicObject object){
       return SReflectiveObject.isSReflectiveObject(object);
+    }
+    
+    public static boolean isSObject(DynamicObject object){
+      return SObject.isSObject(object);
+    }
+    
+    public static boolean isSClass(DynamicObject object){
+      return SClass.isSClass(object);
     }
     
     @Override
