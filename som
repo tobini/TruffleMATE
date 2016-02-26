@@ -10,7 +10,7 @@ GRAAL_FLAGS = os.getenv('GRAAL_FLAGS', None)
 GRAAL_LOCATIONS = ['/home/smarr/Projects/SOM/graal/jvmci',
                    '/Users/smarr/Projects/SOM/graal/jvmci',
                    '/Users/guidochari/Documents/Projects/graal-compiler/jvmci',
-                   BASE_DIR + '/../graal/jvmci',
+                   BASE_DIR + '/../jvmci',
                    BASE_DIR + '/../GraalVM/jvmci']
 JDK_VERSIONS = ['jdk1.8.0_65', 'jdk1.8.0_60', 'jdk1.8.0_45', 'jdk1.8.0_45-internal', 'jdk1.8.0_40', 'jdk1.8.0_25']
 
@@ -27,8 +27,8 @@ parser.add_argument('-l', '--low-level', help='enable low-level optimization out
                     dest='low_level', action='store_true', default=False)
 parser.add_argument('-ti', '--trace-invalidation', help='trace assumption invalidation and transfers to interpreter',
                     dest='trace_invalidation', action='store_true', default=False)
-parser.add_argument('-it', '--inline_tweak', help='Increase the inlining threshold',
-                    dest='inline_tweak', action='store_true', default=False)
+parser.add_argument('-it', '--inline_threshold', help='Increase the inlining threshold',
+                    dest='inline_threshold', type=int, default=2500)
 
 parser.add_argument('-p', '--profile', help='enable profiling after warmup',
                     dest='profile', action='store_true', default=False)
@@ -125,14 +125,15 @@ SOM_ARGS = ['-Xbootclasspath/a:'
 
 # == Compiler Settings
 
-if args.inline_tweak:
+if args.inline_threshold:
 	TWEAK_INLINING = [
 #'-Dgraal.TruffleCompilationThreshold=191',
-                  '-Dgraal.TruffleInliningMaxCallerSize=4000',
+                  '-Dgraal.TruffleInliningMaxCallerSize=' + str(args.inline_threshold) 
 #                  '-Dgraal.TruffleSplittingMaxCalleeSize=1000000'
                   ]
 else:
    TWEAK_INLINING = []               
+
 
 if GRAAL_FLAGS:
     flags = [GRAAL_FLAGS]
