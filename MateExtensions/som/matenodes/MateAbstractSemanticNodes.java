@@ -21,6 +21,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeCost;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.object.ObjectType;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -75,17 +76,18 @@ public abstract class MateAbstractSemanticNodes {
     public abstract SInvokable executeGeneric(VirtualFrame frame,
         Object receiver);
 
-    @Specialization(guards = "isSReflectiveObject(receiver) || (isSObject(receiver) || isSClass(receiver))")
+    @Specialization(guards = "!isSReflectiveObject(receiver)")
     public SInvokable doStandardSOMForPrimitives(final VirtualFrame frame,
         final DynamicObject receiver) {
       return null;
     }
     
-    @Specialization(guards = {"receiver.getShape() == cachedShape"}, limit = "10")
+    @Specialization(guards = {"receiver.getShape().getObjectType() == cachedType"}, limit = "10")
     public SInvokable doSReflectiveObject(
         final VirtualFrame frame,
         final DynamicObject receiver,
         @Cached("receiver.getShape()") final Shape cachedShape,
+        @Cached("cachedShape.getObjectType()") final ObjectType cachedType,
         @Cached("getEnvironment(cachedShape)") final DynamicObject cachedEnvironment,
         @Cached("environmentReflectiveMethod(cachedEnvironment, reflectiveOperation)") final SInvokable method) {
       return method;
