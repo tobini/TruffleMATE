@@ -74,7 +74,7 @@ public abstract class MateAbstractSemanticNodes {
     public abstract SInvokable executeGeneric(VirtualFrame frame,
         Object receiver);
 
-    @Specialization(guards = "isSReflectiveObject(receiver)")
+    @Specialization(guards = "!isSReflectiveObject(receiver)")
     public SInvokable doStandardSOMForPrimitives(final VirtualFrame frame,
         final DynamicObject receiver) {
       return null;
