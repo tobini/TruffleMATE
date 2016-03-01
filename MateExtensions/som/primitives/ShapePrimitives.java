@@ -25,6 +25,7 @@
 
 package som.primitives;
 
+import som.primitives.MatePrimsFactory.MateInstallEnvironmentInShapePrimFactory;
 import som.primitives.MatePrimsFactory.MateNewShapePrimFactory;
 import som.primitives.MatePrimsFactory.MateShapeFieldsCountPrimFactory;
 
@@ -35,5 +36,6 @@ public final class ShapePrimitives extends Primitives {
   public void installPrimitives() {
     installInstancePrimitive("fieldsCount", MateShapeFieldsCountPrimFactory.getInstance());
     installClassPrimitive("newWithFieldsCount:", MateNewShapePrimFactory.getInstance());
+    installInstancePrimitive("installEnvironment:", MateInstallEnvironmentInShapePrimFactory.getInstance());
   }
 }

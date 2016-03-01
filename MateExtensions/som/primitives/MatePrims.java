@@ -4,6 +4,8 @@ import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vm.MateUniverse;
 import som.vmobjects.SAbstractObject;
+import som.vmobjects.SClass;
+import som.vmobjects.SReflectiveObject;
 import som.vmobjects.SShape;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
@@ -49,6 +51,31 @@ public final class MatePrims {
     @Specialization
     public final SShape doSObject(DynamicObject receiver) {
       return new SShape(receiver.getShape().getPropertyCount());
+    }
+  }
+  
+  @GenerateNodeFactory
+  public abstract static class MateInstallEnvironmentInShapePrim extends BinaryExpressionNode {
+    @Specialization
+    public final SShape doSObject(SShape shape, DynamicObject environment) {
+      return new SShape(shape.getShape().changeType(SReflectiveObject.objectTypeFor(environment)));
+    }
+  }
+  
+  @GenerateNodeFactory
+  public abstract static class MateUpdateShapeForInstancesPrim extends BinaryExpressionNode {
+    @Specialization
+    public final DynamicObject doSObject(DynamicObject clazz, SShape shape) {
+      SClass.internalSetObjectFactory(clazz, shape.getShape().createFactory());
+      return clazz;
+    }
+  }
+  
+  @GenerateNodeFactory
+  public abstract static class MateGetShapeForInstancesPrim extends UnaryExpressionNode {
+    @Specialization
+    public final SShape doSObject(DynamicObject clazz) {
+      return new SShape(SClass.getFactory(clazz).getShape());
     }
   }
 }
