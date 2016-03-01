@@ -26,12 +26,10 @@ package som.vmobjects;
 
 import java.util.HashMap;
 
-import som.vm.MateUniverse;
 import som.vm.Universe;
 import som.vm.constants.Nil;
 
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
 import com.oracle.truffle.api.object.ObjectType;
@@ -97,7 +95,7 @@ public class SReflectiveObject extends SObject {
   }
   
   public static boolean isSReflectiveObject(final DynamicObject obj) {
-    return obj.getShape().getObjectType() == SREFLECTIVE_OBJECT_TYPE;
+    return obj.getShape().getObjectType() instanceof SReflectiveObjectObjectType;
   }
   
   public static boolean isSReflectiveObject(ObjectType type) {

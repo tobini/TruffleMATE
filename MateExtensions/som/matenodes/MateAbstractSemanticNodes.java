@@ -8,10 +8,8 @@ import som.vm.MateUniverse;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vm.constants.ReflectiveOp;
-import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
 import som.vmobjects.SMateEnvironment;
-import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObject;
 
 import com.oracle.truffle.api.Assumption;
@@ -113,10 +111,11 @@ public abstract class MateAbstractSemanticNodes {
     }
     
     public static boolean isSReflectiveObject(DynamicObject object){
-      return 
+      /*return 
            SReflectiveObject.isSReflectiveObject(object) | 
            SObject.isSObject(object) |
-           SClass.isSClass(object);
+           SClass.isSClass(object);*/
+      return SReflectiveObject.isSReflectiveObject(object);
     }
     
     @Override
