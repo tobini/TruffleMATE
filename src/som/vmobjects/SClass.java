@@ -93,7 +93,7 @@ public final class SClass {
     return clazz;
   }
   
-  private static void internalSetObjectFactory(final DynamicObject clazz, final DynamicObjectFactory factory) {
+  public static void internalSetObjectFactory(final DynamicObject clazz, final DynamicObjectFactory factory) {
     Shape shape = clazz.getShape();
     Property property = shape.getProperty(OBJECT_FACTORY);
     property.setInternal(clazz, factory);

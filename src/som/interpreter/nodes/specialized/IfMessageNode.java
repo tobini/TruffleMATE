@@ -1,5 +1,6 @@
 package som.interpreter.nodes.specialized;
 
+import som.interpreter.SArguments;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.vm.constants.Nil;
 import som.vmobjects.SBlock;
@@ -37,7 +38,7 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
       @Cached("arg.getMethod()") final SInvokable method,
       @Cached("createDirect(method)") final DirectCallNode callTarget) {
     if (condProf.profile(rcvr == expected)) {
-      return callTarget.call(frame, new Object[] {arg});
+      return callTarget.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), arg});
     } else {
       return Nil.nilObject;
     }
@@ -48,7 +49,7 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
       final SBlock arg,
       @Cached("createIndirect()") final IndirectCallNode callNode) {
     if (condProf.profile(rcvr == expected)) {
-      return callNode.call(frame, arg.getMethod().getCallTarget(), new Object[] {arg});
+      return callNode.call(frame, arg.getMethod().getCallTarget(), new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), arg});
     } else {
       return Nil.nilObject;
     }
