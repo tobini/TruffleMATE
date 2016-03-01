@@ -26,9 +26,12 @@ package som.vmobjects;
 
 import java.util.HashMap;
 
+import som.vm.MateUniverse;
 import som.vm.Universe;
 import som.vm.constants.Nil;
 
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
 import com.oracle.truffle.api.object.ObjectType;
@@ -41,10 +44,6 @@ public class SReflectiveObject extends SObject {
   protected static HashMap<DynamicObject, SReflectiveObjectObjectType> SREFLECTIVE_OBJECT_TYPES = 
       new HashMap<DynamicObject, SReflectiveObjectObjectType>();
   
-  static {
-    SREFLECTIVE_OBJECT_TYPES.put(Nil.nilObject, SREFLECTIVE_OBJECT_TYPE);
-  }
-
   protected static final Shape SREFLECTIVE_OBJECT_SHAPE = 
       INIT_NIL_SHAPE.createSeparateShape(INIT_NIL_SHAPE.getSharedData())
       .changeType(SREFLECTIVE_OBJECT_TYPE);
@@ -52,7 +51,7 @@ public class SReflectiveObject extends SObject {
   public static final DynamicObjectFactory SREFLECTIVE_OBJECT_FACTORY = SREFLECTIVE_OBJECT_SHAPE.createFactory();
   
   public static final Shape createObjectShapeForClass(final DynamicObject clazz) {
-    return LAYOUT.createShape(SREFLECTIVE_OBJECT_TYPES.get(Nil.nilObject), clazz);
+    return LAYOUT.createShape(SREFLECTIVE_OBJECT_TYPE, clazz);
   }
   
   public static final DynamicObject getEnvironment(final DynamicObject obj) {
@@ -63,19 +62,20 @@ public class SReflectiveObject extends SObject {
     return ((SReflectiveObjectObjectType)shape.getObjectType()).getEnvironment();
   }
   
-  private static SReflectiveObjectObjectType objectTypeFor(DynamicObject environment){
-    if (SREFLECTIVE_OBJECT_TYPES.containsKey(environment)){
-      return SREFLECTIVE_OBJECT_TYPES.get(environment);
-    } else {
-      SReflectiveObjectObjectType type = new SReflectiveObjectObjectType(environment);
-      SREFLECTIVE_OBJECT_TYPES.put(environment, type);
+  //@TruffleBoundary
+  public static SReflectiveObjectObjectType objectTypeFor(DynamicObject environment){
+      SReflectiveObjectObjectType type = SREFLECTIVE_OBJECT_TYPES.get(environment);
+      if (type == null){
+        CompilerDirectives.transferToInterpreter();
+        type = new SReflectiveObjectObjectType(environment);
+        SREFLECTIVE_OBJECT_TYPES.put(environment, type);
+      }
       return type;
-    }
   }
 
   public static final void setEnvironment(final DynamicObject obj, final DynamicObject value) {
     SReflectiveObjectObjectType type = objectTypeFor(value);
-    obj.setShapeAndGrow(obj.getShape(), obj.getShape().changeType(type));
+    obj.setShapeAndResize(obj.getShape(), obj.getShape().changeType(type));
   }
   
   private static final class SReflectiveObjectObjectType extends ObjectType {

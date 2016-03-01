@@ -23,6 +23,10 @@ public class SShape extends SAbstractObject {
     mockShape = newShape; 
   }
   
+  public SShape(Shape shape){
+    mockShape = shape;
+  }
+  
   public Shape getShape(){
     return mockShape;
   }
