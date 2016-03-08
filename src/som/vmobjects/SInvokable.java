@@ -27,12 +27,15 @@ package som.vmobjects;
 
 import static som.interpreter.TruffleCompiler.transferToInterpreterAndInvalidate;
 import som.interpreter.Invokable;
+import som.interpreter.SArguments;
 import som.vm.constants.Classes;
+import som.vm.constants.ExecutionLevel;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
+import com.oracle.truffle.api.object.DynamicObject;
 
 public abstract class SInvokable extends SAbstractObject {
 
@@ -57,7 +60,7 @@ public abstract class SInvokable extends SAbstractObject {
     }
 
     @Override
-    public void setHolder(final SClass value) {
+    public void setHolder(final DynamicObject value) {
       super.setHolder(value);
       for (SMethod m : embeddedBlocks) {
         m.setHolder(value);
@@ -65,7 +68,7 @@ public abstract class SInvokable extends SAbstractObject {
     }
 
     @Override
-    public SClass getSOMClass() {
+    public DynamicObject getSOMClass() {
       assert Classes.methodClass != null;
       return Classes.methodClass;
     }
@@ -77,7 +80,7 @@ public abstract class SInvokable extends SAbstractObject {
     }
 
     @Override
-    public SClass getSOMClass() {
+    public DynamicObject getSOMClass() {
       assert Classes.primitiveClass != null;
       return Classes.primitiveClass;
     }
@@ -95,11 +98,11 @@ public abstract class SInvokable extends SAbstractObject {
     return signature;
   }
 
-  public final SClass getHolder() {
+  public final DynamicObject getHolder() {
     return holder;
   }
 
-  public void setHolder(final SClass value) {
+  public void setHolder(final DynamicObject value) {
     transferToInterpreterAndInvalidate("SMethod.setHolder");
     holder = value;
   }
@@ -115,6 +118,10 @@ public abstract class SInvokable extends SAbstractObject {
   public final Object invoke(final VirtualFrame frame, final IndirectCallNode node, final Object... arguments) {
     return node.call(frame, callTarget, arguments);
   }
+  
+  public final Object invoke(final DynamicObject environment, final ExecutionLevel exLevel, final Object... arguments) {
+      return callTarget.call(SArguments.createSArguments(environment, exLevel, arguments));
+  }
 
   @Override
   public final String toString() {
@@ -123,12 +130,12 @@ public abstract class SInvokable extends SAbstractObject {
       return "Method(nil>>" + getSignature().toString() + ")";
     }
 
-    return "Method(" + getHolder().getName().getString() + ">>" + getSignature().toString() + ")";
+    return "Method(" + SClass.getName(getHolder()).getString() + ">>" + getSignature().toString() + ")";
   }
 
   // Private variable holding Truffle runtime information
-  private final Invokable              invokable;
-  private final RootCallTarget         callTarget;
-  private final SSymbol                signature;
-  @CompilationFinal private SClass     holder;
+  private final Invokable                 invokable;
+  private final RootCallTarget            callTarget;
+  private final SSymbol                   signature;
+  @CompilationFinal private DynamicObject holder;
 }

@@ -12,7 +12,7 @@ import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.utilities.ValueProfile;
+import com.oracle.truffle.api.profiles.ValueProfile;
 
 @ImportStatic(ArrayType.class)
 @NodeChildren({
@@ -43,13 +43,13 @@ public abstract class ToArgumentsArrayNode extends ExpressionNode {
   public final Object[] doEmptyArray(final SArray somArray, final Object rcvr) {
     Object[] result = new Object[somArray.getEmptyStorage(storageType) + 1];
     Arrays.fill(result, Nil.nilObject);
-    result[SArguments.RCVR_IDX] = rcvr;
+    result[SArguments.RCVR_ARGUMENTS_OFFSET] = rcvr;
     return result;
   }
 
   private Object[] addRcvrToObjectArray(final Object rcvr, final Object[] storage) {
     Object[] argsArray = new Object[storage.length + 1];
-    argsArray[SArguments.RCVR_IDX] = rcvr;
+    argsArray[SArguments.RCVR_ARGUMENTS_OFFSET] = rcvr;
     System.arraycopy(storage, 0, argsArray, 1, storage.length);
     return argsArray;
   }

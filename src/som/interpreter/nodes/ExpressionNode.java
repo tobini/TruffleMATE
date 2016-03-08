@@ -22,17 +22,18 @@
 package som.interpreter.nodes;
 
 import java.math.BigInteger;
+
 import som.interpreter.TypesGen;
+import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SArray;
 import som.vmobjects.SBlock;
-import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
-import som.vmobjects.SObject;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class ExpressionNode extends SOMNode {
@@ -42,7 +43,7 @@ public abstract class ExpressionNode extends SOMNode {
   }
 
   public abstract Object executeGeneric(final VirtualFrame frame);
-
+  
   @Override
   public ExpressionNode getFirstMethodBodyNode() { return this; }
 
@@ -74,16 +75,12 @@ public abstract class ExpressionNode extends SOMNode {
     return TypesGen.expectSBlock(executeGeneric(frame));
   }
 
-  public SClass executeSClass(final VirtualFrame frame) throws UnexpectedResultException {
-    return TypesGen.expectSClass(executeGeneric(frame));
+  public DynamicObject executeDynamicObject(final VirtualFrame frame) throws UnexpectedResultException {
+    return TypesGen.expectDynamicObject(executeGeneric(frame));
   }
 
   public SInvokable executeSInvokable(final VirtualFrame frame) throws UnexpectedResultException {
     return TypesGen.expectSInvokable(executeGeneric(frame));
-  }
-
-  public SObject executeSObject(final VirtualFrame frame) throws UnexpectedResultException {
-    return TypesGen.expectSObject(executeGeneric(frame));
   }
 
   public SArray executeSArray(final VirtualFrame frame) throws UnexpectedResultException {
@@ -96,5 +93,9 @@ public abstract class ExpressionNode extends SOMNode {
 
   public Object[] executeArgumentArray(final VirtualFrame frame) throws UnexpectedResultException {
     return TypesGen.expectObjectArray(executeGeneric(frame));
+  }
+  
+  public ReflectiveOp reflectiveOperation(){
+    return ReflectiveOp.None;
   }
 }

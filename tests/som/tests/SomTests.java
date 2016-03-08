@@ -67,7 +67,7 @@ public class SomTests {
       });
   }
 
-  private String testName;
+  protected String testName;
 
   public SomTests(final String testName) {
     this.testName = testName;
@@ -76,12 +76,17 @@ public class SomTests {
   @Test
   public void testSomeTest() {
     u.setAvoidExit(true);
-    String[] args = {"-cp", "Smalltalk", "TestSuite/TestHarness.som", testName};
+    String[] args = this.getArguments();
 
     u.interpret(args);
 
     assertEquals(0, u.lastExitCode());
   }
+  
+  protected String[] getArguments(){
+    String[] arg = {"-cp", "Smalltalk", "TestSuite/TestHarness.som", testName};
+    return arg;
+  }
 
-  private static final Universe u = Universe.current();
+  protected static Universe u = Universe.current();
 }

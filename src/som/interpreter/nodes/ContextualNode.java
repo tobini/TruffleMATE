@@ -29,8 +29,8 @@ import som.vmobjects.SBlock;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.profiles.ValueProfile;
 import com.oracle.truffle.api.source.SourceSection;
-import com.oracle.truffle.api.utilities.ValueProfile;
 
 public abstract class ContextualNode extends ExpressionNode {
 
@@ -65,7 +65,7 @@ public abstract class ContextualNode extends ExpressionNode {
     // so, we record explicitly a class profile
     return frameType.profile(self.getContext());
   }
-
+  
   @Override
   public abstract void replaceWithLexicallyEmbeddedNode(
       final InlinerForLexicallyEmbeddedMethods inlinerForLexicallyEmbeddedMethods);

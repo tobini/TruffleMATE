@@ -4,7 +4,7 @@ import static som.interpreter.TruffleCompiler.transferToInterpreter;
 import som.compiler.Variable.Local;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
 import som.vm.constants.Nil;
-import som.vmobjects.SObject;
+import som.vm.constants.ReflectiveOp;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -13,6 +13,8 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.FrameSlotTypeException;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 
@@ -27,7 +29,7 @@ public abstract class LocalVariableNode extends ExpressionNode {
   public final Object getSlotIdentifier() {
     return slot.getIdentifier();
   }
-
+  
   public abstract static class LocalVariableReadNode extends LocalVariableNode {
 
     public LocalVariableReadNode(final Local variable,
@@ -45,27 +47,42 @@ public abstract class LocalVariableNode extends ExpressionNode {
     }
 
     @Specialization(guards = "isUninitialized()")
-    public final SObject doNil() {
+    public final DynamicObject doNil() {
       return Nil.nilObject;
     }
 
-    @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+    protected boolean isBoolean(final VirtualFrame frame) {
+      return frame.isBoolean(slot);
+    }
+
+    protected boolean isLong(final VirtualFrame frame) {
+      return frame.isLong(slot);
+    }
+
+    protected boolean isDouble(final VirtualFrame frame) {
+      return frame.isDouble(slot);
+    }
+
+    protected boolean isObject(final VirtualFrame frame) {
+      return frame.isObject(slot);
+    }
+
+    @Specialization(guards = {"isInitialized()", "isBoolean(frame)"}, rewriteOn = {FrameSlotTypeException.class})
     public final boolean doBoolean(final VirtualFrame frame) throws FrameSlotTypeException {
       return frame.getBoolean(slot);
     }
 
-
-    @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+    @Specialization(guards = {"isInitialized()", "isLong(frame)"}, rewriteOn = {FrameSlotTypeException.class})
     public final long doLong(final VirtualFrame frame) throws FrameSlotTypeException {
       return frame.getLong(slot);
     }
 
-    @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+    @Specialization(guards = {"isInitialized()", "isDouble(frame)"}, rewriteOn = {FrameSlotTypeException.class})
     public final double doDouble(final VirtualFrame frame) throws FrameSlotTypeException {
       return frame.getDouble(slot);
     }
 
-    @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+    @Specialization(guards = {"isInitialized()", "isObject(frame)"}, rewriteOn = {FrameSlotTypeException.class})
     public final Object doObject(final VirtualFrame frame) throws FrameSlotTypeException {
       return frame.getObject(slot);
     }
@@ -82,6 +99,15 @@ public abstract class LocalVariableNode extends ExpressionNode {
 
     protected final boolean isUninitialized() {
       return slot.getKind() == FrameSlotKind.Illegal;
+    }
+    
+    public ReflectiveOp reflectiveOperation(){
+      return ReflectiveOp.ExecutorReadLocal;
+    }
+    
+    @Override
+    public Node asMateNode() {
+      return new MateLocalVariableNode.MateLocalVariableReadNode(this);
     }
   }
 
@@ -102,19 +128,19 @@ public abstract class LocalVariableNode extends ExpressionNode {
 
     public abstract ExpressionNode getExp();
 
-    @Specialization(guards = "isBoolKind()")
+    @Specialization(guards = "isBoolKind(expValue)")
     public final boolean writeBoolean(final VirtualFrame frame, final boolean expValue) {
       frame.setBoolean(slot, expValue);
       return expValue;
     }
 
-    @Specialization(guards = "isLongKind()")
+    @Specialization(guards = "isLongKind(expValue)")
     public final long writeLong(final VirtualFrame frame, final long expValue) {
       frame.setLong(slot, expValue);
       return expValue;
     }
 
-    @Specialization(guards = "isDoubleKind()")
+    @Specialization(guards = "isDoubleKind(expValue)")
     public final double writeDouble(final VirtualFrame frame, final double expValue) {
       frame.setDouble(slot, expValue);
       return expValue;
@@ -127,7 +153,7 @@ public abstract class LocalVariableNode extends ExpressionNode {
       return expValue;
     }
 
-    protected final boolean isBoolKind() {
+    protected final boolean isBoolKind(final boolean expValue) {  // expValue to make sure guard is not converted to assertion
       if (slot.getKind() == FrameSlotKind.Boolean) {
         return true;
       }
@@ -139,7 +165,7 @@ public abstract class LocalVariableNode extends ExpressionNode {
       return false;
     }
 
-    protected final boolean isLongKind() {
+    protected final boolean isLongKind(final long expValue) {  // expValue to make sure guard is not converted to assertion
       if (slot.getKind() == FrameSlotKind.Long) {
         return true;
       }
@@ -151,7 +177,7 @@ public abstract class LocalVariableNode extends ExpressionNode {
       return false;
     }
 
-    protected final boolean isDoubleKind() {
+    protected final boolean isDoubleKind(final double expValue) { // expValue to make sure guard is not converted to assertion
       if (slot.getKind() == FrameSlotKind.Double) {
         return true;
       }
@@ -174,6 +200,15 @@ public abstract class LocalVariableNode extends ExpressionNode {
     public final void replaceWithIndependentCopyForInlining(final SplitterForLexicallyEmbeddedCode inliner) {
       CompilerAsserts.neverPartOfCompilation("replaceWithIndependentCopyForInlining");
       throw new RuntimeException("Should not be part of an uninitalized tree. And this should only be done with uninitialized trees.");
+    }
+    
+    public ReflectiveOp reflectiveOperation(){
+      return ReflectiveOp.ExecutorWriteLocal;
+    }
+    
+    @Override
+    public Node asMateNode() {
+      return new MateLocalVariableNode.MateLocalVariableWriteNode(this);
     }
   }
 }

@@ -35,6 +35,8 @@ import som.vm.Universe;
 import som.vmobjects.SClass;
 import som.vmobjects.SSymbol;
 
+import com.oracle.truffle.api.object.DynamicObject;
+
 @RunWith(Parameterized.class)
 public class BasicInterpreterTests {
 
@@ -98,6 +100,8 @@ public class BasicInterpreterTests {
         {"BlockInlining", "testDeepDeepNestedFalse",                 43, Long.class },
 
         {"BlockInlining", "testToDoNestDoNestIfTrue",                 2, Long.class },
+        
+        {"ObjectFieldAccess", "test", 4, Long.class }
 
     });
   }
@@ -127,7 +131,7 @@ public class BasicInterpreterTests {
 
     if (resultType == SClass.class) {
       String expected = (String) expectedResult;
-      String actual   = ((SClass) actualResult).getName().getString();
+      String actual   = SClass.getName((DynamicObject) actualResult).getString();
       assertEquals(expected, actual);
       return;
     }
@@ -141,11 +145,16 @@ public class BasicInterpreterTests {
     fail("SOM Value handler missing");
   }
 
+  protected String getClasspath(){
+    return "Smalltalk:TestSuite/BasicInterpreterTests";
+  }
+
+  protected static Universe u = Universe.current();
+  
   @Test
   public void testBasicInterpreterBehavior() {
-    Universe u = Universe.current();
     u.setAvoidExit(true);
-    u.setupClassPath("Smalltalk:TestSuite/BasicInterpreterTests");
+    u.setupClassPath(this.getClasspath());
 
     Object actualResult = u.interpret(testClass, testSelector);
 

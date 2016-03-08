@@ -1,14 +1,14 @@
 package som.interpreter.nodes.specialized;
 
 import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.ExpressionWithReceiverNode;
 
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 import com.oracle.truffle.api.source.SourceSection;
-import com.oracle.truffle.api.utilities.ConditionProfile;
-
 
 /**
  * This is a very specialized node that is used when we got two literal blocks
@@ -19,7 +19,7 @@ import com.oracle.truffle.api.utilities.ConditionProfile;
  *
  * @author Stefan Marr
  */
-public final class IfTrueIfFalseInlinedLiteralsNode extends ExpressionNode {
+public final class IfTrueIfFalseInlinedLiteralsNode extends ExpressionWithReceiverNode {
   private final ConditionProfile condProf = ConditionProfile.createCountingProfile();
 
   @Child private ExpressionNode conditionNode;
@@ -63,5 +63,10 @@ public final class IfTrueIfFalseInlinedLiteralsNode extends ExpressionNode {
     } else {
       return falseNode.executeGeneric(frame);
     }
+  }
+
+  @Override
+  public ExpressionNode getReceiver() {
+    return conditionNode;
   }
 }

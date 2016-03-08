@@ -10,7 +10,7 @@ import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
-public final class EagerBinaryPrimitiveNode extends BinaryExpressionNode {
+public class EagerBinaryPrimitiveNode extends BinaryExpressionNode {
 
   @Child private ExpressionNode receiver;
   @Child private ExpressionNode argument;
@@ -31,10 +31,14 @@ public final class EagerBinaryPrimitiveNode extends BinaryExpressionNode {
   }
 
   @Override
+  public ExpressionNode getReceiver(){
+    return receiver;
+  }
+
+  @Override
   public Object executeGeneric(final VirtualFrame frame) {
     Object rcvr = receiver.executeGeneric(frame);
     Object arg  = argument.executeGeneric(frame);
-
     return executeEvaluated(frame, rcvr, arg);
   }
 
@@ -54,5 +58,14 @@ public final class EagerBinaryPrimitiveNode extends BinaryExpressionNode {
     GenericMessageSendNode node = MessageSendNode.createGeneric(selector,
         new ExpressionNode[] {receiver, argument}, getSourceSection());
     return replace(node);
+  }
+
+  @Override
+  public ExpressionNode getArgument() {
+    return argument;
+  }
+  
+  protected SSymbol getSelector(){
+    return selector;
   }
 }

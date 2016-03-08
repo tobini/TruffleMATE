@@ -3,9 +3,11 @@ package som.interpreter.nodes;
 import som.interpreter.InlinerAdaptToEmbeddedOuterContext;
 import som.interpreter.InlinerForLexicallyEmbeddedMethods;
 import som.interpreter.SArguments;
+import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class ArgumentReadNode {
@@ -20,15 +22,24 @@ public abstract class ArgumentReadNode {
     }
 
     @Override
-    public final Object executeGeneric(final VirtualFrame frame) {
+    public Object executeGeneric(final VirtualFrame frame) {
       return SArguments.arg(frame, argumentIndex);
     }
-
+    
     @Override
     public void replaceWithLexicallyEmbeddedNode(
         final InlinerForLexicallyEmbeddedMethods inliner) {
       replace(inliner.getReplacementForLocalArgument(argumentIndex,
           getSourceSection()));
+    }
+    
+    public ReflectiveOp reflectiveOperation(){
+      return ReflectiveOp.ExecutorLocalArg;
+    }
+    
+    @Override
+    public Node asMateNode() {
+      return new MateArgumentReadNode.MateLocalArgumentReadNode(this);
     }
   }
 
@@ -43,7 +54,7 @@ public abstract class ArgumentReadNode {
     }
 
     @Override
-    public final Object executeGeneric(final VirtualFrame frame) {
+    public Object executeGeneric(final VirtualFrame frame) {
       return SArguments.arg(determineContext(frame), argumentIndex);
     }
 
@@ -84,9 +95,18 @@ public abstract class ArgumentReadNode {
         return;
       }
     }
+    
+    public ReflectiveOp reflectiveOperation(){
+      return ReflectiveOp.ExecutorNonLocalArg;
+    }
+
+    @Override
+    public Node asMateNode() {
+      return new MateArgumentReadNode.MateNonLocalArgumentReadNode(this);
+    }
   }
 
-  public static final class LocalSuperReadNode extends LocalArgumentReadNode
+  public static class LocalSuperReadNode extends LocalArgumentReadNode
       implements ISuperReadNode {
 
     private final SSymbol holderClass;
@@ -94,7 +114,7 @@ public abstract class ArgumentReadNode {
 
     public LocalSuperReadNode(final SSymbol holderClass,
         final boolean classSide, final SourceSection source) {
-      super(SArguments.RCVR_IDX, source);
+      super(SArguments.RCVR_ARGUMENTS_OFFSET, source);
       this.holderClass = holderClass;
       this.classSide   = classSide;
     }
@@ -108,9 +128,18 @@ public abstract class ArgumentReadNode {
     public boolean isClassSide() {
       return classSide;
     }
+    
+    public ReflectiveOp reflectiveOperation(){
+      return ReflectiveOp.ExecutorLocalSuperArg;
+    }
+    
+    @Override
+    public Node asMateNode() {
+      return new MateArgumentReadNode.MateLocalSuperReadNode(this);
+    }
   }
 
-  public static final class NonLocalSuperReadNode extends
+  public static class NonLocalSuperReadNode extends
       NonLocalArgumentReadNode implements ISuperReadNode {
 
     private final SSymbol holderClass;
@@ -119,7 +148,7 @@ public abstract class ArgumentReadNode {
     public NonLocalSuperReadNode(final int contextLevel,
         final SSymbol holderClass, final boolean classSide,
         final SourceSection source) {
-      super(SArguments.RCVR_IDX, contextLevel, source);
+      super(0, contextLevel, source);
       this.holderClass = holderClass;
       this.classSide   = classSide;
     }
@@ -143,6 +172,15 @@ public abstract class ArgumentReadNode {
     @Override
     public boolean isClassSide() {
       return classSide;
+    }
+    
+    public ReflectiveOp reflectiveOperation(){
+      return ReflectiveOp.ExecutorNonLocalSuperArg;
+    }
+    
+    @Override
+    public Node asMateNode() {
+      return new MateArgumentReadNode.MateNonLocalSuperReadNode(this);
     }
   }
 }

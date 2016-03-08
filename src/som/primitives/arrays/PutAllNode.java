@@ -1,16 +1,17 @@
 package som.primitives.arrays;
 
 import som.interpreter.Invokable;
+import som.interpreter.SArguments;
 import som.interpreter.nodes.dispatch.AbstractDispatchNode;
 import som.interpreter.nodes.dispatch.UninitializedValuePrimDispatchNode;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.primitives.BlockPrims.ValuePrimitiveNode;
 import som.primitives.LengthPrim;
+import som.vm.constants.MateClasses;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
 import som.vmobjects.SBlock;
-import som.vmobjects.SObject;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -21,6 +22,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.object.DynamicObject;
 
 
 @GenerateNodeFactory
@@ -40,7 +42,7 @@ public abstract class PutAllNode extends BinaryExpressionNode
     block = insert(node);
   }
 
-  protected final static boolean valueIsNil(final SObject value) {
+  protected final static boolean valueIsNil(final DynamicObject value) {
     return value == Nil.nilObject;
   }
 
@@ -52,14 +54,14 @@ public abstract class PutAllNode extends BinaryExpressionNode
   }
 
   @Specialization(guards = {"isEmptyType(rcvr)", "valueIsNil(nil)"})
-  public SArray doPutNilInEmptyArray(final SArray rcvr, final SObject nil,
+  public SArray doPutNilInEmptyArray(final SArray rcvr, final DynamicObject nil,
       final long length) {
     // NO OP
     return rcvr;
   }
 
   @Specialization(guards = {"valueIsNil(nil)"}, contains = {"doPutNilInEmptyArray"})
-  public SArray doPutNilInOtherArray(final SArray rcvr, final SObject nil,
+  public SArray doPutNilInOtherArray(final SArray rcvr, final DynamicObject nil,
       final long length) {
     rcvr.transitionToEmpty(length);
     return rcvr;
@@ -68,28 +70,28 @@ public abstract class PutAllNode extends BinaryExpressionNode
   private void evalBlockForRemaining(final VirtualFrame frame,
       final SBlock block, final long length, final Object[] storage) {
     for (int i = SArray.FIRST_IDX + 1; i < length; i++) {
-      storage[i] = this.block.executeDispatch(frame, new Object[] {block});
+      storage[i] = this.block.executeDispatch(frame, MateClasses.STANDARD_ENVIRONMENT, SArguments.getExecutionLevel(frame), new Object[] {block});
     }
   }
 
   private void evalBlockForRemaining(final VirtualFrame frame,
       final SBlock block, final long length, final long[] storage) {
     for (int i = SArray.FIRST_IDX + 1; i < length; i++) {
-      storage[i] = (long) this.block.executeDispatch(frame, new Object[] {block});
+      storage[i] = (long) this.block.executeDispatch(frame, MateClasses.STANDARD_ENVIRONMENT, SArguments.getExecutionLevel(frame), new Object[] {block});
     }
   }
 
   private void evalBlockForRemaining(final VirtualFrame frame,
       final SBlock block, final long length, final double[] storage) {
     for (int i = SArray.FIRST_IDX + 1; i < length; i++) {
-      storage[i] = (double) this.block.executeDispatch(frame, new Object[] {block});
+      storage[i] = (double) this.block.executeDispatch(frame, MateClasses.STANDARD_ENVIRONMENT, SArguments.getExecutionLevel(frame), new Object[] {block});
     }
   }
 
   private void evalBlockForRemaining(final VirtualFrame frame,
       final SBlock block, final long length, final boolean[] storage) {
     for (int i = SArray.FIRST_IDX + 1; i < length; i++) {
-      storage[i] = (boolean) this.block.executeDispatch(frame, new Object[] {block});
+      storage[i] = (boolean) this.block.executeDispatch(frame, MateClasses.STANDARD_ENVIRONMENT, SArguments.getExecutionLevel(frame), new Object[] {block});
     }
   }
 
@@ -99,9 +101,9 @@ public abstract class PutAllNode extends BinaryExpressionNode
     if (length <= 0) {
       return rcvr;
     }
-// TODO: this version does not handle the case that a subsequent value is not of the expected type...
+    //TODO: this version does not handle the case that a subsequent value is not of the expected type...
     try {
-      Object result = this.block.executeDispatch(frame, new Object[] {block});
+      Object result = this.block.executeDispatch(frame, MateClasses.STANDARD_ENVIRONMENT, SArguments.getExecutionLevel(frame), new Object[] {block});
       if (result instanceof Long) {
         long[] newStorage = new long[(int) length];
         newStorage[0] = (long) result;

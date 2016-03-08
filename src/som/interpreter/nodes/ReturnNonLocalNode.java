@@ -35,8 +35,8 @@ import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.FrameUtil;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.api.source.SourceSection;
-import com.oracle.truffle.api.utilities.BranchProfile;
 
 public final class ReturnNonLocalNode extends ContextualNode {
 
@@ -126,7 +126,7 @@ public final class ReturnNonLocalNode extends ContextualNode {
    * previous non-local returns.
    * @author Stefan Marr
    */
-  private static final class ReturnLocalNode extends ExpressionNode {
+  public static final class ReturnLocalNode extends ExpressionNode {
     @Child private ExpressionNode expression;
     private final FrameSlot frameOnStackMarker;
 

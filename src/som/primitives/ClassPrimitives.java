@@ -29,21 +29,27 @@ import som.primitives.ClassPrimsFactory.InstanceFieldsPrimFactory;
 import som.primitives.ClassPrimsFactory.InstanceInvokablesPrimFactory;
 import som.primitives.ClassPrimsFactory.NamePrimFactory;
 import som.primitives.ClassPrimsFactory.SuperClassPrimFactory;
+import som.primitives.MatePrimsFactory.MateGetShapeForInstancesPrimFactory;
+import som.primitives.MatePrimsFactory.MateUpdateShapeForInstancesPrimFactory;
 import som.vm.MateUniverse;
 import som.vm.Universe;
+
 
 public final class ClassPrimitives extends Primitives {
   public ClassPrimitives(final boolean displayWarning) { super(displayWarning); }
 
   @Override
   public void installPrimitives() {
-    if (Universe.current() instanceof MateUniverse)
-      installInstancePrimitive("new",        MateNewObjectPrimFactory.getInstance());
-    else
-      installInstancePrimitive("new",        NewObjectPrimFactory.getInstance());
+    installInstancePrimitive("basicNew",   NewObjectPrimFactory.getInstance());
     installInstancePrimitive("name",       NamePrimFactory.getInstance());
     installInstancePrimitive("superclass", SuperClassPrimFactory.getInstance());
     installInstancePrimitive("methods",    InstanceInvokablesPrimFactory.getInstance());
     installInstancePrimitive("fields",     InstanceFieldsPrimFactory.getInstance());
+    if (Universe.current() instanceof MateUniverse){
+      installInstancePrimitive("updateShapeForInstancesWith:",     
+          MateUpdateShapeForInstancesPrimFactory.getInstance());
+      installInstancePrimitive("getShapeForInstances",
+          MateGetShapeForInstancesPrimFactory.getInstance());
+    }
   }
 }

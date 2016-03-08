@@ -14,6 +14,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.object.DynamicObject;
 
 
 public final class MethodPrims {
@@ -29,7 +30,7 @@ public final class MethodPrims {
   @GenerateNodeFactory
   public abstract static class HolderPrim extends UnaryExpressionNode {
     @Specialization
-    public final SAbstractObject doSMethod(final SInvokable receiver) {
+    public final DynamicObject doSMethod(final SInvokable receiver) {
       return receiver.getHolder();
     }
   }
@@ -44,6 +45,11 @@ public final class MethodPrims {
   public abstract static class InvokeOnPrim extends ExpressionNode
     implements PreevaluatedExpression {
     @Child private InvokeOnCache callNode;
+    
+    public abstract ExpressionNode getReceiver();
+    public abstract ExpressionNode getTarget();
+    public abstract ExpressionNode getSomArr();
+    public abstract ToArgumentsArrayNode getArgArr();
 
     public InvokeOnPrim() {
       super(null);
@@ -65,6 +71,10 @@ public final class MethodPrims {
         final SInvokable receiver, final Object target, final SArray somArr,
         final Object[] argArr) {
       return callNode.executeDispatch(frame, receiver, argArr);
+    }
+    
+    public Object[] evaluateArguments(final VirtualFrame frame){
+      return this.getArgArr().executedEvaluated(this.getSomArr().executeGeneric(frame), this.getTarget().executeGeneric(frame));
     }
   }
 }

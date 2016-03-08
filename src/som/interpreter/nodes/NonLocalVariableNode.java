@@ -4,7 +4,6 @@ import static som.interpreter.TruffleCompiler.transferToInterpreter;
 import som.interpreter.InlinerAdaptToEmbeddedOuterContext;
 import som.interpreter.InlinerForLexicallyEmbeddedMethods;
 import som.vm.constants.Nil;
-import som.vmobjects.SObject;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -12,6 +11,7 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.FrameSlotTypeException;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 
@@ -49,26 +49,42 @@ public abstract class NonLocalVariableNode extends ContextualNode {
     }
 
     @Specialization(guards = "isUninitialized()")
-    public final SObject doNil() {
+    public final DynamicObject doNil() {
       return Nil.nilObject;
     }
 
-    @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+    protected boolean isBoolean(final VirtualFrame frame) {
+      return determineContext(frame).isBoolean(slot);
+    }
+
+    protected boolean isLong(final VirtualFrame frame) {
+      return determineContext(frame).isLong(slot);
+    }
+
+    protected boolean isDouble(final VirtualFrame frame) {
+      return determineContext(frame).isDouble(slot);
+    }
+
+    protected boolean isObject(final VirtualFrame frame) {
+      return determineContext(frame).isObject(slot);
+    }
+
+    @Specialization(guards = {"isInitialized()", "isBoolean(frame)"}, rewriteOn = {FrameSlotTypeException.class})
     public final boolean doBoolean(final VirtualFrame frame) throws FrameSlotTypeException {
       return determineContext(frame).getBoolean(slot);
     }
 
-    @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+    @Specialization(guards = {"isInitialized()", "isLong(frame)"}, rewriteOn = {FrameSlotTypeException.class})
     public final long doLong(final VirtualFrame frame) throws FrameSlotTypeException {
       return determineContext(frame).getLong(slot);
     }
 
-    @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+    @Specialization(guards = {"isInitialized()", "isDouble(frame)"}, rewriteOn = {FrameSlotTypeException.class})
     public final double doDouble(final VirtualFrame frame) throws FrameSlotTypeException {
       return determineContext(frame).getDouble(slot);
     }
 
-    @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+    @Specialization(guards = {"isInitialized()", "isObject(frame)"}, rewriteOn = {FrameSlotTypeException.class})
     public final Object doObject(final VirtualFrame frame) throws FrameSlotTypeException {
       return determineContext(frame).getObject(slot);
     }

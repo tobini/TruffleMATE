@@ -11,7 +11,7 @@ import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
-public final class EagerTernaryPrimitiveNode extends TernaryExpressionNode {
+public class EagerTernaryPrimitiveNode extends TernaryExpressionNode {
 
   @Child private ExpressionNode receiver;
   @Child private ExpressionNode argument1;
@@ -34,6 +34,10 @@ public final class EagerTernaryPrimitiveNode extends TernaryExpressionNode {
     this.selector = selector;
   }
 
+  public ExpressionNode getReceiver(){return receiver;}
+  public ExpressionNode getFirstArg(){return argument1;}
+  public ExpressionNode getSecondArg(){return argument2;}
+  
   @Override
   public Object executeGeneric(final VirtualFrame frame) {
     Object rcvr = receiver.executeGeneric(frame);
@@ -60,5 +64,9 @@ public final class EagerTernaryPrimitiveNode extends TernaryExpressionNode {
         new ExpressionNode[] {receiver, argument1, argument2},
         getSourceSection());
     return replace(node);
+  }
+  
+  protected SSymbol getSelector(){
+    return selector;
   }
 }

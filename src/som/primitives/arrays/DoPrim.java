@@ -1,6 +1,7 @@
 package som.primitives.arrays;
 
 import som.interpreter.Invokable;
+import som.interpreter.SArguments;
 import som.interpreter.nodes.dispatch.AbstractDispatchNode;
 import som.interpreter.nodes.dispatch.UninitializedValuePrimDispatchNode;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
@@ -19,7 +20,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.oracle.truffle.api.utilities.ValueProfile;
+import com.oracle.truffle.api.profiles.ValueProfile;
 
 
 @GenerateNodeFactory
@@ -40,7 +41,7 @@ public abstract class DoPrim extends BinaryExpressionNode
   }
 
   private void execBlock(final VirtualFrame frame, final SBlock block, final Object arg) {
-    this.block.executeDispatch(frame, new Object[] {block, arg});
+    this.block.executeDispatch(frame, null, SArguments.getExecutionLevel(frame), new Object[] {block, arg});
   }
 
   @Specialization(guards = "isEmptyType(arr)")

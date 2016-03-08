@@ -3,6 +3,9 @@ package som.interpreter;
 import som.compiler.MethodGenerationContext;
 import som.compiler.Variable.Local;
 import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.MateReturnNode;
+import som.vm.MateUniverse;
+import som.vm.Universe;
 
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
@@ -11,9 +14,9 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.SourceSection;
 
-public abstract class Invokable extends RootNode {
+public abstract class Invokable extends RootNode implements MateNode{
 
-  @Child protected ExpressionNode  expressionOrSequence;
+  @Child protected ExpressionNode expressionOrSequence;
 
   protected final ExpressionNode uninitializedBody;
 
@@ -21,8 +24,8 @@ public abstract class Invokable extends RootNode {
       final FrameDescriptor frameDescriptor,
       final ExpressionNode expressionOrSequence,
       final ExpressionNode uninitialized) {
-    super(sourceSection, frameDescriptor);
-    this.uninitializedBody    = uninitialized;
+    super(SomLanguage.class, sourceSection, frameDescriptor);
+    this.uninitializedBody = this.mateifyUninitializedNode(uninitialized);
     this.expressionOrSequence = expressionOrSequence;
   }
 
@@ -49,7 +52,18 @@ public abstract class Invokable extends RootNode {
   }
 
   public abstract void propagateLoopCountThroughoutLexicalScope(final long count);
-
-  public abstract boolean isBlock();
-
+  
+  public void wrapIntoMateNode() {
+    if (this.asMateNode() != null) this.replace(this.asMateNode());
+    this.expressionOrSequence.replace(new MateReturnNode(this.expressionOrSequence));
+    uninitializedBody.accept(new MateifyVisitor());
+  }
+  
+  private ExpressionNode mateifyUninitializedNode(ExpressionNode uninitialized){
+    if (!(Universe.current() instanceof MateUniverse) || uninitialized.asMateNode() == null) {
+        return uninitialized;
+    } else {
+      return (ExpressionNode)uninitialized.asMateNode();
+    }
+  }
 }

@@ -5,7 +5,8 @@ import java.util.Arrays;
 import som.vm.constants.Classes;
 import som.vm.constants.Nil;
 
-import com.oracle.truffle.api.utilities.ValueProfile;
+import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.profiles.ValueProfile;
 
 /**
  * SArrays are implemented using a Strategy-like approach.
@@ -72,6 +73,19 @@ public final class SArray extends SAbstractObject {
   public boolean[] getBooleanStorage(final ValueProfile storageType) {
     assert type == ArrayType.BOOLEAN;
     return (boolean[]) storage;
+  }
+  
+  public Object[] toJavaArray(){
+    if (ArrayType.isEmptyType(this)){
+      this.transitionToObjectWithAll((int)this.storage, Nil.nilObject);
+    }
+    if (this.getType() == ArrayType.PARTIAL_EMPTY) {
+      return this
+          .getPartiallyEmptyStorage(ValueProfile.createClassProfile())
+          .getStorage();
+    } else {
+      return this.getObjectStorage(ValueProfile.createClassProfile());
+    }
   }
 
   /**
@@ -328,7 +342,7 @@ public final class SArray extends SAbstractObject {
 
 
   @Override
-  public SClass getSOMClass() {
+  public DynamicObject getSOMClass() {
     return Classes.arrayClass;
   }
 }

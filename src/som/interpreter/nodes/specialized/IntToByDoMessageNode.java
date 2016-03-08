@@ -1,8 +1,8 @@
 package som.interpreter.nodes.specialized;
 
 import som.interpreter.Invokable;
+import som.interpreter.SArguments;
 import som.interpreter.nodes.ExpressionNode;
-import som.interpreter.nodes.PreevaluatedExpression;
 import som.interpreter.nodes.nary.QuaternaryExpressionNode;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
@@ -16,8 +16,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 
 
-public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode
-    implements PreevaluatedExpression {
+public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
 
   private final SInvokable blockMethod;
   @Child private DirectCallNode valueSend;
@@ -36,13 +35,6 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode
     this.valueSend   = node.valueSend;
   }
 
-  @Override
-  public final Object doPreEvaluated(final VirtualFrame frame,
-      final Object[] arguments) {
-    return executeEvaluated(frame, arguments[0], arguments[1],  arguments[2],
-        arguments[3]);
-  }
-
   protected final boolean isSameBlockLong(final SBlock block) {
     return block.getMethod() == blockMethod;
   }
@@ -55,10 +47,10 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode
   public final long doIntToByDo(final VirtualFrame frame, final long receiver, final long limit, final long step, final SBlock block) {
     try {
       if (receiver <= limit) {
-        valueSend.call(frame, new Object[] {block, receiver});
+        valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
       }
       for (long i = receiver + 1; i <= limit; i += step) {
-        valueSend.call(frame, new Object[] {block, i});
+        valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
       }
     } finally {
       if (CompilerDirectives.inInterpreter()) {
@@ -72,10 +64,10 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode
   public final long doIntToByDo(final VirtualFrame frame, final long receiver, final double limit, final long step, final SBlock block) {
     try {
       if (receiver <= limit) {
-        valueSend.call(frame, new Object[] {block, receiver});
+        valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
       }
       for (long i = receiver + 1; i <= limit; i += step) {
-        valueSend.call(frame, new Object[] {block, i});
+        valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
       }
     } finally {
       if (CompilerDirectives.inInterpreter()) {
