@@ -60,6 +60,10 @@ public abstract class MateAbstractSemanticNodes {
     public NodeCost getCost() {
       return NodeCost.NONE;
     }
+    
+    public ReflectiveOp getReflectiveOperation(){
+      return this.reflectiveOperation;
+    }
   }
 
   public static abstract class MateObjectSemanticCheckNode extends Node {
@@ -122,10 +126,13 @@ public abstract class MateAbstractSemanticNodes {
     public NodeCost getCost() {
       return NodeCost.NONE;
     }
+    
+    public ReflectiveOp getReflectiveOperation(){
+      return this.reflectiveOperation;
+    }
   }
 
   public static abstract class MateSemanticCheckNode extends Node {
-
     @Child MateEnvironmentSemanticCheckNode environment;
     @Child MateObjectSemanticCheckNode      object;
 
@@ -146,27 +153,22 @@ public abstract class MateAbstractSemanticNodes {
           MateObjectSemanticCheckNodeGen.create(operation));
     }
 
-    @Specialization(assumptions = "getMateDeactivatedAssumption()")
-    protected SInvokable mateDeactivated(final VirtualFrame frame, Object[] arguments) {
-      return null;
-    }
-    
-    @Specialization(guards = "!executeBase(frame)" , 
-        assumptions = "getMateActivatedAssumption()")
-    protected SInvokable executeSOM(final VirtualFrame frame, Object[] arguments) {
-      return null;
-    }
-
-    @Specialization(guards = "executeBase(frame)",
-        assumptions = "getMateActivatedAssumption()")
-    protected SInvokable executeSemanticChecks(final VirtualFrame frame,
+    @Specialization
+    protected SInvokable executeGeneric(final VirtualFrame frame,
         Object[] arguments) {
-      if (arguments[0] instanceof DynamicObject){
-        SInvokable value = environment.executeGeneric(frame);
-        if (value == null){  
-          value = object.executeGeneric(frame, arguments[0]);
+      if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Base & arguments[0] instanceof DynamicObject){
+        DynamicObject env = SArguments.getEnvironment(frame);
+        SInvokable method = null;
+        if (env != null){
+           method = SMateEnvironment.methodImplementing(env, environment.getReflectiveOperation());
         }
-        return value;
+        if (method == null & SReflectiveObject.isSReflectiveObject(((DynamicObject)arguments[0]))){  
+          env = SReflectiveObject.getEnvironment(((DynamicObject)arguments[0]).getShape());
+          if (env != Nil.nilObject){
+            method = SMateEnvironment.methodImplementing(env, object.getReflectiveOperation());
+          }  
+        }
+        return method;
       }
       return null;
     }
