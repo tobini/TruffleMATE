@@ -92,7 +92,7 @@ Build Status
 
 Thanks to Travis CI, all commits of this repository are tested.
 The current build status is: [![Build Status](
-https://travis-ci.org/charig/TruffleMATE.png?branch=SOMwithTheOSM)](https://travis-ci.org/charig/TruffleMATE)
+https://travis-ci.org/charig/TruffleMATE.png)](https://travis-ci.org/charig/TruffleMATE)
 
  [SOM]: http://www.hpi.uni-potsdam.de/hirschfeld/projects/som/
  [SOMst]: https://travis-ci.org/SOM-st/
