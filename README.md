@@ -1,4 +1,4 @@
-TruffleSOM - The Simple Object Machine Smalltalk implemented using Oracle's Truffle Framework
+TruffleMate - The Fully Reflective Execution Environment implemented using Oracle's Truffle Framework
 =============================================================================================
 
 Introduction
@@ -22,18 +22,18 @@ Hello = (
 )
 ```
 
-This repository contains the [Truffle][T]-based implementation of SOM, including
-SOM's standard library and a number of examples. Please see the [main project
-page][SOM] for links to other VM implementations.
+This repository contains an extension to the [Truffle][T]-based implementation of SOM, including
+SOM's standard library, a number of examples and the Mate v1 Metaobject protocol[M]. 
+Please see the [main projectpage][SOM] for links to other VM implementations.
 
-Obtaining and Running TruffleSOM
+Obtaining and Running TruffleMate
 --------------------------------
 
 To checkout the code:
 
-    git clone https://github.com/SOM-st/TruffleSOM.git
+    git clone https://github.com/charig/TruffleMate.git
 
-Then, TruffleSOM can be build with Ant:
+Then, TruffleMate can be build with Ant:
 
     ant jar
 
@@ -45,7 +45,9 @@ A simple Hello World program is executed with:
 
     ./som.sh -cp Smalltalk Examples/Hello.som
 
-When working on TruffleSOM, for instance in Eclipse, it is helpful to download
+The --mate option runs the system with the Mate MOP enabled.
+
+When working on TruffleMate, for instance in Eclipse, it is helpful to download
 the source files for Truffle as well:
 
     ant develop
@@ -53,7 +55,7 @@ the source files for Truffle as well:
 Information on previous authors are included in the AUTHORS file. This code is
 distributed under the MIT License. Please see the LICENSE file for details.
 
-TruffleSOM Implementation
+TruffleMate Implementation
 -------------------------
 
 TruffleSOM implements a file-based Smalltalk with most of the language features
@@ -89,9 +91,12 @@ Build Status
 ------------
 
 Thanks to Travis CI, all commits of this repository are tested.
-The current build status is: [![Build Status](https://travis-ci.org/SOM-st/TruffleSOM.png?branch=master)](https://travis-ci.org/SOM-st/TruffleSOM)
+The current build status is: [![Build Status](
+https://travis-ci.org/charig/TruffleMATE.png)](https://travis-ci.org/charig/TruffleMATE)
 
  [SOM]: http://www.hpi.uni-potsdam.de/hirschfeld/projects/som/
  [SOMst]: https://travis-ci.org/SOM-st/
+ [TruffleMate]: https://travis-ci.org/charig/TruffleMate
  [RS]:  http://dx.doi.org/10.1016/j.cl.2005.02.003
  [T]:   http://www.christianwimmer.at/Publications/Wuerthinger12a/
+ [M]:   http://dl.acm.org/citation.cfm?doid=2814228.2814241
