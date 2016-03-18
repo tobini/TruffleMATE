@@ -62,13 +62,12 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     public abstract Object executeDispatch(final VirtualFrame frame,
         SInvokable method, Object[] arguments);
 
-    @Specialization(guards = "cachedMethod==method")
+    @Specialization(guards = "cachedMethod==method", limit = "INLINE_CACHE_SIZE")
     public Object doMateNode(final VirtualFrame frame, final SInvokable method,
         final Object[] arguments,
         @Cached("method") final SInvokable cachedMethod,
         @Cached("createDispatch(method)") final DirectCallNode reflectiveMethod) {
-      Object value = reflectiveMethod.call(frame, this.computeArgumentsForMetaDispatch(frame, arguments));
-      return value;
+      return reflectiveMethod.call(frame, this.computeArgumentsForMetaDispatch(frame, arguments));
     }
   }
 
@@ -78,6 +77,14 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     public MateDispatchFieldAccess(SourceSection source) {
       super(source);
     }
+    
+    @Specialization(contains = {"doMateNode"})
+    public Object doMegaMorphic(final VirtualFrame frame, final SInvokable method,
+        final Object[] arguments,
+        @Cached("createIndirectCall()") final IndirectCallNode callNode) {
+      MateUniverse.println( "Entre aca");
+      return callNode.call(frame, method.getCallTarget(), this.computeArgumentsForMetaDispatch(frame, arguments));
+    }  
   }
 
   public abstract static class MateDispatchMessageLookup extends
