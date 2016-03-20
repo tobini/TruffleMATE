@@ -2,9 +2,11 @@ package som.matenodes;
 
 import som.interpreter.nodes.ISuperReadNode;
 import som.matenodes.MateAbstractReflectiveDispatch.MateAbstractStandardDispatch;
+import som.matenodes.MateAbstractReflectiveDispatchFactory.MateAbstractStandardDispatchNodeGen;
 import som.matenodes.MateAbstractReflectiveDispatchFactory.MateCachedDispatchMessageLookupNodeGen;
 import som.matenodes.MateAbstractReflectiveDispatchFactory.MateCachedDispatchSuperMessageLookupNodeGen;
-import som.matenodes.MateAbstractReflectiveDispatchFactory.MateDispatchFieldAccessNodeGen;
+import som.matenodes.MateAbstractReflectiveDispatchFactory.MateDispatchFieldReadNodeGen;
+import som.matenodes.MateAbstractReflectiveDispatchFactory.MateDispatchFieldWriteNodeGen;
 import som.matenodes.MateAbstractSemanticNodes.MateSemanticCheckNode;
 import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SInvokable;
@@ -35,12 +37,16 @@ public interface MateBehavior {
     this.setMateNode(MateSemanticCheckNode.createForFullCheck(source, operation));
   }
   
-  public default void initializeMateDispatchForFieldAccess(SourceSection source){
-    this.setMateDispatch(MateDispatchFieldAccessNodeGen.create(source));
+  public default void initializeMateDispatchForFieldRead(SourceSection source){
+    this.setMateDispatch(MateDispatchFieldReadNodeGen.create(source));
+  }
+  
+  public default void initializeMateDispatchForFieldWrite(SourceSection source){
+    this.setMateDispatch(MateDispatchFieldWriteNodeGen.create(source));
   }
   
   public default void initializeMateDispatchForArgumentReads(SourceSection source){
-    this.setMateDispatch(MateDispatchFieldAccessNodeGen.create(source));
+    this.setMateDispatch(MateAbstractStandardDispatchNodeGen.create(source));
   }
   
   public default void initializeMateDispatchForMessages(SourceSection source, SSymbol selector){

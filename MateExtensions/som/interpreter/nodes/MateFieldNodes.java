@@ -23,7 +23,7 @@ public abstract class MateFieldNodes {
     public MateFieldReadNode(FieldReadNode node) {
       super(node.read.getFieldIndex(), node.getSourceSection());
       this.initializeMateSemantics(this.getSourceSection(), this.reflectiveOperation());
-      this.initializeMateDispatchForFieldAccess(this.getSourceSection());
+      this.initializeMateDispatchForFieldRead(this.getSourceSection());
       read = new MateLayoutFieldReadNode(read);
     }
     
@@ -71,7 +71,7 @@ public abstract class MateFieldNodes {
     public MateFieldWriteNode(FieldWriteNode node) {
       super(node.write.getFieldIndex(), node.getSourceSection());
       this.initializeMateSemantics(this.getSourceSection(), this.reflectiveOperation());
-      this.initializeMateDispatchForFieldAccess(this.getSourceSection());
+      this.initializeMateDispatchForFieldWrite(this.getSourceSection());
       write = new MateLayoutFieldWriteNode(write);
     }
 

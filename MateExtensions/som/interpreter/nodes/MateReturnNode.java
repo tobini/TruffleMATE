@@ -18,7 +18,7 @@ public class MateReturnNode extends ExpressionNode implements MateBehavior {
     super(node.getSourceSection());
     this.expression = node;
     this.initializeMateSemantics(node.getSourceSection(), this.reflectiveOperation());
-    this.initializeMateDispatchForFieldAccess(this.getSourceSection());
+    this.initializeMateDispatchForFieldRead(this.getSourceSection());
   }
   
   private final ConditionProfile semanticsRedefined = ConditionProfile.createBinaryProfile();
