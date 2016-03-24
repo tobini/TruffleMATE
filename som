@@ -124,7 +124,6 @@ SOM_ARGS = ['-Xbootclasspath/a:'
 # -G:+TruffleSplittingNew
 
 # == Compiler Settings
-
 if args.inline_threshold:
 	TWEAK_INLINING = [
 #'-Dgraal.TruffleCompilationThreshold=191',
