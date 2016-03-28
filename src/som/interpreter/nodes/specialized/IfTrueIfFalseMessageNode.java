@@ -1,5 +1,6 @@
 package som.interpreter.nodes.specialized;
 
+import som.interpreter.SArguments;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
@@ -76,9 +77,9 @@ public abstract class IfTrueIfFalseMessageNode extends TernaryExpressionNode {
   public final Object doIfTrueIfFalseWithInliningTwoBlocks(final VirtualFrame frame,
       final boolean receiver, final SBlock trueBlock, final SBlock falseBlock) {
     if (condProf.profile(receiver)) {
-      return trueValueSend.call(frame, new Object[] {trueBlock});
+      return trueValueSend.call(frame, SArguments.createSArguments(SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), new Object[] {trueBlock}));
     } else {
-      return falseValueSend.call(frame, new Object[] {falseBlock});
+      return falseValueSend.call(frame, SArguments.createSArguments(SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame),new Object[] {falseBlock}));
     }
   }
 
@@ -99,7 +100,7 @@ public abstract class IfTrueIfFalseMessageNode extends TernaryExpressionNode {
     if (condProf.profile(receiver)) {
       return trueValue;
     } else {
-      return falseValueSend.call(frame, new Object[] {falseBlock});
+      return falseValueSend.call(frame, SArguments.createSArguments(SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame),new Object[] {falseBlock}));
     }
   }
 
@@ -107,7 +108,7 @@ public abstract class IfTrueIfFalseMessageNode extends TernaryExpressionNode {
   public final Object doIfTrueIfFalseWithInliningFalseValue(final VirtualFrame frame,
       final boolean receiver, final SBlock trueBlock, final Object falseValue) {
     if (condProf.profile(receiver)) {
-      return trueValueSend.call(frame, new Object[] {trueBlock});
+      return trueValueSend.call(frame, SArguments.createSArguments(SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame),new Object[] {trueBlock}));
     } else {
       return falseValue;
     }
