@@ -1,30 +1,16 @@
-TruffleMate - The Fully Reflective Execution Environment implemented using Oracle's Truffle Framework
+TruffleMate - A Reflective Execution Environment implemented using Oracle's Truffle Framework
 =============================================================================================
 
 Introduction
 ------------
 
-SOM is a minimal Smalltalk dialect used to teach VM construction at the [Hasso
-Plattner Institute][SOM]. It was originally built at the University of Århus
-(Denmark) where it was used for teaching and as the foundation for [Resilient
-Smalltalk][RS].
-
-In addition to TruffleSOM, other implementations exist for Java (SOM), C (CSOM),
-C++ (SOM++), and Squeak/Pharo Smalltalk (AweSOM).
-
-A simple Hello World looks like:
-
-```Smalltalk
-Hello = (
-  run = (
-    'Hello World!' println.
-  )
-)
-```
+Mate is an approach for building Virtual Machines that expose their whole 
+structure and behavior to the language level [Mate].
+A MOP[MOP] then enables to adapt reflectively the Virtual Machine behavior at run time.
+TruffleMate is an implementation of the Mate approach in Truffle that started as a branch from the TruffleSOM VM[TruffleSOM].
 
 This repository contains an extension to the [Truffle][T]-based implementation of SOM, including
 SOM's standard library, a number of examples and the Mate v1 Metaobject protocol[M]. 
-Please see the [main projectpage][SOM] for links to other VM implementations.
 
 Obtaining and Running TruffleMate
 --------------------------------
@@ -45,7 +31,7 @@ A simple Hello World program is executed with:
 
     ./som.sh -cp Smalltalk Examples/Hello.som
 
-The --mate option runs the system with the Mate MOP enabled.
+The --mate -activateMate optiosn runs the system with the Mate MOP enabled.
 
 When working on TruffleMate, for instance in Eclipse, it is helpful to download
 the source files for Truffle as well:
@@ -96,7 +82,9 @@ https://travis-ci.org/charig/TruffleMATE.png)](https://travis-ci.org/charig/Truf
 
  [SOM]: http://www.hpi.uni-potsdam.de/hirschfeld/projects/som/
  [SOMst]: https://travis-ci.org/SOM-st/
+ [Mate]: http://dl.acm.org/citation.cfm?id=2814241
  [TruffleMate]: https://travis-ci.org/charig/TruffleMate
+ [TruffleSOM]: https://github.com/SOM-st/TruffleSOM
  [RS]:  http://dx.doi.org/10.1016/j.cl.2005.02.003
  [T]:   http://www.christianwimmer.at/Publications/Wuerthinger12a/
  [M]:   http://dl.acm.org/citation.cfm?doid=2814228.2814241
