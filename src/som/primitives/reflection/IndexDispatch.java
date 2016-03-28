@@ -170,6 +170,7 @@ public abstract class IndexDispatch extends Node implements DispatchChain {
     @Override
     public Object executeDispatch(final DynamicObject obj, final int index, final Object value) {
       obj.set(index, value);
+      obj.define(index, value);
       return value;
     }
 

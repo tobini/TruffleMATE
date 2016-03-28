@@ -71,10 +71,10 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     }
   }
 
-  public abstract static class MateDispatchFieldAccess extends
+  public abstract static class MateDispatchFieldRead extends
       MateAbstractStandardDispatch {
 
-    public MateDispatchFieldAccess(SourceSection source) {
+    public MateDispatchFieldRead(SourceSection source) {
       super(source);
     }
     
@@ -82,9 +82,26 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     public Object doMegaMorphic(final VirtualFrame frame, final SInvokable method,
         final Object[] arguments,
         @Cached("createIndirectCall()") final IndirectCallNode callNode) {
-      MateUniverse.println( "Entre aca");
       return callNode.call(frame, method.getCallTarget(), this.computeArgumentsForMetaDispatch(frame, arguments));
-    }  
+    }
+    
+    @Override
+    protected Object[] computeArgumentsForMetaDispatch(VirtualFrame frame, Object[] arguments) {
+      return new Object[]{SArguments.getEnvironment(frame), ExecutionLevel.Meta, arguments[0], arguments[1]};
+    }
+  }
+  
+  public abstract static class MateDispatchFieldWrite extends
+      MateDispatchFieldRead {
+  
+    public MateDispatchFieldWrite(SourceSection source) {
+      super(source);
+    }
+    
+    @Override
+    protected Object[] computeArgumentsForMetaDispatch(VirtualFrame frame, Object[] arguments) {
+      return new Object[]{SArguments.getEnvironment(frame), ExecutionLevel.Meta, arguments[0], arguments[1], arguments[2]};
+    }
   }
 
   public abstract static class MateDispatchMessageLookup extends

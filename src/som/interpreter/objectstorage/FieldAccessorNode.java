@@ -8,7 +8,7 @@ import som.interpreter.objectstorage.FieldAccessorNodeFactory.ReadFieldNodeGen;
 import som.interpreter.objectstorage.FieldAccessorNodeFactory.WriteFieldNodeGen;
 
 import com.oracle.truffle.api.Assumption;
-import com.oracle.truffle.api.CompilerAsserts;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -102,10 +102,10 @@ public abstract class FieldAccessorNode extends Node implements MateNode {
       return executeRead(self); // restart execution of the whole node
     }
       
-    //@TruffleBoundary
+    @TruffleBoundary
     @Specialization(contains = {"readSetField", "readUnsetField", "updateShapeAndRead"})
     public final Object readFieldUncached(final DynamicObject receiver) {
-      CompilerAsserts.neverPartOfCompilation("readFieldUncached");
+      //CompilerAsserts.neverPartOfCompilation("readFieldUncached");
       return receiver.get(fieldIndex, Nil.nilObject);
     }
 

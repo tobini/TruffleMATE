@@ -20,7 +20,7 @@ public final class MateLayoutFieldWriteNode extends WriteFieldNode implements Ma
   public MateLayoutFieldWriteNode(final WriteFieldNode node) {
     super(node.getFieldIndex());
     this.initializeMateSemantics(this.getSourceSection(), this.reflectiveOperation());
-    this.initializeMateDispatchForFieldAccess(this.getSourceSection());
+    this.initializeMateDispatchForFieldWrite(this.getSourceSection());
     write = node;
   }
 

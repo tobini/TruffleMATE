@@ -18,9 +18,10 @@ public class ClassPrims {
   @GenerateNodeFactory
   @ImportStatic(SClass.class)
   public abstract static class NamePrim extends UnaryExpressionNode {
+    @TruffleBoundary
     @Specialization(guards = "isSClass(receiver)")
     public final SAbstractObject doSClass(final DynamicObject receiver) {
-      CompilerAsserts.neverPartOfCompilation("Class>>NamePrim");
+      //CompilerAsserts.neverPartOfCompilation("Class>>NamePrim");
       return SClass.getName(receiver);
     }
   }

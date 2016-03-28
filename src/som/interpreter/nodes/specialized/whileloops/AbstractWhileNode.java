@@ -1,6 +1,7 @@
 package som.interpreter.nodes.specialized.whileloops;
 
 import som.interpreter.Invokable;
+import som.interpreter.SArguments;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.literals.IntegerLiteralNode;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
@@ -63,7 +64,7 @@ public abstract class AbstractWhileNode extends BinaryExpressionNode {
     long iterationCount = 0;
 
     boolean loopConditionResult = (boolean) conditionValueSend.call(
-        frame, new Object[] {loopCondition});
+        frame, SArguments.createSArguments(SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), new Object[] {loopCondition}));
 
     try {
       // TODO: this is a simplification, we don't cover the case receiver isn't a boolean

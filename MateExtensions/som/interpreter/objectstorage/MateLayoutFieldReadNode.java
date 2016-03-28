@@ -20,7 +20,7 @@ public final class MateLayoutFieldReadNode extends ReadFieldNode implements Mate
   public MateLayoutFieldReadNode(final ReadFieldNode node) {
     super(node.getFieldIndex());
     this.initializeMateSemantics(this.getSourceSection(), this.reflectiveOperation());
-    this.initializeMateDispatchForFieldAccess(this.getSourceSection());
+    this.initializeMateDispatchForFieldRead(this.getSourceSection());
     read = node;
   }
 
