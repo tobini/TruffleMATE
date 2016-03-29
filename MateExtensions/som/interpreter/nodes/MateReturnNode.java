@@ -5,12 +5,12 @@ import com.oracle.truffle.api.profiles.ConditionProfile;
 
 import som.interpreter.SArguments;
 import som.matenodes.MateAbstractReflectiveDispatch.MateAbstractStandardDispatch;
-import som.matenodes.MateAbstractSemanticNodes.MateSemanticCheckNode;
+import som.matenodes.MateAbstractSemanticNodes.MateAbstractSemanticsLevelNode;
 import som.matenodes.MateBehavior;
 import som.vm.constants.ReflectiveOp;
 
 public class MateReturnNode extends ExpressionNode implements MateBehavior {
-  @Child MateSemanticCheckNode            semanticCheck;
+  @Child MateAbstractSemanticsLevelNode   semanticCheck;
   @Child MateAbstractStandardDispatch     reflectiveDispatch;
   @Child ExpressionNode                   expression;
   
@@ -24,7 +24,7 @@ public class MateReturnNode extends ExpressionNode implements MateBehavior {
   private final ConditionProfile semanticsRedefined = ConditionProfile.createBinaryProfile();
 
   @Override
-  public MateSemanticCheckNode getMateNode() {
+  public MateAbstractSemanticsLevelNode getMateNode() {
     return semanticCheck;
   }
 
@@ -34,7 +34,7 @@ public class MateReturnNode extends ExpressionNode implements MateBehavior {
   }
 
   @Override
-  public void setMateNode(MateSemanticCheckNode node) {
+  public void setMateNode(MateAbstractSemanticsLevelNode node) {
     semanticCheck = node;  
   }
 

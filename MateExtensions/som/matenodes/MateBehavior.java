@@ -7,6 +7,7 @@ import som.matenodes.MateAbstractReflectiveDispatchFactory.MateCachedDispatchMes
 import som.matenodes.MateAbstractReflectiveDispatchFactory.MateCachedDispatchSuperMessageLookupNodeGen;
 import som.matenodes.MateAbstractReflectiveDispatchFactory.MateDispatchFieldReadNodeGen;
 import som.matenodes.MateAbstractReflectiveDispatchFactory.MateDispatchFieldWriteNodeGen;
+import som.matenodes.MateAbstractSemanticNodes.MateAbstractSemanticsLevelNode;
 import som.matenodes.MateAbstractSemanticNodes.MateSemanticCheckNode;
 import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SInvokable;
@@ -18,9 +19,9 @@ import com.oracle.truffle.api.profiles.ConditionProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
 public interface MateBehavior {
-  public abstract MateSemanticCheckNode getMateNode();
+  public abstract MateAbstractSemanticsLevelNode getMateNode();
   public abstract MateAbstractStandardDispatch getMateDispatch();
-  public abstract void setMateNode(MateSemanticCheckNode node);
+  public abstract void setMateNode(MateAbstractSemanticsLevelNode node);
   public abstract void setMateDispatch(MateAbstractStandardDispatch node);
 
   public default Object doMateSemantics(final VirtualFrame frame,
