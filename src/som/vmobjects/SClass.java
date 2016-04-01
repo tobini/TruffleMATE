@@ -31,6 +31,7 @@ import som.primitives.Primitives;
 import som.vm.Universe;
 import som.vm.constants.Nil;
 import som.vmobjects.SInvokable.SPrimitive;
+import som.vmobjects.SReflectiveObject.SReflectiveObjectObjectType;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -39,13 +40,12 @@ import com.oracle.truffle.api.object.Property;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.profiles.ValueProfile;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
-import com.oracle.truffle.api.object.ObjectType;
 
 public final class SClass {
 
   private SClass() {} // just static helpers
 
-  private static final SClassObjectType SCLASS_TYPE = new SClassObjectType();
+  private static final SClassObjectType SCLASS_TYPE = new SClassObjectType(Nil.nilObject);
 
   private static final SSymbol SUPERCLASS = Universe.current().symbolFor("superclass");
   private static final SSymbol NAME       = Universe.current().symbolFor("name");
@@ -129,7 +129,11 @@ public final class SClass {
   //       there is the tradeoff with having two different hierarchies of shapes
   //       for SClass and SObject. But, might not be performance critical in
   //       either case
-  private static final class SClassObjectType extends ObjectType {
+  private static final class SClassObjectType extends SReflectiveObjectObjectType {
+    public SClassObjectType(DynamicObject metaobj) {
+      super(metaobj);
+    }
+
     @Override
     public String toString() {
       return "SClass";

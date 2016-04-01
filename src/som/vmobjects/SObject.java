@@ -56,7 +56,7 @@ public class SObject {
     CompilerAsserts.neverPartOfCompilation("Basic create without factory caching");
     DynamicObjectFactory factory = SClass.getFactory(instanceClass);
     assert factory != NIL_DUMMY_FACTORY;
-    //The parameter is only valid for SReflectiveObjects
+    //The parameter is the metaobject, only valid for SReflectiveObjects
     return factory.newInstance(Nil.nilObject);
   }
   

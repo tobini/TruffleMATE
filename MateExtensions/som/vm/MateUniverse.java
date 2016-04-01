@@ -9,6 +9,7 @@ import som.interpreter.Invokable;
 import som.interpreter.MateifyVisitor;
 import som.interpreter.nodes.MateMessageSpecializationsFactory;
 import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
+import som.vm.constants.Nil;
 import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
 import som.vmobjects.SMateEnvironment;
@@ -36,6 +37,8 @@ public class MateUniverse extends Universe {
       return;
     } else {
       super.initializeObjectSystem();
+      
+      mateifyNilObject();
       
       // Initialize the Mate metamodel.
       initializeSystemClass(environmentMO, objectClass, "EnvironmentMO");
@@ -144,5 +147,9 @@ public class MateUniverse extends Universe {
       Universe.setCurrent(new MateUniverse());
     }
     return (MateUniverse) Universe.getCurrent();
+  }
+  
+  public void mateifyNilObject(){
+    Nil.nilObject.setShapeAndGrow(Nil.nilObject.getShape(), Nil.nilObject.getShape().changeType(SReflectiveObject.SREFLECTIVE_OBJECT_TYPE));
   }
 }
