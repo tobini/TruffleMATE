@@ -76,7 +76,7 @@ public class SReflectiveObject extends SObject {
     obj.setShapeAndResize(obj.getShape(), obj.getShape().changeType(type));
   }
   
-  private static final class SReflectiveObjectObjectType extends ObjectType {
+  public static class SReflectiveObjectObjectType extends ObjectType {
     public final DynamicObject environment;
     
     public SReflectiveObjectObjectType(DynamicObject metaobj){

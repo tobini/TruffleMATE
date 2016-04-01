@@ -23,6 +23,7 @@ import com.oracle.truffle.api.nodes.NodeCost;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.ObjectType;
 import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class MateAbstractSemanticNodes {
@@ -43,10 +44,10 @@ public abstract class MateAbstractSemanticNodes {
       return null;
     }
     
-    @Specialization(guards = {"getEnvironment(frame) == environment"})
+    @Specialization(guards = {"getEnvironment(frame) == cachedEnvironment"})
     public SInvokable doSemanticsInFrame(final VirtualFrame frame,
-        @Cached("getEnvironment(frame)") final DynamicObject environment,
-        @Cached("methodImplementingOperationOn(environment)") final SInvokable reflectiveMethod) {
+        @Cached("getEnvironment(frame)") final DynamicObject cachedEnvironment,
+        @Cached("methodImplementingOperationOn(cachedEnvironment)") final SInvokable reflectiveMethod) {
         return reflectiveMethod;
     }
     
@@ -111,20 +112,7 @@ public abstract class MateAbstractSemanticNodes {
     }
     
     public static DynamicObject getEnvironment(Shape shape){
-      try {
         return SReflectiveObject.getEnvironment(shape);
-      } catch (Exception e){
-        return Nil.nilObject;
-      }
-    }
-    
-    public static boolean isSReflectiveObject(DynamicObject object){
-      /*return 
-           SReflectiveObject.isSReflectiveObject(object) | 
-           SObject.isSObject(object) |
-           SClass.isSClass(object);*/
-      //return SReflectiveObject.isSReflectiveObject(object);
-      return true;
     }
     
     @Override
@@ -172,7 +160,7 @@ public abstract class MateAbstractSemanticNodes {
 
     @Specialization(guards = "executeBase(frame)", assumptions = "getMateActivatedAssumption()")
     protected SInvokable executeSemanticChecks(final VirtualFrame frame, Object[] arguments) {
-        return replace(MateSemanticsBaselevelNodeGen.create(environment, object)).
+      return replace(MateSemanticsBaselevelNodeGen.create(environment, object)).
                   execute(frame, arguments);
     }
     
@@ -221,7 +209,7 @@ public abstract class MateAbstractSemanticNodes {
     public static abstract class MateSemanticsBaselevelNode extends MateAbstractSemanticsLevelNode {
       @Child MateEnvironmentSemanticCheckNode environment;
       @Child MateObjectSemanticCheckNode      object;
-      
+      final ConditionProfile executeObjectSemantics = ConditionProfile.createBinaryProfile(); 
       public MateSemanticsBaselevelNode(MateEnvironmentSemanticCheckNode env,
           MateObjectSemanticCheckNode obj) {
         super();
@@ -232,15 +220,11 @@ public abstract class MateAbstractSemanticNodes {
       @Specialization
       public SInvokable executeOptimized(final VirtualFrame frame,
           Object[] arguments){
-        if (arguments[0] instanceof DynamicObject){
-          SInvokable value = environment.executeGeneric(frame);
-          if (value == null){  
-            return object.executeGeneric(frame, arguments[0]);
-          } else {
-            return value;
-          }
+        SInvokable value = environment.executeGeneric(frame);
+        if (executeObjectSemantics.profile(value == null && arguments[0] instanceof DynamicObject)){  
+          return object.executeGeneric(frame, arguments[0]);
         } else {
-          return null;
+          return value;
         }
       }
     }
