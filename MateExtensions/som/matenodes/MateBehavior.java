@@ -2,7 +2,6 @@ package som.matenodes;
 
 import som.interpreter.nodes.ISuperReadNode;
 import som.matenodes.MateAbstractReflectiveDispatch.MateAbstractStandardDispatch;
-import som.matenodes.MateAbstractReflectiveDispatchFactory.MateAbstractStandardDispatchNodeGen;
 import som.matenodes.MateAbstractReflectiveDispatchFactory.MateCachedDispatchMessageLookupNodeGen;
 import som.matenodes.MateAbstractReflectiveDispatchFactory.MateCachedDispatchSuperMessageLookupNodeGen;
 import som.matenodes.MateAbstractReflectiveDispatchFactory.MateDispatchFieldReadNodeGen;
@@ -30,7 +29,7 @@ public interface MateBehavior {
     if (semanticsRedefined.profile(method == null)){
       return null;
     } else {
-      return this.getMateDispatch().executeDispatch(frame, method, arguments);
+      return this.getMateDispatch().executeDispatch(frame, method, arguments[0], arguments);
     }  
   }
   
@@ -47,7 +46,7 @@ public interface MateBehavior {
   }
   
   public default void initializeMateDispatchForArgumentReads(SourceSection source){
-    this.setMateDispatch(MateAbstractStandardDispatchNodeGen.create(source));
+    this.setMateDispatch(MateDispatchFieldReadNodeGen.create(source));
   }
   
   public default void initializeMateDispatchForMessages(SourceSection source, SSymbol selector){
