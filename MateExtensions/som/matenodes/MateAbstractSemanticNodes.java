@@ -23,7 +23,7 @@ import com.oracle.truffle.api.nodes.NodeCost;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.ObjectType;
 import com.oracle.truffle.api.object.Shape;
-import com.oracle.truffle.api.profiles.ConditionProfile;
+import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class MateAbstractSemanticNodes {
@@ -103,6 +103,11 @@ public abstract class MateAbstractSemanticNodes {
       return environmentReflectiveMethod(SReflectiveObject.getEnvironment(receiver), this.reflectiveOperation);
     }
     
+    @Specialization
+    public SInvokable doPrimitive(final VirtualFrame frame, final Object receiver){
+          return null;
+    }
+        
     protected static SInvokable environmentReflectiveMethod(
         DynamicObject environment, ReflectiveOp operation) {
       if (environment == Nil.nilObject){
@@ -209,7 +214,7 @@ public abstract class MateAbstractSemanticNodes {
     public static abstract class MateSemanticsBaselevelNode extends MateAbstractSemanticsLevelNode {
       @Child MateEnvironmentSemanticCheckNode environment;
       @Child MateObjectSemanticCheckNode      object;
-      final ConditionProfile executeObjectSemantics = ConditionProfile.createBinaryProfile(); 
+      final BranchProfile executeObjectSemantics = BranchProfile.create(); 
       public MateSemanticsBaselevelNode(MateEnvironmentSemanticCheckNode env,
           MateObjectSemanticCheckNode obj) {
         super();
@@ -221,11 +226,11 @@ public abstract class MateAbstractSemanticNodes {
       public SInvokable executeOptimized(final VirtualFrame frame,
           Object[] arguments){
         SInvokable value = environment.executeGeneric(frame);
-        if (executeObjectSemantics.profile(value == null && arguments[0] instanceof DynamicObject)){  
+        if (value == null){  
+          executeObjectSemantics.enter();
           return object.executeGeneric(frame, arguments[0]);
-        } else {
-          return value;
-        }
+        } 
+        return value;
       }
     }
   }

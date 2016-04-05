@@ -6,7 +6,6 @@ import som.interpreter.nodes.ISuperReadNode;
 import som.interpreter.nodes.MateMethodActivationNode;
 import som.vm.MateUniverse;
 import som.vm.constants.ExecutionLevel;
-import som.vmobjects.SAbstractObject;
 import som.vmobjects.SArray;
 import som.vmobjects.SInvokable;
 import som.vmobjects.SObject;
@@ -131,14 +130,13 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     
     @Specialization(guards = {"cachedMethod==method"})
     public Object doMatePrimitiveNode(final VirtualFrame frame, final SInvokable method,
-        final SAbstractObject subject, final Object[] arguments,
+        final Object subject, final Object[] arguments,
         @Cached("method") final SInvokable cachedMethod,
         @Cached("createDispatch(method)") final DirectCallNode reflectiveMethod){
       // The MOP receives the class where the lookup must start (find: aSelector since: aClass)
       SInvokable actualMethod = this.reflectiveLookup(frame, reflectiveMethod, subject, lookupSinceFor(subject));
       return activationNode.doActivation(frame, actualMethod, arguments);
     }
-
     
     public SInvokable reflectiveLookup(final VirtualFrame frame, DirectCallNode reflectiveMethod,
         final Object receiver, DynamicObject lookupSince) {
@@ -150,7 +148,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
       return SObject.getSOMClass(receiver);
     }
     
-    protected DynamicObject classOfReceiver(SAbstractObject receiver){
+    protected DynamicObject classOfReceiver(Object receiver){
       return Types.getClassOf(receiver);
     }
     
@@ -158,7 +156,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
       return classOfReceiver(receiver);
     }
     
-    protected DynamicObject lookupSinceFor(SAbstractObject receiver){
+    protected DynamicObject lookupSinceFor(Object receiver){
       return classOfReceiver(receiver);
     }
     
@@ -181,7 +179,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     }
     
     @Override
-    protected DynamicObject lookupSinceFor(SAbstractObject receiver){
+    protected DynamicObject lookupSinceFor(Object receiver){
       return superNode.getLexicalSuperClass();
     }
   }
@@ -194,9 +192,9 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     }
     
     @Specialization(guards = {"cachedMethod==method", "classOfReceiver(subject) == cachedClass"}, 
-        insertBefore="doMatePrimitiveNode", limit = "3")
+        insertBefore="doMateNode", limit = "3")
     public Object doMatePrimitiveNodeCached(final VirtualFrame frame, final SInvokable method,
-        final SAbstractObject subject, final Object[] arguments,
+        final Object subject, final Object[] arguments,
         @Cached("method") final SInvokable cachedMethod,
         @Cached("classOfReceiver(subject)") final DynamicObject cachedClass,
         @Cached("lookupResult(frame, method, subject, arguments)") final SInvokable lookupResult){
@@ -232,7 +230,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
       if (receiver instanceof DynamicObject){
         return this.reflectiveLookup(frame, this.createDispatch(method), receiver, lookupSinceFor((DynamicObject)receiver));
       } else {
-        return this.reflectiveLookup(frame, this.createDispatch(method), receiver, lookupSinceFor((SAbstractObject)receiver));
+        return this.reflectiveLookup(frame, this.createDispatch(method), receiver, lookupSinceFor(receiver));
       }
     }
   }
@@ -270,7 +268,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
         @Cached("createDirectCall(methodToActivate)") final DirectCallNode callNode,
         @Cached("createDispatch(method)") final DirectCallNode reflectiveMethod) {
       // The MOP receives the standard ST message Send stack (rcvr, method, arguments) and returns its own
-      Object[] args = { SArguments.getEnvironment(frame), ExecutionLevel.Meta, (DynamicObject) arguments[0], methodToActivate, 
+      Object[] args = { SArguments.getEnvironment(frame), ExecutionLevel.Meta, arguments[0], methodToActivate, 
           SArray.create(SArguments.createSArguments(SArguments.getEnvironment(frame), ExecutionLevel.Base, arguments))};
       SArray realArguments = (SArray)reflectiveMethod.call(frame, args);
       return callNode.call(frame, realArguments.toJavaArray());
