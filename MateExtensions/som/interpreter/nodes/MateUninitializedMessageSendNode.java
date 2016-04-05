@@ -8,13 +8,13 @@ import som.matenodes.MateAbstractSemanticNodes.MateAbstractSemanticsLevelNode;
 import som.matenodes.MateBehavior;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.profiles.ConditionProfile;
+import com.oracle.truffle.api.profiles.BranchProfile;
 
 public class MateUninitializedMessageSendNode extends
     UninitializedMessageSendNode implements MateBehavior {
   @Child MateAbstractSemanticsLevelNode   semanticCheck;
   @Child MateAbstractStandardDispatch     reflectiveDispatch;
-  private final ConditionProfile semanticsRedefined = ConditionProfile.createBinaryProfile();
+  private final BranchProfile semanticsRedefined = BranchProfile.create();
   
   public MateUninitializedMessageSendNode(UninitializedMessageSendNode somNode) {
     super(somNode.getSelector(), somNode.argumentNodes, somNode.getSourceSection());

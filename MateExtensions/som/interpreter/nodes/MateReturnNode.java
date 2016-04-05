@@ -1,8 +1,7 @@
 package som.interpreter.nodes;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.profiles.ConditionProfile;
-
+import com.oracle.truffle.api.profiles.BranchProfile;
 import som.interpreter.SArguments;
 import som.matenodes.MateAbstractReflectiveDispatch.MateAbstractStandardDispatch;
 import som.matenodes.MateAbstractSemanticNodes.MateAbstractSemanticsLevelNode;
@@ -21,7 +20,7 @@ public class MateReturnNode extends ExpressionNode implements MateBehavior {
     this.initializeMateDispatchForFieldRead(this.getSourceSection());
   }
   
-  private final ConditionProfile semanticsRedefined = ConditionProfile.createBinaryProfile();
+  private final BranchProfile semanticsRedefined = BranchProfile.create();
 
   @Override
   public MateAbstractSemanticsLevelNode getMateNode() {

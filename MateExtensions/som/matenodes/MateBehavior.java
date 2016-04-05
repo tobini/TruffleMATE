@@ -14,7 +14,7 @@ import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeCost;
-import com.oracle.truffle.api.profiles.ConditionProfile;
+import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
 public interface MateBehavior {
@@ -24,13 +24,13 @@ public interface MateBehavior {
   public abstract void setMateDispatch(MateAbstractStandardDispatch node);
 
   public default Object doMateSemantics(final VirtualFrame frame,
-      final Object[] arguments, ConditionProfile semanticsRedefined) {
+      final Object[] arguments, BranchProfile semanticsRedefined) {
     SInvokable method = this.getMateNode().execute(frame, arguments);
-    if (semanticsRedefined.profile(method == null)){
-      return null;
-    } else {
+    if (method != null){
+      semanticsRedefined.enter();
       return this.getMateDispatch().executeDispatch(frame, method, arguments[0], arguments);
-    }  
+    } 
+    return null;      
   }
   
   public default void initializeMateSemantics(SourceSection source, ReflectiveOp operation){
