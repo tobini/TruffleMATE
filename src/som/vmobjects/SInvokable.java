@@ -41,9 +41,10 @@ public abstract class SInvokable extends SAbstractObject {
 
   public SInvokable(final SSymbol signature, final Invokable invokable) {
     this.signature = signature;
-
     this.invokable   = invokable;
     this.callTarget  = invokable.createCallTarget();
+    this.invokableMeta  = invokable.cloneWithoutOptimizations();
+    this.callTargetMeta = invokableMeta.createCallTarget();
   }
 
   public static final class SMethod extends SInvokable {
@@ -86,8 +87,19 @@ public abstract class SInvokable extends SAbstractObject {
     }
   }
 
+  public final RootCallTarget getCallTarget(ExecutionLevel level) {
+    if (level == ExecutionLevel.Meta){
+      return callTargetMeta;
+    }
+    return callTarget; 
+  }
+  
   public final RootCallTarget getCallTarget() {
     return callTarget;
+  }
+  
+  public final RootCallTarget getCallTargetMeta() {
+    return callTargetMeta;
   }
 
   public final Invokable getInvokable() {
@@ -132,8 +144,14 @@ public abstract class SInvokable extends SAbstractObject {
 
     return "Method(" + SClass.getName(getHolder()).getString() + ">>" + getSignature().toString() + ")";
   }
+  
+  public void createMetalevelVersion() {
+    
+  }
 
   // Private variable holding Truffle runtime information
+  private final Invokable                 invokableMeta;
+  private final RootCallTarget            callTargetMeta;
   private final Invokable                 invokable;
   private final RootCallTarget            callTarget;
   private final SSymbol                   signature;

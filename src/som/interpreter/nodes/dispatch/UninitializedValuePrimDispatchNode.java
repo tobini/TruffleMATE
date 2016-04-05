@@ -31,10 +31,9 @@ public final class UninitializedValuePrimDispatchNode
       SInvokable method = rcvr.getMethod();
 
       assert method != null;
-
       UninitializedValuePrimDispatchNode uninitialized = new UninitializedValuePrimDispatchNode();
       CachedDispatchNode node = new CachedDispatchNode(
-          DispatchGuard.createForBlock(rcvr), method.getCallTarget(), uninitialized, SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta);
+          DispatchGuard.createForBlock(rcvr), method.getCallTarget(SArguments.getExecutionLevel(frame)), uninitialized);
       return replace(node);
     } else {
       GenericBlockDispatchNode generic = new GenericBlockDispatchNode();

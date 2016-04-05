@@ -11,6 +11,7 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.NodeUtil;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -45,6 +46,12 @@ public abstract class Invokable extends RootNode implements MateNode{
   @Override
   public final boolean isCloningAllowed() {
     return true;
+  }
+  
+  public final Invokable cloneWithoutOptimizations() {
+    Invokable copy = (Invokable) this.copy();
+    copy.expressionOrSequence.replace(NodeUtil.cloneNode(uninitializedBody));
+    return copy;
   }
 
   public final RootCallTarget createCallTarget() {

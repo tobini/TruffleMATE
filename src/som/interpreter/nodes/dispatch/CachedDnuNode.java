@@ -19,7 +19,7 @@ public final class CachedDnuNode extends AbstractCachedDispatchNode {
 
   public CachedDnuNode(final DynamicObject rcvrClass, final DispatchGuard guard,
       final SSymbol selector, final AbstractDispatchNode nextInCache) {
-    super(getDnuCallTarget(rcvrClass), nextInCache, false);
+    super(getDnuCallTarget(rcvrClass), nextInCache);
     this.selector = selector;
     this.guard = guard;
   }

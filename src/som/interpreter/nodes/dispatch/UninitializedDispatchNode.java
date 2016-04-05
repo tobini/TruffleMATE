@@ -46,7 +46,7 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
       SInvokable method = SClass.lookupInvokable(rcvrClass, selector);
       CallTarget callTarget;
       if (method != null) {
-        callTarget = method.getCallTarget();
+        callTarget = method.getCallTarget(SArguments.getExecutionLevel(frame));
       } else {
         callTarget = null;
       }
@@ -55,7 +55,7 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
       DispatchGuard guard = DispatchGuard.create(rcvr);
       AbstractCachedDispatchNode node;
       if (method != null) {
-        node = new CachedDispatchNode(guard, callTarget, newChainEnd, SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta);
+        node = new CachedDispatchNode(guard, callTarget, newChainEnd);
       } else {
         node = new CachedDnuNode(rcvrClass, guard, selector, newChainEnd);
       }

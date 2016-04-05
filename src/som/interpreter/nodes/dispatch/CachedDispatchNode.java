@@ -15,8 +15,8 @@ public final class CachedDispatchNode extends AbstractCachedDispatchNode {
   private final DispatchGuard guard;
 
   public CachedDispatchNode(final DispatchGuard guard,
-      final CallTarget callTarget, final AbstractDispatchNode nextInCache, boolean splitCall) {
-    super(callTarget, nextInCache, splitCall);
+      final CallTarget callTarget, final AbstractDispatchNode nextInCache) {
+    super(callTarget, nextInCache);
     this.guard = guard;
   }
 
