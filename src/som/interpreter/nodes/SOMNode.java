@@ -35,7 +35,8 @@ import com.oracle.truffle.api.source.SourceSection;
 public abstract class SOMNode extends Node implements MateNode {
 
   public SOMNode(final SourceSection sourceSection) {
-    super(sourceSection);
+    //super(sourceSection);
+    super();
   }
 
   /**
