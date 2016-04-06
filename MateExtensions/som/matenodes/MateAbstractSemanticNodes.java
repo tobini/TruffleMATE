@@ -4,8 +4,8 @@ import som.interpreter.SArguments;
 import som.matenodes.MateAbstractSemanticNodesFactory.MateEnvironmentSemanticCheckNodeGen;
 import som.matenodes.MateAbstractSemanticNodesFactory.MateObjectSemanticCheckNodeGen;
 import som.matenodes.MateAbstractSemanticNodesFactory.MateSemanticCheckNodeGen;
-import som.matenodes.MateAbstractSemanticNodesFactory.MateSemanticCheckNodeGen.MateSemanticsBaselevelNodeGen;
-import som.matenodes.MateAbstractSemanticNodesFactory.MateSemanticCheckNodeGen.MateSemanticsMetalevelNodeGen;
+import som.matenodes.MateAbstractSemanticNodesFactory.MateSemanticsBaselevelNodeGen;
+import som.matenodes.MateAbstractSemanticNodesFactory.MateSemanticsMetalevelNodeGen;
 import som.vm.MateUniverse;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
@@ -140,18 +140,22 @@ public abstract class MateAbstractSemanticNodes {
     @Child MateEnvironmentSemanticCheckNode environment;
     @Child MateObjectSemanticCheckNode      object;
 
-    public abstract SInvokable execute(final VirtualFrame frame,
-        Object[] arguments);
-
-    public MateSemanticCheckNode(MateEnvironmentSemanticCheckNode env,
-        MateObjectSemanticCheckNode obj) {
+    public MateSemanticCheckNode(final SourceSection source,
+        ReflectiveOp operation) {
+      super();
+      environment = MateEnvironmentSemanticCheckNodeGen.create(operation);
+      object = MateObjectSemanticCheckNodeGen.create(operation);
+    }
+    
+    public MateSemanticCheckNode(final MateEnvironmentSemanticCheckNode env,
+        final MateObjectSemanticCheckNode obj) {
       super();
       environment = env;
       object = obj;
     }
 
     public static MateSemanticCheckNode createForFullCheck(
-        SourceSection source, ReflectiveOp operation) {
+        final SourceSection source, final ReflectiveOp operation) {
       return MateSemanticCheckNodeGen.create(
           MateEnvironmentSemanticCheckNodeGen.create(operation),
           MateObjectSemanticCheckNodeGen.create(operation));
@@ -173,14 +177,6 @@ public abstract class MateAbstractSemanticNodes {
     protected SInvokable mateDeactivated(final VirtualFrame frame, Object[] arguments) {
       return null;
     }
-    
-
-    public MateSemanticCheckNode(final SourceSection source,
-        ReflectiveOp operation) {
-      super();
-      environment = MateEnvironmentSemanticCheckNodeGen.create(operation);
-      object = MateObjectSemanticCheckNodeGen.create(operation);
-    }
 
     public static boolean executeBase(VirtualFrame frame) {
       return SArguments.getExecutionLevel(frame) == ExecutionLevel.Base;
@@ -198,40 +194,40 @@ public abstract class MateAbstractSemanticNodes {
     public NodeCost getCost() {
       return NodeCost.NONE;
     }
-    
-    public static abstract class MateSemanticsMetalevelNode extends MateAbstractSemanticsLevelNode {
-      public MateSemanticsMetalevelNode() {
-        super();
-      }
-      
-      @Specialization
-      public SInvokable executeOptimized(final VirtualFrame frame,
-          Object[] arguments){
-        return null;
-      }
+  }  
+  
+  public static abstract class MateSemanticsMetalevelNode extends MateAbstractSemanticsLevelNode {
+    public MateSemanticsMetalevelNode() {
+      super();
     }
     
-    public static abstract class MateSemanticsBaselevelNode extends MateAbstractSemanticsLevelNode {
-      @Child MateEnvironmentSemanticCheckNode environment;
-      @Child MateObjectSemanticCheckNode      object;
-      final BranchProfile executeObjectSemantics = BranchProfile.create(); 
-      public MateSemanticsBaselevelNode(MateEnvironmentSemanticCheckNode env,
-          MateObjectSemanticCheckNode obj) {
-        super();
-        environment = env;
-        object = obj;
-      }
-      
-      @Specialization
-      public SInvokable executeOptimized(final VirtualFrame frame,
-          Object[] arguments){
-        SInvokable value = environment.executeGeneric(frame);
-        if (value == null){  
-          executeObjectSemantics.enter();
-          return object.executeGeneric(frame, arguments[0]);
-        } 
-        return value;
-      }
+    @Specialization
+    public SInvokable executeOptimized(final VirtualFrame frame,
+        Object[] arguments){
+      return null;
+    }
+  }
+    
+  public static abstract class MateSemanticsBaselevelNode extends MateAbstractSemanticsLevelNode {
+    @Child MateEnvironmentSemanticCheckNode environment;
+    @Child MateObjectSemanticCheckNode      object;
+    final BranchProfile executeObjectSemantics = BranchProfile.create();
+    
+    public MateSemanticsBaselevelNode(MateEnvironmentSemanticCheckNode env, MateObjectSemanticCheckNode obj) {
+      super();
+      environment = env;
+      object = obj;
+    }
+    
+    @Specialization
+    public SInvokable executeOptimized(final VirtualFrame frame,
+        Object[] arguments){
+      SInvokable value = environment.executeGeneric(frame);
+      if (value == null){  
+        executeObjectSemantics.enter();
+        return object.executeGeneric(frame, arguments[0]);
+      } 
+      return value;
     }
   }
 }
