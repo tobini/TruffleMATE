@@ -87,7 +87,7 @@ public final class MessageSendNode {
       new UninitializedDispatchNode(selector), source);
   }
 
-  public abstract static class AbstractMessageSendNode extends ExpressionWithReceiverNode
+  public abstract static class AbstractMessageSendNode extends ExpressionNode
       implements PreevaluatedExpression {
 
     public static AbstractMessageSpecializationsFactory specializationFactory = new AbstractMessageSpecializationsFactory.SOMMessageSpecializationsFactory();
@@ -107,11 +107,6 @@ public final class MessageSendNode {
     public Object executeGeneric(final VirtualFrame frame) {
       Object[] arguments = evaluateArguments(frame);
       return doPreEvaluated(frame, arguments);
-    }
-
-    @Override
-    public ExpressionNode getReceiver() {
-      return argumentNodes[0];
     }
 
     @ExplodeLoop
