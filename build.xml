@@ -3,7 +3,7 @@
     <property name="src.dir"     value="src"/>
     <property name="src.dirMate" value="MateExtensions"/>
     <property name="src_gen.dir" value="src_gen"/>
-    <property name="lib.dir"     value="${basedir}/libs" />
+    <property name="lib.dir"     value="libs" />
     <property name="truffle.dir" value="${lib.dir}/truffle" />
     <property name="truffle.build" value="${truffle.dir}/mxbuild/dists" />
     <property name="junit.version" value="4.12" />
@@ -17,7 +17,7 @@
         <pathelement location="${lib.dir}/hamcrest-core-1.3.jar" />
         <pathelement location="${truffle.build}/truffle-api.jar" />
         <pathelement location="${truffle.build}/truffle-dsl-processor.jar" />
-		<pathelement location="${truffle.build}/truffle-debug.jar" />
+	<pathelement location="${truffle.build}/truffle-debug.jar" />
     	<pathelement location="${truffle.build}/truffle-tck.jar" />
     </path>
 
@@ -27,7 +27,7 @@
     </target>
     
     <target name="clobber" description="Do clean, and also clean truffle build" depends="clean">
-        <exec executable="${lib.dir}/mxtool/mx" dir="${truffle.dir}">
+        <exec executable="../mxtool/mx" dir="${truffle.dir}">
             <arg value="clean"/>
         </exec>
     </target>
@@ -45,7 +45,7 @@
     </target>
 
     <target name="truffle-libs" >
-        <exec executable="${lib.dir}/mxtool/mx" dir="${truffle.dir}">
+        <exec executable="../mxtool/mx" dir="${truffle.dir}">
             <arg value="build"/>
         </exec>
     </target>
