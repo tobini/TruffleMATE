@@ -1,10 +1,11 @@
 package som.vm;
 
 import static som.vm.constants.Classes.objectClass;
-import static som.vm.constants.MateClasses.ShapeClass;
+import static som.vm.constants.MateClasses.shapeClass;
 import static som.vm.constants.MateClasses.environmentMO;
 import static som.vm.constants.MateClasses.messageMO;
 import static som.vm.constants.MateClasses.operationalSemanticsMO;
+import static som.vm.constants.MateClasses.contextClass;
 import som.interpreter.Invokable;
 import som.interpreter.MateifyVisitor;
 import som.interpreter.nodes.MateMessageSpecializationsFactory;
@@ -44,14 +45,15 @@ public class MateUniverse extends Universe {
       initializeSystemClass(environmentMO, objectClass, "EnvironmentMO");
       initializeSystemClass(operationalSemanticsMO, objectClass, "OperationalSemanticsMO");
       initializeSystemClass(messageMO, objectClass, "MessageMO");
-      initializeSystemClass(ShapeClass, objectClass, "Shape");
-      //SObject.internalSetNilClass(nilObject, nilClass);
+      initializeSystemClass(shapeClass, objectClass, "Shape");
+      initializeSystemClass(contextClass, objectClass, "Context");
       
       // Load methods and fields into the Mate MOP.
       loadSystemClass(environmentMO);
       loadSystemClass(operationalSemanticsMO);
       loadSystemClass(messageMO);
-      loadSystemClass(ShapeClass);
+      loadSystemClass(shapeClass);
+      loadSystemClass(contextClass);
       
       AbstractMessageSendNode.specializationFactory = new MateMessageSpecializationsFactory();
     }
@@ -71,7 +73,11 @@ public class MateUniverse extends Universe {
       return super.loadClass(name);
     } else {
       DynamicObject result = super.loadClass(name);
-      mateify(result);
+      try{
+        mateify(result);
+      } catch (NullPointerException e){
+        println(name.getString());
+      }
       mateify(SObject.getSOMClass(result));
       return result;
     }

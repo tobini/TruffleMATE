@@ -8,6 +8,7 @@ import som.interpreter.nodes.ArgumentReadNode.LocalArgumentReadNode;
 import som.interpreter.nodes.ArgumentReadNode.LocalSuperReadNode;
 import som.interpreter.nodes.ArgumentReadNode.NonLocalArgumentReadNode;
 import som.interpreter.nodes.ArgumentReadNode.NonLocalSuperReadNode;
+import som.interpreter.nodes.ArgumentReadNode.ThisContextNode;
 import som.interpreter.nodes.ContextualNode;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.FieldNode.FieldReadNode;
@@ -124,5 +125,9 @@ public final class SNodeFactory {
       final FrameSlot markerSlot, final int contextLevel,
       final SourceSection source) {
     return new ReturnNonLocalNode(exp, markerSlot, contextLevel, source);
+  }
+  
+  public static ThisContextNode createThisContext(final SourceSection source){
+    return new ThisContextNode(source);
   }
 }

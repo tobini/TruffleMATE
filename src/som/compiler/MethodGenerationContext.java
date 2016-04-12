@@ -296,6 +296,11 @@ public final class MethodGenerationContext {
     return self.getSuperReadNode(getOuterSelfContextLevel(),
         holderGenc.getName(), holderGenc.isClassSide(), source);
   }
+  
+  public ExpressionNode getThisContextNode(final SourceSection source) {
+    Variable self = getVariable("self");
+    return self.getThisContextNode(source);
+  }
 
   public ExpressionNode getLocalReadNode(final String variableName,
       final SourceSection source) {

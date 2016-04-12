@@ -183,4 +183,15 @@ public abstract class ArgumentReadNode {
       return new MateArgumentReadNode.MateNonLocalSuperReadNode(this);
     }
   }
+  
+  public static class ThisContextNode extends ExpressionNode {
+    public ThisContextNode(final SourceSection source) {
+      super(source);
+    }
+
+    @Override
+    public Object executeGeneric(final VirtualFrame frame) {
+      return frame.materialize();
+    }
+  }
 }
