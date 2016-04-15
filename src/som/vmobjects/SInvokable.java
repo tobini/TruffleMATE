@@ -75,18 +75,9 @@ public class SInvokable {
   }
   
   public static DynamicObject create(final SSymbol signature, final Invokable invokable) {
-    DynamicObject newInstance = INVOKABLES_FACTORY.newInstance();
-    setSInvokableFields(newInstance, signature, invokable);
-    return newInstance;
-  }
-  
-  public static void setSInvokableFields(final DynamicObject instance, final SSymbol signature, final Invokable invokable){
-    instance.set(SIGNATURE, signature);
-    instance.set(INVOKABLE, invokable);
-    instance.set(CALLTARGET, invokable.createCallTarget());
-    Invokable invokableMeta = invokable.cloneWithoutOptimizations();
-    instance.set(INVOKABLEMETA, invokableMeta);
-    instance.set(CALLTARGETMETA, invokableMeta.createCallTarget());
+    Invokable invokableMeta = (Invokable) invokable.deepCopy();
+    return INVOKABLES_FACTORY.newInstance(
+        signature, invokable, invokable.createCallTarget(), invokableMeta, invokableMeta.createCallTarget(), Nil.nilObject);
   }
   
   public static final RootCallTarget getCallTarget(final DynamicObject invokable, final ExecutionLevel level) {
@@ -117,7 +108,11 @@ public class SInvokable {
   }
 
   public static void setHolder(final DynamicObject invokable, final DynamicObject value) {
-    invokable.set(HOLDER, value);
+    if (SMethod.isSMethod(value)){
+      SMethod.setHolder(invokable, value);
+    } else {
+      invokable.set(HOLDER, value);
+    }
   }
 
   
@@ -158,10 +153,9 @@ public class SInvokable {
     }
     
     public static DynamicObject create(final SSymbol signature, final Invokable invokable, final DynamicObject[] embeddedBlocks) {
-      DynamicObject newInstance = SMETHOD_FACTORY.newInstance();
-      SInvokable.setSInvokableFields(newInstance, signature, invokable);
-      newInstance.set(EMBEDDEDBLOCKS, embeddedBlocks);
-      return newInstance;
+      Invokable invokableMeta = (Invokable) invokable.deepCopy();
+      return SMETHOD_FACTORY.newInstance(
+          signature, invokable, invokable.createCallTarget(), invokableMeta, invokableMeta.createCallTarget(), Nil.nilObject, embeddedBlocks);
     }
     
     public static DynamicObject[] getEmbeddedBlocks(final DynamicObject invokable) {
@@ -174,6 +168,10 @@ public class SInvokable {
         setHolder(methods, value);
       }
     }
+    
+    public static boolean isSMethod(final DynamicObject obj) {
+      return obj.getShape().getObjectType() == SMETHOD_TYPE;
+    }
   }
   
   public static final class SPrimitive extends SInvokable {
@@ -181,9 +179,13 @@ public class SInvokable {
     private static final DynamicObjectFactory PRIMITIVES_FACTORY = PRIMITIVES_SHAPE.createFactory();
     
     public static DynamicObject create(final SSymbol signature, final Invokable invokable) {
-      DynamicObject newInstance = PRIMITIVES_FACTORY.newInstance();
-      SInvokable.setSInvokableFields(newInstance, signature, invokable);
-      return newInstance;
+      Invokable invokableMeta = (Invokable) invokable.deepCopy();
+      return PRIMITIVES_FACTORY.newInstance(
+          signature, invokable, invokable.createCallTarget(), invokableMeta, invokableMeta.createCallTarget(), Nil.nilObject);
+    }
+    
+    public static boolean isSPrimitive(final DynamicObject obj) {
+      return obj.getShape().getObjectType() == INVOKABLE_TYPE;
     }
   }
 }

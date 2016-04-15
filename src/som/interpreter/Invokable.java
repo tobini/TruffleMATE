@@ -6,14 +6,12 @@ import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.MateReturnNode;
 import som.vm.MateUniverse;
 import som.vm.Universe;
-import som.vmobjects.SInvokable;
-
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.NodeUtil;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class Invokable extends RootNode implements MateNode{
@@ -21,7 +19,7 @@ public abstract class Invokable extends RootNode implements MateNode{
   @Child protected ExpressionNode expressionOrSequence;
   
   protected final ExpressionNode uninitializedBody;
-  protected final SInvokable belongsToMethod;
+  protected final DynamicObject belongsToMethod;
 
   public Invokable(final SourceSection sourceSection,
       final FrameDescriptor frameDescriptor,
@@ -30,6 +28,7 @@ public abstract class Invokable extends RootNode implements MateNode{
     super(SomLanguage.class, sourceSection, frameDescriptor);
     this.uninitializedBody = this.mateifyUninitializedNode(uninitialized);
     this.expressionOrSequence = expressionOrSequence;
+    this.belongsToMethod = null;
   }
 
   @Override
@@ -38,7 +37,6 @@ public abstract class Invokable extends RootNode implements MateNode{
   }
 
   public abstract Invokable cloneWithNewLexicalContext(final LexicalScope outerContext);
-
   public ExpressionNode inline(final MethodGenerationContext mgenc,
       final Local[] locals) {
     return InlinerForLexicallyEmbeddedMethods.doInline(uninitializedBody, mgenc,
@@ -50,12 +48,6 @@ public abstract class Invokable extends RootNode implements MateNode{
     return true;
   }
   
-  public final Invokable cloneWithoutOptimizations() {
-    Invokable copy = (Invokable) this.copy();
-    copy.expressionOrSequence.replace(NodeUtil.cloneNode(uninitializedBody));
-    return copy;
-  }
-
   public final RootCallTarget createCallTarget() {
     return Truffle.getRuntime().createCallTarget(this);
   }

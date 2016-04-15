@@ -10,12 +10,12 @@ import som.matenodes.MateAbstractSemanticNodes.MateAbstractSemanticsLevelNode;
 import som.matenodes.MateAbstractSemanticNodes.MateSemanticCheckNode;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.ReflectiveOp;
-import som.vmobjects.SInvokable;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeCost;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 
 
@@ -31,8 +31,8 @@ public class MateMethodActivationNode extends Node {
     methodDispatch = new UninitializedMethodDispatchNode();
   }
   
-  public Object doActivation(final VirtualFrame frame, SInvokable method, Object[] arguments) {
-    SInvokable mateMethod = this.getMateNode().execute(frame, arguments);
+  public Object doActivation(final VirtualFrame frame, DynamicObject method, Object[] arguments) {
+    DynamicObject mateMethod = this.getMateNode().execute(frame, arguments);
     if (semanticsRedefined.profile(mateMethod != null)){
       return this.getMateDispatch().executeDispatch(frame, mateMethod, method, arguments);
     } else {

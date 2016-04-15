@@ -10,20 +10,21 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
 public abstract class AndMessageNode extends BinaryExpressionNode {
 
-  private final SInvokable blockMethod;
+  private final DynamicObject blockMethod;
   @Child private DirectCallNode blockValueSend;
 
   public AndMessageNode(final SBlock arg, final SourceSection source) {
     super(source);
     blockMethod = arg.getMethod();
     blockValueSend = Truffle.getRuntime().createDirectCallNode(
-        blockMethod.getCallTarget());
+        SInvokable.getCallTarget(blockMethod));
   }
 
   public AndMessageNode(final AndMessageNode copy) {

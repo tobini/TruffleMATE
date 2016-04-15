@@ -47,12 +47,11 @@ import som.interpreter.nodes.GlobalNode;
 import som.interpreter.nodes.ReturnNonLocalNode;
 import som.primitives.Primitives;
 import som.vm.Universe;
-import som.vmobjects.SInvokable;
-import som.vmobjects.SInvokable.SMethod;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 
@@ -76,7 +75,7 @@ public final class MethodGenerationContext {
   private       FrameSlot     frameOnStackSlot;
   private final LexicalScope  currentScope;
 
-  private final List<SMethod> embeddedBlockMethods;
+  private final List<DynamicObject> embeddedBlockMethods;
 
 
   public MethodGenerationContext(final ClassGenerationContext holderGenc) {
@@ -100,10 +99,10 @@ public final class MethodGenerationContext {
     accessesVariablesOfOuterScope = false;
     throwsNonLocalReturn            = false;
     needsToCatchNonLocalReturn      = false;
-    embeddedBlockMethods = new ArrayList<SMethod>();
+    embeddedBlockMethods = new ArrayList<DynamicObject>();
   }
 
-  public void addEmbeddedBlockMethod(final SMethod blockMethod) {
+  public void addEmbeddedBlockMethod(final DynamicObject blockMethod) {
     embeddedBlockMethods.add(blockMethod);
   }
 
@@ -164,7 +163,7 @@ public final class MethodGenerationContext {
     }
   }
 
-  public SInvokable assemble(ExpressionNode body, final SourceSection sourceSection) {
+  public DynamicObject assemble(ExpressionNode body, final SourceSection sourceSection) {
     if (primitive) {
       return Primitives.constructEmptyPrimitive(signature);
     }
@@ -182,8 +181,8 @@ public final class MethodGenerationContext {
         new Method(getSourceSectionForMethod(sourceSection),
             body, currentScope, (ExpressionNode) body.deepCopy());
 
-    SInvokable meth = Universe.newMethod(signature, truffleMethod, false,
-        embeddedBlockMethods.toArray(new SMethod[0]));
+    DynamicObject meth = Universe.newMethod(signature, truffleMethod, false,
+        embeddedBlockMethods.toArray(new DynamicObject[0]));
 
     // return the method - the holder field is to be set later on!
     return meth;

@@ -28,13 +28,13 @@ public final class GenericDispatchNode extends AbstractDispatchNode {
       final DynamicObject environment, final ExecutionLevel exLevel, final Object[] arguments) {
     Object rcvr = arguments[0];
     DynamicObject rcvrClass = Types.getClassOf(rcvr);
-    SInvokable method = SClass.lookupInvokable(rcvrClass, selector);
+    DynamicObject method = SClass.lookupInvokable(rcvrClass, selector);
 
     CallTarget target;
     Object[] args;
 
     if (method != null) {
-      target = method.getCallTarget();
+      target = SInvokable.getCallTarget(method);
       args = SArguments.createSArguments(environment, exLevel, arguments);
     } else {
       // Won't use DNU caching here, because it is already a megamorphic node

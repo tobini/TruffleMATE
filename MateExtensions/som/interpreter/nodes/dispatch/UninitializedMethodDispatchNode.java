@@ -2,7 +2,6 @@ package som.interpreter.nodes.dispatch;
 import static som.interpreter.TruffleCompiler.transferToInterpreterAndInvalidate;
 import som.interpreter.nodes.MateMethodActivationNode;
 import som.vm.constants.ExecutionLevel;
-import som.vmobjects.SInvokable;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
@@ -11,7 +10,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 public final class UninitializedMethodDispatchNode
     extends AbstractMethodDispatchNode {
 
-  private AbstractMethodDispatchNode specialize(final SInvokable method) {
+  private AbstractMethodDispatchNode specialize(final DynamicObject method) {
     // Determine position in dispatch node chain, i.e., size of inline cache
     Node i = this;
     int chainDepth = 0;
@@ -38,7 +37,7 @@ public final class UninitializedMethodDispatchNode
   }
 
   @Override
-  public Object executeDispatch(final VirtualFrame frame, final DynamicObject environment, final ExecutionLevel exLevel, SInvokable method, final Object[] arguments) {
+  public Object executeDispatch(final VirtualFrame frame, final DynamicObject environment, final ExecutionLevel exLevel, DynamicObject method, final Object[] arguments) {
     transferToInterpreterAndInvalidate("Initialize a dispatch node.");
     return specialize(method).
         executeDispatch(frame, environment, exLevel, method, arguments);

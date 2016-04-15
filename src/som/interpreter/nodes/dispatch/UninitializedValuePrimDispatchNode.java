@@ -28,12 +28,12 @@ public final class UninitializedValuePrimDispatchNode
     ValuePrimitiveNode primitiveNode = (ValuePrimitiveNode) i.getParent();
 
     if (chainDepth < INLINE_CACHE_SIZE) {
-      SInvokable method = rcvr.getMethod();
+      DynamicObject method = rcvr.getMethod();
 
       assert method != null;
       UninitializedValuePrimDispatchNode uninitialized = new UninitializedValuePrimDispatchNode();
       CachedDispatchNode node = new CachedDispatchNode(
-          DispatchGuard.createForBlock(rcvr), method.getCallTarget(SArguments.getExecutionLevel(frame)), uninitialized);
+          DispatchGuard.createForBlock(rcvr), SInvokable.getCallTarget(method, SArguments.getExecutionLevel(frame)), uninitialized);
       return replace(node);
     } else {
       GenericBlockDispatchNode generic = new GenericBlockDispatchNode();

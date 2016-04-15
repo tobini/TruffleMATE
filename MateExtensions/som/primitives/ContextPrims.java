@@ -1,6 +1,5 @@
 package som.primitives;
 
-import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SClass;
@@ -19,7 +18,8 @@ public class ContextPrims {
     @TruffleBoundary
     @Specialization
     public final SAbstractObject doSClass(final Object frame) {
-      return (ExpressionNode)this.findEnclosingMethod();
+      //return (ExpressionNode)this.findEnclosingMethod();
+      return null;
     }
   }
 }

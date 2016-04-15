@@ -15,11 +15,12 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.object.DynamicObject;
 
 
 public abstract class IntToDoMessageNode extends TernaryExpressionNode {
 
-  private final SInvokable blockMethod;
+  private final DynamicObject blockMethod;
   @Child private DirectCallNode valueSend;
 
   public IntToDoMessageNode(final ExpressionNode orignialNode,
@@ -27,7 +28,7 @@ public abstract class IntToDoMessageNode extends TernaryExpressionNode {
     super(orignialNode.getSourceSection());
     blockMethod = block.getMethod();
     valueSend = Truffle.getRuntime().createDirectCallNode(
-                    blockMethod.getCallTarget());
+                    SInvokable.getCallTarget(blockMethod));
   }
 
   public IntToDoMessageNode(final IntToDoMessageNode node) {

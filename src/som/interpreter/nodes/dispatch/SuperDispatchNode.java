@@ -40,13 +40,13 @@ public abstract class SuperDispatchNode extends AbstractDispatchNode {
 
     private CachedDispatchNode specialize() {
       CompilerAsserts.neverPartOfCompilation("SuperDispatchNode.create2");
-      SInvokable method = SClass.lookupInvokable(getLexicalSuperClass(), selector);
+      DynamicObject method = SClass.lookupInvokable(getLexicalSuperClass(), selector);
 
       if (method == null) {
         throw new RuntimeException("Currently #dnu with super sent is not yet implemented. ");
       }
       DirectCallNode superMethodNode = Truffle.getRuntime().createDirectCallNode(
-          method.getCallTarget());
+          SInvokable.getCallTarget(method));
       return replace(new CachedDispatchNode(superMethodNode));
     }
 

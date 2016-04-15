@@ -189,7 +189,7 @@ public final class SClass {
 
     // Make sure this class is the holder of all invokables in the array
     for (int i = 0; i < getNumberOfInstanceInvokables(classObj); i++) {
-      getInstanceInvokable(classObj, i).setHolder(classObj);
+      SInvokable.setHolder(getInstanceInvokable(classObj, i), classObj);
     }
   }
 
@@ -204,17 +204,17 @@ public final class SClass {
     return (DynamicObject) getInstanceInvokables(classObj).getObjectStorage(storageType)[index];
   }
 
-  public static void setInstanceInvokable(final DynamicObject classObj, final int index, final SInvokable value) {
+  public static void setInstanceInvokable(final DynamicObject classObj, final int index, final DynamicObject value) {
   CompilerAsserts.neverPartOfCompilation("setInstanceInvokable");
     // Set this class as the holder of the given invokable
-    setHolder(classObj);
+    SInvokable.setHolder(value, classObj);
 
     getInstanceInvokables(classObj).getObjectStorage(storageType)[index] = value;
 
-    HashMap<SSymbol, SInvokable> invokablesTable = getInvokablesTable(classObj);
+    HashMap<SSymbol, DynamicObject> invokablesTable = getInvokablesTable(classObj);
 
-    if (invokablesTable.containsKey(value.getSignature())) {
-      invokablesTable.put(value.getSignature(), value);
+    if (invokablesTable.containsKey(SInvokable.getSignature(value))) {
+      invokablesTable.put(SInvokable.getSignature(value), value);
     }
   }
 
@@ -270,31 +270,31 @@ public final class SClass {
   }
 
   private static boolean addInstanceInvokable(final DynamicObject classObj,
-      final SInvokable value) {
+      final DynamicObject invokable) {
     CompilerAsserts.neverPartOfCompilation("SClass.addInstanceInvokable(.)");
 
     // Add the given invokable to the array of instance invokables
     for (int i = 0; i < getNumberOfInstanceInvokables(classObj); i++) {
       // Get the next invokable in the instance invokable array
-      SInvokable invokable = getInstanceInvokable(classObj, i);
+      DynamicObject lastInvokable = getInstanceInvokable(classObj, i);
 
       // Replace the invokable with the given one if the signature matches
-      if (invokable.getSignature() == value.getSignature()) {
-        setInstanceInvokable(classObj, i, value);
+      if (SInvokable.getSignature(lastInvokable) == SInvokable.getSignature(invokable)) {
+        setInstanceInvokable(classObj, i, invokable);
         return false;
       }
     }
 
     // Append the given method to the array of instance methods
     setInstanceInvokables(
-        classObj, getInstanceInvokables(classObj).copyAndExtendWith(value));
+        classObj, getInstanceInvokables(classObj).copyAndExtendWith(invokable));
     return true;
   }
 
   public static void addInstancePrimitive(final DynamicObject classObj,
-      final SInvokable value, final boolean displayWarning) {
+      final DynamicObject value, final boolean displayWarning) {
     if (addInstanceInvokable(classObj, value) && displayWarning) {
-      Universe.print("Warning: Primitive " + value.getSignature().getString());
+      Universe.print("Warning: Primitive " + SInvokable.getSignature(value).getString());
       Universe.println(" is not in class definition for class "
           + getName(classObj).getString());
     }
@@ -313,7 +313,7 @@ public final class SClass {
     // Lookup invokable with given signature in array of instance invokables
     for (int i = 0; i < getNumberOfInstanceInvokables(clazz); i++) {
       // Get the next invokable in the instance invokable array
-      if (getInstanceInvokable(clazz, i) instanceof SPrimitive) {
+      if (SPrimitive.isSPrimitive(getInstanceInvokable(clazz, i))) {
         return true;
       }
     }

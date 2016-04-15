@@ -10,7 +10,6 @@ import som.vm.MateUniverse;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vm.constants.ReflectiveOp;
-import som.vmobjects.SInvokable;
 import som.vmobjects.SMateEnvironment;
 import som.vmobjects.SReflectiveObject;
 
@@ -36,18 +35,18 @@ public abstract class MateAbstractSemanticNodes {
       reflectiveOperation = operation;
     }
 
-    public abstract SInvokable executeGeneric(VirtualFrame frame);
+    public abstract DynamicObject executeGeneric(VirtualFrame frame);
 
     
     @Specialization(guards = "getEnvironment(frame) == null")
-    public SInvokable doNoSemanticsInFrame(final VirtualFrame frame) {
+    public DynamicObject doNoSemanticsInFrame(final VirtualFrame frame) {
       return null;
     }
     
     @Specialization(guards = {"getEnvironment(frame) == cachedEnvironment"})
-    public SInvokable doSemanticsInFrame(final VirtualFrame frame,
+    public DynamicObject doSemanticsInFrame(final VirtualFrame frame,
         @Cached("getEnvironment(frame)") final DynamicObject cachedEnvironment,
-        @Cached("methodImplementingOperationOn(cachedEnvironment)") final SInvokable reflectiveMethod) {
+        @Cached("methodImplementingOperationOn(cachedEnvironment)") final DynamicObject reflectiveMethod) {
         return reflectiveMethod;
     }
     
@@ -55,7 +54,7 @@ public abstract class MateAbstractSemanticNodes {
       return SArguments.getEnvironment(frame);
     }
     
-    public SInvokable methodImplementingOperationOn(final DynamicObject environment){
+    public DynamicObject methodImplementingOperationOn(final DynamicObject environment){
       return SMateEnvironment.methodImplementing(environment, this.reflectiveOperation);
     }
     
@@ -74,41 +73,41 @@ public abstract class MateAbstractSemanticNodes {
       reflectiveOperation = operation;
     }
 
-    public abstract SInvokable executeGeneric(VirtualFrame frame,
+    public abstract DynamicObject executeGeneric(VirtualFrame frame,
         Object receiver);
 
     @Specialization(guards = {"receiver.getShape() == cachedShape"}, limit = "1")
-    public SInvokable doMonomorhic(
+    public DynamicObject doMonomorhic(
         final VirtualFrame frame,
         final DynamicObject receiver,
         @Cached("receiver.getShape()") final Shape cachedShape,
-        @Cached("environmentReflectiveMethod(getEnvironment(cachedShape), reflectiveOperation)") final SInvokable method) {
+        @Cached("environmentReflectiveMethod(getEnvironment(cachedShape), reflectiveOperation)") final DynamicObject method) {
       return method;
     }
     
     @Specialization(guards = {"receiver.getShape().getObjectType() == cachedType"}, contains={"doMonomorhic"}, limit = "6")
-    public SInvokable doPolymorhic(
+    public DynamicObject doPolymorhic(
         final VirtualFrame frame,
         final DynamicObject receiver,
         @Cached("receiver.getShape().getObjectType()") final ObjectType cachedType,
-        @Cached("environmentReflectiveMethod(getEnvironment(receiver.getShape()), reflectiveOperation)") final SInvokable method) {
+        @Cached("environmentReflectiveMethod(getEnvironment(receiver.getShape()), reflectiveOperation)") final DynamicObject method) {
       return method;
     }
     
     //@Specialization(contains={"doSReflectiveObject", "doSReflectiveObjectMega", "doStandardSOMForPrimitives"})
     @Specialization(contains={"doPolymorhic"})
-    public SInvokable doMegamorphic(
+    public DynamicObject doMegamorphic(
         final VirtualFrame frame,
         final DynamicObject receiver) {
       return environmentReflectiveMethod(SReflectiveObject.getEnvironment(receiver), this.reflectiveOperation);
     }
     
     @Specialization
-    public SInvokable doPrimitive(final VirtualFrame frame, final Object receiver){
+    public DynamicObject doPrimitive(final VirtualFrame frame, final Object receiver){
           return null;
     }
         
-    protected static SInvokable environmentReflectiveMethod(
+    protected static DynamicObject environmentReflectiveMethod(
         DynamicObject environment, ReflectiveOp operation) {
       if (environment == Nil.nilObject){
         return null;
@@ -127,7 +126,7 @@ public abstract class MateAbstractSemanticNodes {
   }
 
   public static abstract class MateAbstractSemanticsLevelNode extends Node {
-    public abstract SInvokable execute(final VirtualFrame frame,
+    public abstract DynamicObject execute(final VirtualFrame frame,
         Object[] arguments);
     
     @Override
@@ -162,19 +161,19 @@ public abstract class MateAbstractSemanticNodes {
     }
     
     @Specialization(guards = "!executeBase(frame)", assumptions = "getMateActivatedAssumption()")
-    protected SInvokable executeSOM(final VirtualFrame frame, Object[] arguments) {
+    protected DynamicObject executeSOM(final VirtualFrame frame, Object[] arguments) {
       return replace(MateSemanticsMetalevelNodeGen.create()).
                   execute(frame, arguments);
     }
 
     @Specialization(guards = "executeBase(frame)", assumptions = "getMateActivatedAssumption()")
-    protected SInvokable executeSemanticChecks(final VirtualFrame frame, Object[] arguments) {
+    protected DynamicObject executeSemanticChecks(final VirtualFrame frame, Object[] arguments) {
       return replace(MateSemanticsBaselevelNodeGen.create(environment, object)).
                   execute(frame, arguments);
     }
     
     @Specialization(assumptions = "getMateDeactivatedAssumption()")
-    protected SInvokable mateDeactivated(final VirtualFrame frame, Object[] arguments) {
+    protected DynamicObject mateDeactivated(final VirtualFrame frame, Object[] arguments) {
       return null;
     }
 
@@ -202,7 +201,7 @@ public abstract class MateAbstractSemanticNodes {
     }
     
     @Specialization
-    public SInvokable executeOptimized(final VirtualFrame frame,
+    public DynamicObject executeOptimized(final VirtualFrame frame,
         Object[] arguments){
       return null;
     }
@@ -220,9 +219,9 @@ public abstract class MateAbstractSemanticNodes {
     }
     
     @Specialization
-    public SInvokable executeOptimized(final VirtualFrame frame,
+    public DynamicObject executeOptimized(final VirtualFrame frame,
         Object[] arguments){
-      SInvokable value = environment.executeGeneric(frame);
+      DynamicObject value = environment.executeGeneric(frame);
       if (value == null){  
         executeObjectSemantics.enter();
         return object.executeGeneric(frame, arguments[0]);

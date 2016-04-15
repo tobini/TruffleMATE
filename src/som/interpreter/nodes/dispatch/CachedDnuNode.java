@@ -5,6 +5,7 @@ import som.interpreter.nodes.dispatch.AbstractDispatchNode.AbstractCachedDispatc
 import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SClass;
+import som.vmobjects.SInvokable;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.CallTarget;
@@ -42,9 +43,9 @@ public final class CachedDnuNode extends AbstractCachedDispatchNode {
   }
 
   public static CallTarget getDnuCallTarget(final DynamicObject rcvrClass) {
-    return SClass.lookupInvokable(rcvrClass,
-          Universe.current().symbolFor("doesNotUnderstand:arguments:")).
-        getCallTarget();
+    return SInvokable.getCallTarget(SClass.lookupInvokable(rcvrClass,
+          Universe.current().symbolFor("doesNotUnderstand:arguments:")));
+        
   }
 
   protected final Object performDnu(final VirtualFrame frame, 

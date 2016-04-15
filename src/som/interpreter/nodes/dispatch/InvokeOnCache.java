@@ -8,6 +8,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.object.DynamicObject;
 
 
 public abstract class InvokeOnCache extends Node implements DispatchChain {
@@ -24,7 +25,7 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
   }
 
   public abstract Object executeDispatch(VirtualFrame frame,
-      SInvokable invokable, Object[] arguments);
+      DynamicObject invokable, Object[] arguments);
 
   private static final class UninitializedDispatchNode extends InvokeOnCache {
 
@@ -32,7 +33,7 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
       super(depth);
     }
 
-    private InvokeOnCache specialize(final SInvokable invokable) {
+    private InvokeOnCache specialize(final DynamicObject invokable) {
       transferToInterpreterAndInvalidate("Initialize a dispatch node.");
 
       if (depth < INLINE_CACHE_SIZE) {
@@ -49,7 +50,7 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
 
     @Override
     public Object executeDispatch(final VirtualFrame frame,
-        final SInvokable invokable, final Object[] arguments) {
+        final DynamicObject invokable, final Object[] arguments) {
       return specialize(invokable).
           executeDispatch(frame, invokable, arguments);
     }
@@ -69,21 +70,21 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
   }
 
   private static final class CachedDispatchNode extends InvokeOnCache {
-    private final SInvokable invokable;
+    private final DynamicObject invokable;
     @Child private DirectCallNode callNode;
     @Child private InvokeOnCache nextInCache;
 
-    public CachedDispatchNode(final SInvokable invokable,
+    public CachedDispatchNode(final DynamicObject invokable,
         final InvokeOnCache nextInCache, final int depth) {
       super(depth);
       this.invokable = invokable;
       this.nextInCache = nextInCache;
-      callNode = Truffle.getRuntime().createDirectCallNode(invokable.getCallTarget());
+      callNode = Truffle.getRuntime().createDirectCallNode(SInvokable.getCallTarget(invokable));
     }
 
     @Override
     public Object executeDispatch(final VirtualFrame frame,
-        final SInvokable invokable, final Object[] arguments) {
+        final DynamicObject invokable, final Object[] arguments) {
       if (this.invokable == invokable) {
         return callNode.call(frame, arguments);
       } else {
@@ -108,8 +109,8 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
 
     @Override
     public Object executeDispatch(final VirtualFrame frame,
-        final SInvokable invokable, final Object[] arguments) {
-      return callNode.call(frame, invokable.getCallTarget(), arguments);
+        final DynamicObject invokable, final Object[] arguments) {
+      return callNode.call(frame, SInvokable.getCallTarget(invokable), arguments);
     }
 
     @Override

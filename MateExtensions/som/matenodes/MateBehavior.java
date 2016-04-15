@@ -9,11 +9,11 @@ import som.matenodes.MateAbstractReflectiveDispatchFactory.MateDispatchFieldWrit
 import som.matenodes.MateAbstractSemanticNodes.MateAbstractSemanticsLevelNode;
 import som.matenodes.MateAbstractSemanticNodes.MateSemanticCheckNode;
 import som.vm.constants.ReflectiveOp;
-import som.vmobjects.SInvokable;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeCost;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -25,7 +25,7 @@ public interface MateBehavior {
 
   public default Object doMateSemantics(final VirtualFrame frame,
       final Object[] arguments, BranchProfile semanticsRedefined) {
-    SInvokable method = this.getMateNode().execute(frame, arguments);
+    DynamicObject method = this.getMateNode().execute(frame, arguments);
     if (method != null){
       semanticsRedefined.enter();
       return this.getMateDispatch().executeDispatch(frame, method, arguments[0], arguments);

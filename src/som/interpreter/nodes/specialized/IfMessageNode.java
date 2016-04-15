@@ -12,6 +12,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -25,8 +26,8 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
     this.expected = expected;
   }
 
-  protected static DirectCallNode createDirect(final SInvokable method) {
-    return Truffle.getRuntime().createDirectCallNode(method.getCallTarget());
+  protected static DirectCallNode createDirect(final DynamicObject method) {
+    return Truffle.getRuntime().createDirectCallNode(SInvokable.getCallTarget(method));
   }
 
   protected static IndirectCallNode createIndirect() {
@@ -35,7 +36,7 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
 
   @Specialization(guards = {"arg.getMethod() == method"})
   public final Object cachedBlock(final VirtualFrame frame, final boolean rcvr, final SBlock arg,
-      @Cached("arg.getMethod()") final SInvokable method,
+      @Cached("arg.getMethod()") final DynamicObject method,
       @Cached("createDirect(method)") final DirectCallNode callTarget) {
     if (condProf.profile(rcvr == expected)) {
       return callTarget.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), arg});
@@ -49,7 +50,7 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
       final SBlock arg,
       @Cached("createIndirect()") final IndirectCallNode callNode) {
     if (condProf.profile(rcvr == expected)) {
-      return callNode.call(frame, arg.getMethod().getCallTarget(), new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), arg});
+      return callNode.call(frame, SInvokable.getCallTarget(arg.getMethod()), new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), arg});
     } else {
       return Nil.nilObject;
     }

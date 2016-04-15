@@ -91,7 +91,6 @@ import som.interpreter.nodes.specialized.whileloops.WhileInlinedLiteralsNode;
 import som.vm.Universe;
 import som.vmobjects.SArray;
 import som.vmobjects.SClass;
-import som.vmobjects.SInvokable.SMethod;
 import som.vmobjects.SObject;
 import som.vmobjects.SSymbol;
 
@@ -566,7 +565,7 @@ public class Parser {
 
         ExpressionNode blockBody = nestedBlock(bgenc);
 
-        SMethod blockMethod = (SMethod) bgenc.assemble(blockBody, lastMethodsSourceSection);
+        DynamicObject blockMethod = bgenc.assemble(blockBody, lastMethodsSourceSection);
         mgenc.addEmbeddedBlockMethod(blockMethod);
 
         if (bgenc.requiresContext()) {

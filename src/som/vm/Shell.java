@@ -80,11 +80,11 @@ public class Shell {
           myObject = SObject.create(myClass);
 
           // Lookup the run: method
-          SInvokable shellMethod = SClass.lookupInvokable(
+          DynamicObject shellMethod = SClass.lookupInvokable(
               myClass, universe.symbolFor("run:"));
 
           // Invoke the run method
-          it = shellMethod.invoke(myObject, it);
+          it = SInvokable.invoke(shellMethod, myObject, it);
         }
       } catch (Exception e) {
         Universe.errorPrintln("Caught exception: " + e.getMessage());

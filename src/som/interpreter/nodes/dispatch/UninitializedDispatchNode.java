@@ -43,10 +43,10 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
     
     if (chainDepth < INLINE_CACHE_SIZE) {
       DynamicObject rcvrClass = Types.getClassOf(rcvr);
-      SInvokable method = SClass.lookupInvokable(rcvrClass, selector);
+      DynamicObject method = SClass.lookupInvokable(rcvrClass, selector);
       CallTarget callTarget;
       if (method != null) {
-        callTarget = method.getCallTarget(SArguments.getExecutionLevel(frame));
+        callTarget = SInvokable.getCallTarget(method, SArguments.getExecutionLevel(frame));
       } else {
         callTarget = null;
       }

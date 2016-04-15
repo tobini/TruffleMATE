@@ -29,10 +29,10 @@ import som.interpreter.nodes.UninitializedVariableNode.UninitializedVariableWrit
 import som.interpreter.nodes.literals.BlockNode;
 import som.interpreter.nodes.literals.BlockNode.BlockNodeWithContext;
 import som.vm.Universe;
-import som.vmobjects.SInvokable.SMethod;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.FrameSlot;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 
@@ -102,7 +102,7 @@ public final class SNodeFactory {
     return new SequenceNode(exps.toArray(new ExpressionNode[0]), source);
   }
 
-  public static BlockNode createBlockNode(final SMethod blockMethod,
+  public static BlockNode createBlockNode(final DynamicObject blockMethod,
       final boolean withContext, final SourceSection source) {
     if (withContext) {
       return new BlockNodeWithContext(blockMethod, source);

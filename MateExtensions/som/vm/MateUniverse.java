@@ -93,15 +93,15 @@ public class MateUniverse extends Universe {
     int countOfInvokables = SClass.getNumberOfInstanceInvokables(clazz);
     MateifyVisitor visitor = new MateifyVisitor();
     for (int i = 0; i < countOfInvokables; i++){
-      SInvokable method = SClass.getInstanceInvokable(clazz, i);
-      Invokable node = method.getInvokable();
+      DynamicObject method = SClass.getInstanceInvokable(clazz, i);
+      Invokable node = SInvokable.getInvokable(method);
       node.accept(visitor);
     }
   }
   
-  public void mateifyMethod(SInvokable method) {
+  public void mateifyMethod(DynamicObject method) {
     MateifyVisitor visitor = new MateifyVisitor();
-    Invokable node = method.getInvokable();
+    Invokable node = SInvokable.getInvokable(method);
     node.accept(visitor);
   }
   

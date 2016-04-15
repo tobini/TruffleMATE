@@ -14,11 +14,12 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.object.DynamicObject;
 
 
 public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
 
-  private final SInvokable blockMethod;
+  private final DynamicObject blockMethod;
   @Child private DirectCallNode valueSend;
 
   public IntToByDoMessageNode(final ExpressionNode orignialNode,
@@ -26,7 +27,7 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
     super(orignialNode.getSourceSection());
     blockMethod = block.getMethod();
     valueSend = Truffle.getRuntime().createDirectCallNode(
-                    blockMethod.getCallTarget());
+                    SInvokable.getCallTarget(blockMethod));
   }
 
   public IntToByDoMessageNode(final IntToByDoMessageNode node) {
