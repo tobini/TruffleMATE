@@ -25,135 +25,165 @@
 
 package som.vmobjects;
 
-import static som.interpreter.TruffleCompiler.transferToInterpreterAndInvalidate;
 import som.interpreter.Invokable;
 import som.interpreter.SArguments;
+import som.vm.Universe;
 import som.vm.constants.Classes;
 import som.vm.constants.ExecutionLevel;
+import som.vm.constants.Nil;
+import som.vmobjects.SReflectiveObject.SReflectiveObjectObjectType;
 
-import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.object.DynamicObjectFactory;
+import com.oracle.truffle.api.object.Shape;
 
-public abstract class SInvokable extends SAbstractObject {
-
-  public SInvokable(final SSymbol signature, final Invokable invokable) {
-    this.signature = signature;
-    this.invokable   = invokable;
-    this.callTarget  = invokable.createCallTarget();
-    this.invokableMeta  = invokable.cloneWithoutOptimizations();
-    this.callTargetMeta = invokableMeta.createCallTarget();
+public class SInvokable {
+  private static final MethodObjectType INVOKABLE_TYPE = new MethodObjectType(Nil.nilObject);
+  
+  private static final SSymbol SIGNATURE      = Universe.current().symbolFor("signature");
+  private static final SSymbol INVOKABLE      = Universe.current().symbolFor("invokable");
+  private static final SSymbol CALLTARGET     = Universe.current().symbolFor("callTarget");
+  private static final SSymbol INVOKABLEMETA  = Universe.current().symbolFor("invokableMeta");
+  private static final SSymbol CALLTARGETMETA = Universe.current().symbolFor("callTargetMeta");
+  private static final SSymbol HOLDER         = Universe.current().symbolFor("holder");
+  
+  private static final Shape INVOKABLES_SHAPE = createInvokablesShape(Classes.methodClass);
+  private static final DynamicObjectFactory INVOKABLES_FACTORY = INVOKABLES_SHAPE.createFactory();
+  
+  private static Shape createInvokablesShape(final DynamicObject clazz) {
+    return SReflectiveObject.LAYOUT.createShape(INVOKABLE_TYPE, clazz).
+        defineProperty(SIGNATURE,      Nil.nilObject, 0).
+        defineProperty(INVOKABLE,      Nil.nilObject, 0).
+        defineProperty(CALLTARGET,     Nil.nilObject, 0).
+        defineProperty(INVOKABLEMETA,  Nil.nilObject, 0).
+        defineProperty(CALLTARGETMETA, Nil.nilObject, 0).
+        defineProperty(HOLDER,         Nil.nilObject, 0);
   }
-
-  public static final class SMethod extends SInvokable {
-    private final SMethod[] embeddedBlocks;
-
-    public SMethod(final SSymbol signature, final Invokable invokable,
-        final SMethod[] embeddedBlocks) {
-      super(signature, invokable);
-      this.embeddedBlocks = embeddedBlocks;
-    }
-
-    public SMethod[] getEmbeddedBlocks() {
-      return embeddedBlocks;
+  
+  private static final class MethodObjectType extends SReflectiveObjectObjectType {
+    public MethodObjectType(DynamicObject metaobj) {
+      super(metaobj);
     }
 
     @Override
-    public void setHolder(final DynamicObject value) {
-      super.setHolder(value);
-      for (SMethod m : embeddedBlocks) {
-        m.setHolder(value);
+    public String toString() {
+      return "SInvokable";
+    }
+  }
+  
+  public static DynamicObject create(final SSymbol signature, final Invokable invokable) {
+    DynamicObject newInstance = INVOKABLES_FACTORY.newInstance();
+    setSInvokableFields(newInstance, signature, invokable);
+    return newInstance;
+  }
+  
+  public static void setSInvokableFields(final DynamicObject instance, final SSymbol signature, final Invokable invokable){
+    instance.set(SIGNATURE, signature);
+    instance.set(INVOKABLE, invokable);
+    instance.set(CALLTARGET, invokable.createCallTarget());
+    Invokable invokableMeta = invokable.cloneWithoutOptimizations();
+    instance.set(INVOKABLEMETA, invokableMeta);
+    instance.set(CALLTARGETMETA, invokableMeta.createCallTarget());
+  }
+  
+  public static final RootCallTarget getCallTarget(final DynamicObject invokable, final ExecutionLevel level) {
+    if (level == ExecutionLevel.Meta){
+      return getCallTargetMeta(invokable);
+    }
+    return getCallTarget(invokable); 
+  }
+  
+  public static final RootCallTarget getCallTarget(final DynamicObject invokable) {
+    return (RootCallTarget) invokable.get(CALLTARGET);
+  }
+  
+  public static final RootCallTarget getCallTargetMeta(final DynamicObject invokable) {
+    return (RootCallTarget) invokable.get(CALLTARGETMETA);
+  }
+
+  public static final Invokable getInvokable(final DynamicObject invokable) {
+    return (Invokable) invokable.get(INVOKABLE);
+  }
+
+  public static final SSymbol getSignature(final DynamicObject invokable) {
+    return (SSymbol) invokable.get(SIGNATURE);
+  }
+  
+  public static final DynamicObject getHolder(final DynamicObject invokable) {
+    return (DynamicObject) invokable.get(HOLDER);
+  }
+
+  public static void setHolder(final DynamicObject invokable, final DynamicObject value) {
+    invokable.set(HOLDER, value);
+  }
+
+  
+  public static final int getNumberOfArguments(final DynamicObject invokable) {
+    return getSignature(invokable).getNumberOfSignatureArguments();
+  }
+
+  public static final Object invoke(final DynamicObject invokable, final Object... arguments) {
+    return getCallTarget(invokable).call(arguments);
+  }
+
+  public static final Object invoke(final DynamicObject invokable, final VirtualFrame frame, final IndirectCallNode node, final Object... arguments) {
+    return node.call(frame, getCallTarget(invokable), arguments);
+  }
+  
+  public static final Object invoke(final DynamicObject invokable, final DynamicObject environment, final ExecutionLevel exLevel, final Object... arguments) {
+      return getCallTarget(invokable).call(SArguments.createSArguments(environment, exLevel, arguments));
+  }
+  
+  public static final String toString(final DynamicObject invokable) {
+    // TODO: fixme: remove special case if possible, I think it indicates a bug
+    if (getHolder(invokable) == null) {
+      return "Method(nil>>" + getSignature(invokable).toString() + ")";
+    }
+
+    return "Method(" + SClass.getName(getHolder(invokable)).getString() + ">>" + getSignature(invokable).toString() + ")";
+  }
+  
+  public static final class SMethod extends SInvokable {
+    private static final MethodObjectType SMETHOD_TYPE           = new MethodObjectType(Nil.nilObject);
+    private static final SSymbol EMBEDDEDBLOCKS                  = Universe.current().symbolFor("embeddedBlocks");
+    private static final Shape SMETHOD_SHAPE                     = createSMethodShape(Classes.methodClass);
+    private static final DynamicObjectFactory SMETHOD_FACTORY    = SMETHOD_SHAPE.createFactory();
+    
+    
+    private static Shape createSMethodShape(final DynamicObject clazz) {
+      return INVOKABLES_SHAPE.defineProperty(EMBEDDEDBLOCKS, Nil.nilObject, 0).changeType(SMETHOD_TYPE);
+    }
+    
+    public static DynamicObject create(final SSymbol signature, final Invokable invokable, final DynamicObject[] embeddedBlocks) {
+      DynamicObject newInstance = SMETHOD_FACTORY.newInstance();
+      SInvokable.setSInvokableFields(newInstance, signature, invokable);
+      newInstance.set(EMBEDDEDBLOCKS, embeddedBlocks);
+      return newInstance;
+    }
+    
+    public static DynamicObject[] getEmbeddedBlocks(final DynamicObject invokable) {
+      return (DynamicObject[])invokable.get(EMBEDDEDBLOCKS);
+    }
+    
+    public static void setHolder(final DynamicObject invokable, final DynamicObject value) {
+      SInvokable.setHolder(invokable, value);
+      for (DynamicObject methods : getEmbeddedBlocks(invokable)) {
+        setHolder(methods, value);
       }
     }
-
-    @Override
-    public DynamicObject getSOMClass() {
-      assert Classes.methodClass != null;
-      return Classes.methodClass;
-    }
   }
-
+  
   public static final class SPrimitive extends SInvokable {
-    public SPrimitive(final SSymbol signature, final Invokable invokable) {
-      super(signature, invokable);
-    }
-
-    @Override
-    public DynamicObject getSOMClass() {
-      assert Classes.primitiveClass != null;
-      return Classes.primitiveClass;
-    }
-  }
-
-  public final RootCallTarget getCallTarget(ExecutionLevel level) {
-    if (level == ExecutionLevel.Meta){
-      return callTargetMeta;
-    }
-    return callTarget; 
-  }
-  
-  public final RootCallTarget getCallTarget() {
-    return callTarget;
-  }
-  
-  public final RootCallTarget getCallTargetMeta() {
-    return callTargetMeta;
-  }
-
-  public final Invokable getInvokable() {
-    return invokable;
-  }
-
-  public final SSymbol getSignature() {
-    return signature;
-  }
-
-  public final DynamicObject getHolder() {
-    return holder;
-  }
-
-  public void setHolder(final DynamicObject value) {
-    transferToInterpreterAndInvalidate("SMethod.setHolder");
-    holder = value;
-  }
-
-  public final int getNumberOfArguments() {
-    return getSignature().getNumberOfSignatureArguments();
-  }
-
-  public final Object invoke(final Object... arguments) {
-    return callTarget.call(arguments);
-  }
-
-  public final Object invoke(final VirtualFrame frame, final IndirectCallNode node, final Object... arguments) {
-    return node.call(frame, callTarget, arguments);
-  }
-  
-  public final Object invoke(final DynamicObject environment, final ExecutionLevel exLevel, final Object... arguments) {
-      return callTarget.call(SArguments.createSArguments(environment, exLevel, arguments));
-  }
-
-  @Override
-  public final String toString() {
-    // TODO: fixme: remove special case if possible, I think it indicates a bug
-    if (holder == null) {
-      return "Method(nil>>" + getSignature().toString() + ")";
-    }
-
-    return "Method(" + SClass.getName(getHolder()).getString() + ">>" + getSignature().toString() + ")";
-  }
-  
-  public void createMetalevelVersion() {
+    private static final Shape PRIMITIVES_SHAPE = createInvokablesShape(Classes.methodClass);
+    private static final DynamicObjectFactory PRIMITIVES_FACTORY = PRIMITIVES_SHAPE.createFactory();
     
+    public static DynamicObject create(final SSymbol signature, final Invokable invokable) {
+      DynamicObject newInstance = PRIMITIVES_FACTORY.newInstance();
+      SInvokable.setSInvokableFields(newInstance, signature, invokable);
+      return newInstance;
+    }
   }
-
-  // Private variable holding Truffle runtime information
-  private final Invokable                 invokableMeta;
-  private final RootCallTarget            callTargetMeta;
-  private final Invokable                 invokable;
-  private final RootCallTarget            callTarget;
-  private final SSymbol                   signature;
-  @CompilationFinal private DynamicObject holder;
 }

@@ -70,7 +70,7 @@ public final class SClass {
     CompilerAsserts.neverPartOfCompilation("Class creation");
     DynamicObject clazz =  INIT_CLASS_FACTORY.newInstance(
         Nil.nilObject,                       // SUPERCLASS
-        new HashMap<SSymbol, SInvokable>(),  // INVOKABLES_TABLE
+        new HashMap<SSymbol, DynamicObject>(),  // INVOKABLES_TABLE
         Universe.current().getInstancesFactory());          // OBJECT_FACTORY, temporary value
     return clazz;
   }
@@ -200,14 +200,14 @@ public final class SClass {
     return getInstanceInvokables(classObj).getObjectStorage(storageType).length;
   }
 
-  public static SInvokable getInstanceInvokable(final DynamicObject classObj, final int index) {
-    return (SInvokable) getInstanceInvokables(classObj).getObjectStorage(storageType)[index];
+  public static DynamicObject getInstanceInvokable(final DynamicObject classObj, final int index) {
+    return (DynamicObject) getInstanceInvokables(classObj).getObjectStorage(storageType)[index];
   }
 
   public static void setInstanceInvokable(final DynamicObject classObj, final int index, final SInvokable value) {
   CompilerAsserts.neverPartOfCompilation("setInstanceInvokable");
     // Set this class as the holder of the given invokable
-    value.setHolder(classObj);
+    setHolder(classObj);
 
     getInstanceInvokables(classObj).getObjectStorage(storageType)[index] = value;
 
@@ -219,15 +219,15 @@ public final class SClass {
   }
 
   @SuppressWarnings("unchecked")
-  private static HashMap<SSymbol, SInvokable> getInvokablesTable(
+  private static HashMap<SSymbol, DynamicObject> getInvokablesTable(
       final DynamicObject classObj) {
-    return (HashMap<SSymbol, SInvokable>) classObj.get(INVOKABLES_TABLE);
+    return (HashMap<SSymbol, DynamicObject>) classObj.get(INVOKABLES_TABLE);
   }
 
   @TruffleBoundary
-  public static SInvokable lookupInvokable(final DynamicObject classObj, final SSymbol selector) {
-    SInvokable invokable;
-    HashMap<SSymbol, SInvokable> invokablesTable = getInvokablesTable(classObj);
+  public static DynamicObject lookupInvokable(final DynamicObject classObj, final SSymbol selector) {
+    DynamicObject invokable;
+    HashMap<SSymbol, DynamicObject> invokablesTable = getInvokablesTable(classObj);
 
     // Lookup invokable and return if found
     invokable = invokablesTable.get(selector);
@@ -239,7 +239,7 @@ public final class SClass {
       invokable = getInstanceInvokable(classObj, i);
 
       // Return the invokable if the signature matches
-      if (invokable.getSignature() == selector) {
+      if (SInvokable.getSignature(invokable) == selector) {
         invokablesTable.put(selector, invokable);
         return invokable;
       }

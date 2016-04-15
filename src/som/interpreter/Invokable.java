@@ -6,6 +6,7 @@ import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.MateReturnNode;
 import som.vm.MateUniverse;
 import som.vm.Universe;
+import som.vmobjects.SInvokable;
 
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
@@ -18,8 +19,9 @@ import com.oracle.truffle.api.source.SourceSection;
 public abstract class Invokable extends RootNode implements MateNode{
 
   @Child protected ExpressionNode expressionOrSequence;
-
+  
   protected final ExpressionNode uninitializedBody;
+  protected final SInvokable belongsToMethod;
 
   public Invokable(final SourceSection sourceSection,
       final FrameDescriptor frameDescriptor,
