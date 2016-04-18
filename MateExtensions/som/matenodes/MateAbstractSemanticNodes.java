@@ -15,6 +15,7 @@ import som.vmobjects.SReflectiveObject;
 
 import com.oracle.truffle.api.Assumption;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
@@ -27,6 +28,7 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class MateAbstractSemanticNodes {
 
+  @ImportStatic(Nil.class)
   public static abstract class MateEnvironmentSemanticCheckNode extends Node {
     private final ReflectiveOp reflectiveOperation;
 
@@ -38,7 +40,7 @@ public abstract class MateAbstractSemanticNodes {
     public abstract DynamicObject executeGeneric(VirtualFrame frame);
 
     
-    @Specialization(guards = "getEnvironment(frame) == null")
+    @Specialization(guards = "getEnvironment(frame) == nilObject")
     public DynamicObject doNoSemanticsInFrame(final VirtualFrame frame) {
       return null;
     }

@@ -20,7 +20,7 @@ public final class MateClasses extends Classes {
     messageMO = MateUniverse.newSystemClass();
     shapeClass = MateUniverse.newSystemClass();
     contextClass    = Universe.newSystemClass();
-    STANDARD_ENVIRONMENT = null;
+    STANDARD_ENVIRONMENT = Nil.nilObject;
     //environment = Universe.newSystemClass();
   }
 }
