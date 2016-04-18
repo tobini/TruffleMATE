@@ -104,9 +104,10 @@ public abstract class Primitives {
     }
 
     Primitive primMethodNode = new Primitive(primNode, mgen.getCurrentLexicalScope().getFrameDescriptor(),
-        (ExpressionNode) primNode.deepCopy());
-    DynamicObject prim = Universe.newMethod(signature, primMethodNode, true, new DynamicObject[0]);
-    return prim;
+        (ExpressionNode) primNode.deepCopy(), null);
+    DynamicObject primitive = Universe.newMethod(signature, primMethodNode, true, new DynamicObject[0]);
+    primMethodNode.setMethod(primitive);
+    return primitive;
   }
 
   public static DynamicObject constructEmptyPrimitive(final SSymbol signature) {
@@ -115,8 +116,10 @@ public abstract class Primitives {
 
     ExpressionNode primNode = EmptyPrim.create(new LocalArgumentReadNode(0, null));
     Primitive primMethodNode = new Primitive(primNode, mgen.getCurrentLexicalScope().getFrameDescriptor(),
-        (ExpressionNode) primNode.deepCopy());
-    return Universe.newMethod(signature, primMethodNode, true, new DynamicObject[0]);
+        (ExpressionNode) primNode.deepCopy(), null);
+    DynamicObject method = Universe.newMethod(signature, primMethodNode, true, new DynamicObject[0]);
+    primMethodNode.setMethod(method);
+    return method;
   }
 
   protected final void installInstancePrimitive(final String selector,

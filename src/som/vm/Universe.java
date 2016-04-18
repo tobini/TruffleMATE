@@ -62,6 +62,7 @@ import som.vmobjects.SSymbol;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.ExecutionContext;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleRuntime;
 import com.oracle.truffle.api.frame.MaterializedFrame;
@@ -69,7 +70,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
 import com.oracle.truffle.api.object.Shape;
 
-public class Universe {
+public class Universe extends ExecutionContext {
 
   /**
    * Associations are handles for globals with a fixed

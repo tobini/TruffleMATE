@@ -179,13 +179,15 @@ public final class MethodGenerationContext {
 
     Method truffleMethod =
         new Method(getSourceSectionForMethod(sourceSection),
-            body, currentScope, (ExpressionNode) body.deepCopy());
+            body, currentScope, (ExpressionNode) body.deepCopy(), null);
 
-    DynamicObject meth = Universe.newMethod(signature, truffleMethod, false,
+    DynamicObject method = Universe.newMethod(signature, truffleMethod, false,
         embeddedBlockMethods.toArray(new DynamicObject[0]));
+    
+    truffleMethod.setMethod(method);
 
     // return the method - the holder field is to be set later on!
-    return meth;
+    return method;
   }
 
   private SourceSection getSourceSectionForMethod(final SourceSection ssBody) {

@@ -26,6 +26,7 @@ import som.interpreter.nodes.ExpressionNode;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeUtil;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 
@@ -36,9 +37,10 @@ public final class Method extends Invokable {
   public Method(final SourceSection sourceSection,
                 final ExpressionNode expressions,
                 final LexicalScope currentLexicalScope,
-                final ExpressionNode uninitialized) {
+                final ExpressionNode uninitialized,
+                final DynamicObject method) {
     super(sourceSection, currentLexicalScope.getFrameDescriptor(),
-        expressions, uninitialized);
+        expressions, uninitialized, method);
     this.currentLexicalScope = currentLexicalScope;
     currentLexicalScope.setMethod(this);
   }
@@ -58,7 +60,7 @@ public final class Method extends Invokable {
     ExpressionNode  inlinedBody = SplitterForLexicallyEmbeddedCode.doInline(
         uninitializedBody, inlinedCurrentScope);
     Method clone = new Method(getSourceSection(), inlinedBody,
-        inlinedCurrentScope, uninitializedBody);
+        inlinedCurrentScope, uninitializedBody, this.belongsToMethod);
     return clone;
   }
 
@@ -71,7 +73,7 @@ public final class Method extends Invokable {
     ExpressionNode uninitAdaptedBody = NodeUtil.cloneNode(adaptedBody);
 
     Method clone = new Method(getSourceSection(), adaptedBody,
-        currentAdaptedScope, uninitAdaptedBody);
+        currentAdaptedScope, uninitAdaptedBody, this.belongsToMethod);
     return clone;
   }
 
@@ -84,7 +86,7 @@ public final class Method extends Invokable {
     ExpressionNode uninitAdaptedBody = NodeUtil.cloneNode(adaptedBody);
 
     Method clone = new Method(getSourceSection(),
-        adaptedBody, currentAdaptedScope, uninitAdaptedBody);
+        adaptedBody, currentAdaptedScope, uninitAdaptedBody, this.belongsToMethod);
     return clone;
   }
 
