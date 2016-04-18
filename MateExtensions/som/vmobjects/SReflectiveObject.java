@@ -86,7 +86,7 @@ public class SReflectiveObject extends SObject {
     
     @Override
     public String toString() {
-      return "SReflectiveObject";
+      return "SReflectiveObject\n Environment: " + this.environment.toString() + "\n";
     }
     
     public DynamicObject getEnvironment(){
