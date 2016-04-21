@@ -29,7 +29,6 @@ import som.vm.constants.MateClasses;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SArray;
 import som.vmobjects.SBlock;
-import som.vmobjects.SInvokable;
 import som.vmobjects.SObject;
 import som.vmobjects.SShape;
 import som.vmobjects.SSymbol;
@@ -37,7 +36,7 @@ import som.vmobjects.SSymbol;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.TypeSystem;
-import com.oracle.truffle.api.frame.Frame;
+import com.oracle.truffle.api.frame.FrameInstance;
 import com.oracle.truffle.api.object.DynamicObject;
 
 @TypeSystem({   boolean.class,
@@ -47,7 +46,6 @@ import com.oracle.truffle.api.object.DynamicObject;
                  double.class,
                  SBlock.class,
                 SSymbol.class,
-             SInvokable.class,
                  SArray.class,
                  SShape.class,
         SAbstractObject.class,
@@ -74,7 +72,7 @@ public class Types {
       return Classes.stringClass;
     } else if (obj instanceof Double) {
       return Classes.doubleClass;
-    } else if (obj instanceof Frame) {
+    } else if (obj instanceof FrameInstance) {
       return MateClasses.contextClass;
     } else if (obj instanceof DynamicObject) {
       return SObject.getSOMClass((DynamicObject) obj);
