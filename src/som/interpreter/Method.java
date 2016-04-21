@@ -24,6 +24,7 @@ package som.interpreter;
 import som.interpreter.nodes.ExpressionNode;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeUtil;
 import com.oracle.truffle.api.object.DynamicObject;
@@ -94,7 +95,7 @@ public final class Method extends Invokable {
   public void propagateLoopCountThroughoutLexicalScope(final long count) {
     assert count >= 0;
     currentLexicalScope.propagateLoopCountThroughoutLexicalScope(count);
-    reportLoopCount((count > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) count);
+    LoopNode.reportLoopCount(this, (count > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) count);
   }
 
   @Override
