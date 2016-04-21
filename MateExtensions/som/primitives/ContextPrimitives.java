@@ -25,11 +25,13 @@
 
 package som.primitives;
 
+import som.primitives.ContextPrimsFactory.GetMethodPrimFactory;
+
 public final class ContextPrimitives extends Primitives {
   public ContextPrimitives(final boolean displayWarning) { super(displayWarning); }
 
   @Override
   public void installPrimitives() {
-    installInstancePrimitive("method",   NewObjectPrimFactory.getInstance());
+    installInstancePrimitive("method",   GetMethodPrimFactory.getInstance());
   }
 }

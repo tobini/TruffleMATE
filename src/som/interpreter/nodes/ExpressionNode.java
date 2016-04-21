@@ -28,7 +28,6 @@ import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SArray;
 import som.vmobjects.SBlock;
-import som.vmobjects.SInvokable;
 import som.vmobjects.SSymbol;
 import tools.dym.Tags.ControlFlowCondition;
 import tools.dym.Tags.LoopBody;
@@ -106,9 +105,9 @@ public abstract class ExpressionNode extends SOMNode {
     return TypesGen.expectDynamicObject(executeGeneric(frame));
   }
 
-  public SInvokable executeSInvokable(final VirtualFrame frame) throws UnexpectedResultException {
+  /*public SInvokable executeSInvokable(final VirtualFrame frame) throws UnexpectedResultException {
     return TypesGen.expectSInvokable(executeGeneric(frame));
-  }
+  }*/
 
   public SArray executeSArray(final VirtualFrame frame) throws UnexpectedResultException {
     return TypesGen.expectSArray(executeGeneric(frame));

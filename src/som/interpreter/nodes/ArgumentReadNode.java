@@ -2,10 +2,16 @@ package som.interpreter.nodes;
 
 import som.interpreter.InlinerAdaptToEmbeddedOuterContext;
 import som.interpreter.InlinerForLexicallyEmbeddedMethods;
+import som.interpreter.MateVisitors;
 import som.interpreter.SArguments;
+import som.vm.Universe;
+import som.vm.constants.ExecutionLevel;
 import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SSymbol;
 
+import com.oracle.truffle.api.TruffleRuntime;
+import com.oracle.truffle.api.frame.FrameInstance;
+import com.oracle.truffle.api.frame.FrameInstance.FrameAccess;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
@@ -191,7 +197,13 @@ public abstract class ArgumentReadNode {
 
     @Override
     public Object executeGeneric(final VirtualFrame frame) {
-      return frame.materialize();
+      TruffleRuntime runtime = ((Universe)((ExpressionNode)this).getRootNode().getExecutionContext()).getTruffleRuntime(); 
+      FrameInstance currentFrame = runtime.getCurrentFrame();
+      if (SArguments.getExecutionLevel(currentFrame.getFrame(FrameAccess.MATERIALIZE, true)) == ExecutionLevel.Meta){
+        return runtime.iterateFrames(new MateVisitors.FindFirstBaseLevelFrame());
+      } else {
+        return currentFrame;
+      }
     }
   }
 }
