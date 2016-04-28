@@ -19,4 +19,22 @@ public class MateVisitors {
       return null;
     }
   }
+  
+  public static class FindSenderFrame implements FrameInstanceVisitor<FrameInstance>{
+    private final FrameInstance current;
+    private Boolean currentFound;
+    public FindSenderFrame(FrameInstance frame){
+      current = frame;
+      currentFound = false;
+    }
+    
+    @Override
+    public FrameInstance visitFrame(FrameInstance frameInstance) {
+      if (currentFound) return frameInstance;
+      if (frameInstance.getFrame(FrameAccess.READ_ONLY, false) == current.getFrame(FrameAccess.READ_ONLY, false)){
+        currentFound = true;
+      }
+      return null;
+    }
+  }
 }

@@ -713,4 +713,8 @@ public class Universe extends ExecutionContext {
   }
   
   public void activatedMate(){};
+  
+  public String imageName(){
+    return "Smalltalk/fake.image";
+  };
 }

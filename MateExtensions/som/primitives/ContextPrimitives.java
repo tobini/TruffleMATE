@@ -26,6 +26,7 @@
 package som.primitives;
 
 import som.primitives.ContextPrimsFactory.GetMethodPrimFactory;
+import som.primitives.ContextPrimsFactory.SenderPrimFactory;
 
 public final class ContextPrimitives extends Primitives {
   public ContextPrimitives(final boolean displayWarning) { super(displayWarning); }
@@ -33,5 +34,6 @@ public final class ContextPrimitives extends Primitives {
   @Override
   public void installPrimitives() {
     installInstancePrimitive("method",   GetMethodPrimFactory.getInstance());
+    installInstancePrimitive("sender",   SenderPrimFactory.getInstance());
   }
 }
