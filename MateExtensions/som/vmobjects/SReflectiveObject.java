@@ -85,8 +85,16 @@ public class SReflectiveObject extends SObject {
     }
     
     @Override
-    public String toString() {
-      return "SReflectiveObject\n Environment: " + this.environment.toString() + "\n";
+    public String toString(DynamicObject object) {
+      String environment;
+      if (this.environment == Nil.nilObject){
+        environment = "nil";
+      } else {
+        environment = this.environment.toString();
+      }
+      return "SReflectiveObject" + 
+      "\nClass:" + SClass.getName((DynamicObject)object.getShape().getSharedData()) + 
+      "\nEnvironment: " + environment;
     }
     
     public DynamicObject getEnvironment(){
