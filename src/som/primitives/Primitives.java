@@ -99,6 +99,9 @@ public abstract class Primitives {
       case 4:
         primNode = nodeFactory.createNode(args[0], args[1], args[2], args[3]);
         break;
+      case 5:
+        primNode = nodeFactory.createNode(args[0], args[1], args[2], args[3], args[4]);
+        break;  
       default:
         throw new RuntimeException("Not supported by SOM.");
     }

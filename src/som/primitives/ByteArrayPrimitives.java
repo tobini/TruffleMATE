@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Guido Chari,   gchari@dc.uba.ar
+ * Copyright (c) 2013 Stefan Marr,   stefan.marr@vub.ac.be
  * Copyright (c) 2009 Michael Haupt, michael.haupt@hpi.uni-potsdam.de
  * Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
  * http://www.hpi.uni-potsdam.de/swa/
@@ -25,22 +25,15 @@
 
 package som.primitives;
 
-import som.primitives.FilePluginPrimsFactory.GetPositionFilePrimFactory;
-import som.primitives.FilePluginPrimsFactory.OpenFilePrimFactory;
-import som.primitives.FilePluginPrimsFactory.ReadIntoFilePrimFactory;
-import som.primitives.FilePluginPrimsFactory.SetPositionFilePrimFactory;
-import som.primitives.FilePluginPrimsFactory.SizeFilePrimFactory;
+import som.primitives.arrays.AsStringPrimByteFactory;
+import som.primitives.arrays.AtPutPrimByteFactory;
 
-
-public final class StandardFileStreamPrimitives extends Primitives {
-  public StandardFileStreamPrimitives(final boolean displayWarning) { super(displayWarning); }
+public final class ByteArrayPrimitives extends Primitives {
+  public ByteArrayPrimitives(final boolean displayWarning) { super(displayWarning); }
 
   @Override
   public void installPrimitives() {
-    installInstancePrimitive("primOpen:writable:", OpenFilePrimFactory.getInstance());
-    installInstancePrimitive("primGetPosition:", GetPositionFilePrimFactory.getInstance());
-    installInstancePrimitive("primSetPosition:to:", SetPositionFilePrimFactory.getInstance());
-    installInstancePrimitive("primSize:", SizeFilePrimFactory.getInstance());
-    installInstancePrimitive("primRead:into:startingAt:count:", ReadIntoFilePrimFactory.getInstance());
+    installInstancePrimitive("at:put:", AtPutPrimByteFactory.getInstance());
+    installInstancePrimitive("asString", AsStringPrimByteFactory.getInstance());
   }
 }

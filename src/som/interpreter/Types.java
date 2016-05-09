@@ -29,6 +29,7 @@ import som.vm.constants.MateClasses;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SArray;
 import som.vmobjects.SBlock;
+import som.vmobjects.SFile;
 import som.vmobjects.SObject;
 import som.vmobjects.SShape;
 import som.vmobjects.SSymbol;
@@ -74,6 +75,8 @@ public class Types {
       return Classes.doubleClass;
     } else if (obj instanceof FrameInstance) {
       return MateClasses.contextClass;
+    } else if (obj instanceof SFile) {
+      return Classes.objectClass;
     } else if (obj instanceof DynamicObject) {
       return SObject.getSOMClass((DynamicObject) obj);
     }
