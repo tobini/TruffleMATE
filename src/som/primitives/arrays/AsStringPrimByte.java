@@ -23,6 +23,17 @@ public abstract class AsStringPrimByte extends UnaryExpressionNode {
     return "";
   }
 
+  @Specialization(guards = "isObjectType(receiver)")
+  public final Object doObjectSArray(final SArray receiver) {
+    Object[] chars = receiver.getObjectStorage(storageType);
+    String output = "";
+    for (int i = 0; i < chars.length; i++){
+      output = output.concat((String)chars[i]);
+    }
+    return output;
+  }
+  
+  //ByteArray
   @Specialization
   public final String doByteSArray(final SArray receiver) {
    byte[] bytes = receiver.getByteStorage(storageType);
