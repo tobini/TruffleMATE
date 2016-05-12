@@ -100,5 +100,18 @@ public abstract class FilePluginPrims {
       return 0;
     }
   }
+  
+  @GenerateNodeFactory
+  public abstract static class AtEndFilePrim extends BinaryExpressionNode {
+    @Specialization
+    public boolean doGeneric(DynamicObject receiver, SFile file) {
+      try {
+        return file.getInputStream().available() == 0;
+      } catch (IOException e) {
+        return true;
+      }
+    }
+  }
+  
 }
 

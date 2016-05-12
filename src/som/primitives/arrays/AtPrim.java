@@ -39,8 +39,8 @@ public abstract class AtPrim extends BinaryExpressionNode {
   }
   
   @Specialization(guards = "isByteType(receiver)")
-  public final long doByteSArray(final SArray receiver, final Object idx) {
-    return (long)receiver.getByteStorage(storageType)[(int) idx - 1];
+  public final long doByteSArray(final SArray receiver, final long idx) {
+    return receiver.getByteStorage(storageType)[(int) idx - 1];
   }
 
   @Specialization(guards = "isDoubleType(receiver)")

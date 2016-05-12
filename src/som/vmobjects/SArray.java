@@ -2,6 +2,7 @@ package som.vmobjects;
 
 import java.util.Arrays;
 
+import som.vm.Universe;
 import som.vm.constants.Classes;
 import som.vm.constants.Nil;
 
@@ -382,6 +383,11 @@ public final class SArray extends SAbstractObject {
 
   @Override
   public DynamicObject getSOMClass() {
-    return Classes.arrayClass;
+    if (this.type != ArrayType.BYTE){
+      return Classes.arrayClass;
+    } else {
+      Universe current = Universe.current();
+      return (DynamicObject) current.getGlobal(current.symbolFor("ByteArray"));
+    }
   }
 }
