@@ -30,7 +30,7 @@ public abstract class AsStringPrimByte extends UnaryExpressionNode {
     for (int i = 0; i < chars.length; i++){
       output = output.append(chars[i]);
     }
-    return output;
+    return output.toString();
   }
   
   //ByteArray

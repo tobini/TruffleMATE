@@ -26,14 +26,12 @@
 package som.primitives;
 
 import som.primitives.arrays.AsStringPrimByteFactory;
-import som.primitives.arrays.AtPutPrimByteFactory;
 
 public final class ByteArrayPrimitives extends Primitives {
   public ByteArrayPrimitives(final boolean displayWarning) { super(displayWarning); }
 
   @Override
   public void installPrimitives() {
-    installInstancePrimitive("at:put:", AtPutPrimByteFactory.getInstance());
     installInstancePrimitive("asString", AsStringPrimByteFactory.getInstance());
   }
 }
