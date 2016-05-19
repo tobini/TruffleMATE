@@ -61,18 +61,27 @@ public class SReflectiveObject extends SObject {
   }
   
   //@TruffleBoundary
-  public static SReflectiveObjectObjectType objectTypeFor(DynamicObject environment){
+  public static SReflectiveObjectObjectType objectTypeFor(DynamicObject environment, DynamicObject target){
       SReflectiveObjectObjectType type = SREFLECTIVE_OBJECT_TYPES.get(environment);
       if (type == null){
         CompilerDirectives.transferToInterpreter();
-        type = new SReflectiveObjectObjectType(environment);
+        /*
+         * Hack so objects with metaobjects do not lose the property for being classes. 
+         * Needs a fix so that the same metaobject can be assigned to instances and classes. 
+         * It still was no needed.
+         */
+        if (SClass.isSClass(target)){
+          type = new SClass.SClassObjectType(environment);
+        } else {
+          type = new SReflectiveObjectObjectType(environment);
+        }
         SREFLECTIVE_OBJECT_TYPES.put(environment, type);
       }
       return type;
   }
 
   public static final void setEnvironment(final DynamicObject obj, final DynamicObject value) {
-    SReflectiveObjectObjectType type = objectTypeFor(value);
+    SReflectiveObjectObjectType type = objectTypeFor(value, obj);
     obj.setShapeAndResize(obj.getShape(), obj.getShape().changeType(type));
   }
   

@@ -122,14 +122,16 @@ public final class SClass {
   }
   
   public static boolean isSClass(final DynamicObject obj) {
-    return obj.getShape().getObjectType() == SCLASS_TYPE;
+    return 
+        obj.getShape().getObjectType() == SCLASS_TYPE ||
+        obj.getShape().getObjectType() instanceof SClassObjectType;
   }
 
   // TODO: figure out whether this is really the best way for doing guards
   //       there is the tradeoff with having two different hierarchies of shapes
   //       for SClass and SObject. But, might not be performance critical in
   //       either case
-  private static final class SClassObjectType extends SReflectiveObjectObjectType {
+  public static final class SClassObjectType extends SReflectiveObjectObjectType {
     public SClassObjectType(DynamicObject metaobj) {
       super(metaobj);
     }
