@@ -52,6 +52,8 @@ public class BasicInterpreterTests {
         {"NonLocalReturn", "test3",  3, Long.class },
         {"NonLocalReturn", "test4", 42, Long.class },
         {"NonLocalReturn", "test5", 22, Long.class },
+        
+        {"NonLocalVars", "writeDifferentTypes", 3.75, double.class },
 
         {"Blocks", "arg1",  42, Long.class },
         {"Blocks", "arg2",  77, Long.class },
@@ -126,6 +128,13 @@ public class BasicInterpreterTests {
       long expected = (int) expectedResult;
       long actual   = (long) actualResult;
       assertEquals(expected, actual);
+      return;
+    }
+    
+    if (resultType == double.class) {
+      double expected = (double) expectedResult;
+      double actual   = (double) actualResult;
+      assertEquals(expected, actual, 0);
       return;
     }
 
