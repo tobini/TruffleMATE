@@ -1,8 +1,15 @@
 package som.interpreter.nodes;
 
-import som.interpreter.SArguments;
-import som.interpreter.TypesGen;
+
+import com.oracle.truffle.api.CompilerAsserts;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.nodes.NodeCost;
+import com.oracle.truffle.api.source.SourceSection;
+
 import som.interpreter.TruffleCompiler;
+import som.interpreter.TypesGen;
 import som.interpreter.nodes.dispatch.AbstractDispatchNode;
 import som.interpreter.nodes.dispatch.DispatchChain.Cost;
 import som.interpreter.nodes.dispatch.GenericDispatchNode;
@@ -34,6 +41,8 @@ import som.primitives.LengthPrimFactory;
 import som.primitives.MethodPrimsFactory.InvokeOnPrimFactory;
 import som.primitives.ObjectPrimsFactory.InstVarAtPrimFactory;
 import som.primitives.ObjectPrimsFactory.InstVarAtPutPrimFactory;
+import som.primitives.ObjectPrimsFactory.IsNilNodeGen;
+import som.primitives.ObjectPrimsFactory.NotNilNodeGen;
 import som.primitives.UnequalsPrimFactory;
 import som.primitives.arithmetic.AdditionPrimFactory;
 import som.primitives.arithmetic.BitXorPrimFactory;
@@ -63,14 +72,7 @@ import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SArray;
 import som.vmobjects.SBlock;
 import som.vmobjects.SSymbol;
-
-import com.oracle.truffle.api.CompilerAsserts;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.ExplodeLoop;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.nodes.NodeCost;
-import com.oracle.truffle.api.source.SourceSection;
-
+import som.interpreter.SArguments;
 
 public final class MessageSendNode {
 
@@ -220,6 +222,12 @@ public final class MessageSendNode {
             return replace(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
                 argumentNodes[0], AbsPrimFactory.create(null)));
           }
+          break;
+        //Todo: mateify them
+        case "isNil":
+          return replace(IsNilNodeGen.create(argumentNodes[0]));
+        case "notNil":
+          return replace(NotNilNodeGen.create(argumentNodes[0]));
       }
       return makeGenericSend();
     }

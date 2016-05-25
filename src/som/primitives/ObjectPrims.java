@@ -1,5 +1,11 @@
 package som.primitives;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.GenerateNodeFactory;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.object.DynamicObject;
+
 import som.interpreter.Types;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
@@ -11,13 +17,6 @@ import som.vmobjects.SAbstractObject;
 import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObject;
 import som.vmobjects.SSymbol;
-
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.dsl.GenerateNodeFactory;
-import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.object.DynamicObject;
-
 
 public final class ObjectPrims {
 
@@ -122,6 +121,20 @@ public final class ObjectPrims {
     public final Object doSObject(final DynamicObject receiver, final DynamicObject environment) {
       SReflectiveObject.setEnvironment(receiver, environment);
       return receiver;
+    }
+  }
+
+  public abstract static class IsNilNode extends UnaryExpressionNode {
+    @Specialization
+    public final boolean isNil(final Object receiver) {
+      return receiver == Nil.nilObject;
+    }
+  }
+
+  public abstract static class NotNilNode extends UnaryExpressionNode {
+    @Specialization
+    public final boolean isNil(final Object receiver) {
+      return receiver != Nil.nilObject;
     }
   }
 }
