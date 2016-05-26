@@ -196,7 +196,7 @@ public abstract class ArgumentReadNode {
     }
 
     @Override
-    public Object executeGeneric(final VirtualFrame frame) {
+    public FrameInstance executeGeneric(final VirtualFrame frame) {
       TruffleRuntime runtime = ((Universe)((ExpressionNode)this).getRootNode().getExecutionContext()).getTruffleRuntime(); 
       FrameInstance currentFrame = runtime.getCurrentFrame();
       if (SArguments.getExecutionLevel(currentFrame.getFrame(FrameAccess.MATERIALIZE, true)) == ExecutionLevel.Meta){

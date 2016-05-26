@@ -26,6 +26,7 @@
 package som.primitives;
 
 import som.primitives.ContextPrimsFactory.GetMethodPrimFactory;
+import som.primitives.ContextPrimsFactory.GetReceiverFromContextPrimFactory;
 import som.primitives.ContextPrimsFactory.SenderPrimFactory;
 
 public final class ContextPrimitives extends Primitives {
@@ -35,5 +36,6 @@ public final class ContextPrimitives extends Primitives {
   public void installPrimitives() {
     installInstancePrimitive("method",   GetMethodPrimFactory.getInstance());
     installInstancePrimitive("sender",   SenderPrimFactory.getInstance());
+    installInstancePrimitive("receiver", GetReceiverFromContextPrimFactory.getInstance());
   }
 }
