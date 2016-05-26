@@ -117,7 +117,7 @@ public final class SClass {
   }
   
   public static final DynamicObjectFactory getFactory(final DynamicObject clazz) {
-    assert clazz.getShape().getObjectType() == SCLASS_TYPE;
+    assert isSClass(clazz);
     return (DynamicObjectFactory) clazz.get(OBJECT_FACTORY);
   }
   
