@@ -160,7 +160,10 @@ public final class SClass {
   }
 
   public static SSymbol getName(final DynamicObject classObj) {
-    CompilerAsserts.neverPartOfCompilation("optimize caller");
+    //CompilerAsserts.neverPartOfCompilation("optimize caller");
+    /*We are using it inside the fast path for checking if the class is a byteArray. 
+     * We should optimize NewPrim>>doByteSClass to enable again the neverPartOfCompilation 
+     */
     return (SSymbol) classObj.get(NAME);
   }
 

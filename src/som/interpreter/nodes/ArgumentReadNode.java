@@ -1,5 +1,6 @@
 package som.interpreter.nodes;
 
+import som.interpreter.FrameOnStackMarker;
 import som.interpreter.InlinerAdaptToEmbeddedOuterContext;
 import som.interpreter.InlinerForLexicallyEmbeddedMethods;
 import som.interpreter.MateVisitors;
@@ -10,7 +11,10 @@ import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.TruffleRuntime;
+import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.FrameInstance;
+import com.oracle.truffle.api.frame.FrameSlot;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.FrameInstance.FrameAccess;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
@@ -198,12 +202,16 @@ public abstract class ArgumentReadNode {
     @Override
     public FrameInstance executeGeneric(final VirtualFrame frame) {
       TruffleRuntime runtime = ((Universe)((ExpressionNode)this).getRootNode().getExecutionContext()).getTruffleRuntime(); 
-      FrameInstance currentFrame = runtime.getCurrentFrame();
-      if (SArguments.getExecutionLevel(currentFrame.getFrame(FrameAccess.MATERIALIZE, true)) == ExecutionLevel.Meta){
-        return runtime.iterateFrames(new MateVisitors.FindFirstBaseLevelFrame());
+      FrameInstance currentFrame;
+      if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta){
+        currentFrame = runtime.iterateFrames(new MateVisitors.FindFirstBaseLevelFrame());
       } else {
-        return currentFrame;
+        currentFrame = runtime.getCurrentFrame();
       }
+      final Frame materialized = currentFrame.getFrame(FrameAccess.MATERIALIZE, true);
+      FrameSlot frameOnStackMarker = materialized.getFrameDescriptor().addFrameSlot(Universe.frameOnStackSlotName(), FrameSlotKind.Object);
+      frame.setObject(frameOnStackMarker, new FrameOnStackMarker());
+      return currentFrame;
     }
   }
 }

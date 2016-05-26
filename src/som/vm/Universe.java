@@ -716,5 +716,11 @@ public class Universe extends ExecutionContext {
   
   public String imageName(){
     return "Smalltalk/fake.image";
-  };
+  }
+  
+  public static String frameOnStackSlotName(){
+    // Name for the frameOnStack slot,
+    // starting with ! to make it a name that's not possible in Smalltalk
+    return "!frameOnStack";
+  }
 }

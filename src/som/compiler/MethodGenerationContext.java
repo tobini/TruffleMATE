@@ -110,17 +110,13 @@ public final class MethodGenerationContext {
     return currentScope;
   }
 
-  // Name for the frameOnStack slot,
-  // starting with ! to make it a name that's not possible in Smalltalk
-  private static final String frameOnStackSlotName = "!frameOnStack";
-
   public FrameSlot getFrameOnStackMarkerSlot() {
     if (outerGenc != null) {
       return outerGenc.getFrameOnStackMarkerSlot();
     }
 
     if (frameOnStackSlot == null) {
-      frameOnStackSlot = currentScope.getFrameDescriptor().addFrameSlot(frameOnStackSlotName);
+      frameOnStackSlot = currentScope.getFrameDescriptor().addFrameSlot(Universe.frameOnStackSlotName());
     }
     return frameOnStackSlot;
   }
