@@ -7,12 +7,14 @@ import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import som.primitives.arrays.ToArgumentsArrayNode;
 import som.primitives.arrays.ToArgumentsArrayNodeGen;
+import som.vm.constants.ExecutionLevel;
 import som.vm.constants.MateClasses;
+import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.SArray;
 import som.vmobjects.SClass;
-import som.vmobjects.SInvokable;
 import som.vmobjects.SSymbol;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -66,8 +68,13 @@ public abstract class AbstractSymbolDispatch extends Node {
 
     /*Todo: Analyze what is the best to do here with the Mate arguments*/
     Object[] arguments = { MateClasses.STANDARD_ENVIRONMENT, SArguments.getExecutionLevel(frame), receiver };
-
-    return call.call(frame, SInvokable.getCallTarget(invokable), arguments);
+    CallTarget target;
+    if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta){
+      target = InvokableLayoutImpl.INSTANCE.getCallTargetMeta(invokable);
+    } else {
+      target = InvokableLayoutImpl.INSTANCE.getCallTarget(invokable);
+    }
+    return call.call(frame, target, arguments);
   }
 
   @Specialization(contains = "doCached")
@@ -78,7 +85,12 @@ public abstract class AbstractSymbolDispatch extends Node {
     DynamicObject invokable = SClass.lookupInvokable(Types.getClassOf(receiver), selector);
 
     Object[] arguments = toArgArray.executedEvaluated(argsArr, receiver);
-
-    return call.call(frame, SInvokable.getCallTarget(invokable), arguments);
+    CallTarget target;
+    if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta){
+      target = InvokableLayoutImpl.INSTANCE.getCallTargetMeta(invokable);
+    } else {
+      target = InvokableLayoutImpl.INSTANCE.getCallTarget(invokable);
+    }
+    return call.call(frame, target, arguments);
   }
 }
