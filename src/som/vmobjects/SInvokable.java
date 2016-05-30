@@ -51,7 +51,10 @@ public class SInvokable {
     RootCallTarget getCallTargetMeta(final DynamicObject object);
     void setHolderUnsafe(DynamicObject object, DynamicObject value);
     DynamicObject createInvokable(DynamicObjectFactory factory, SSymbol signature, Invokable invokable, RootCallTarget callTarget, Invokable invokableMeta, RootCallTarget callTargetMeta, DynamicObject holder);
-    DynamicObjectFactory createInvokableShape(DynamicObject clazz);
+    DynamicObjectFactory createInvokableShape(DynamicObject klass);
+    DynamicObject getKlass(DynamicObjectFactory factory);
+    DynamicObject getKlass(ObjectType objectType);
+    DynamicObject getKlass(DynamicObject object);
     boolean isInvokable(DynamicObject object);
     boolean isInvokable(ObjectType objectType);
   }
@@ -72,7 +75,27 @@ public class SInvokable {
   }
   
   public static final int getNumberOfArguments(final DynamicObject invokable) {
-    return InvokableLayoutImpl.INSTANCE.getSignature(invokable).getNumberOfSignatureArguments();
+    return getSignature(invokable).getNumberOfSignatureArguments();
+  }
+  
+  public static final Invokable getInvokable(final DynamicObject invokable) {
+    return InvokableLayoutImpl.INSTANCE.getInvokable(invokable);
+  }
+
+  public static final SSymbol getSignature(final DynamicObject invokable) {
+    return InvokableLayoutImpl.INSTANCE.getSignature(invokable);
+  }
+  
+  public static final DynamicObject getHolder(final DynamicObject invokable) {
+    return InvokableLayoutImpl.INSTANCE.getHolder(invokable);
+  }  
+  
+  public static void setHolder(final DynamicObject invokable, final DynamicObject value) {
+    if (SMethod.isSMethod(value)){
+      SMethod.setHolder(invokable, value);
+    } else {
+      InvokableLayoutImpl.INSTANCE.setHolderUnsafe(invokable, value);
+    }
   }
 
   public static final Object invoke(final DynamicObject invokable, final VirtualFrame frame, final Object... arguments) {
@@ -97,13 +120,17 @@ public class SInvokable {
       InvokableLayoutImpl.INSTANCE.getSignature(invokable).toString() + ")";
   }
   
+  public static DynamicObject getSOMClass(final DynamicObject obj) {
+    return InvokableLayoutImpl.INSTANCE.getKlass(obj);
+  }
+  
   public static final class SMethod extends SInvokable {
     @Layout
     public interface MethodLayout extends InvokableLayout {
       DynamicObject[] getEmbeddedBlocks(final DynamicObject object);
       DynamicObject createMethod(DynamicObjectFactory factory, SSymbol signature, Invokable invokable, 
           RootCallTarget callTarget, Invokable invokableMeta, RootCallTarget callTargetMeta, DynamicObject holder, DynamicObject[] embeddedBlocks);
-      DynamicObjectFactory createMethodShape(DynamicObject clazz);
+      DynamicObjectFactory createMethodShape(DynamicObject klass);
       boolean isMethod(DynamicObject object);
       boolean isMethod(ObjectType objectType);
     }
@@ -124,7 +151,7 @@ public class SInvokable {
     }
     
     public static boolean isSMethod(final DynamicObject obj) {
-      return obj.getShape().getObjectType() == SMETHOD_FACTORY;
+      return MethodLayoutImpl.INSTANCE.isMethod(obj);
     }
   }
   

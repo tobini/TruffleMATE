@@ -290,7 +290,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
   }
   
   public static DirectCallNode createDirectCall(DynamicObject methodToActivate){
-    DirectCallNode node = DirectCallNode.create(SInvokable.getCallTarget(methodToActivate, ExecutionLevel.Meta)); 
+    DirectCallNode node = DirectCallNode.create(SInvokable.getCallTarget(methodToActivate, ExecutionLevel.Base)); 
     node.forceInlining();
     return node;
   }

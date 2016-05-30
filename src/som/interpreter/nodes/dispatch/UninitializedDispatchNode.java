@@ -76,7 +76,7 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
       final DynamicObject environment, final ExecutionLevel exLevel, final Object[] arguments) {
     transferToInterpreterAndInvalidate("Initialize a dispatch node.");
     return specialize(frame, arguments).
-    executeDispatch(frame, environment, exLevel, arguments);
+        executeDispatch(frame, environment, exLevel, arguments);
   }
 
   @Override
