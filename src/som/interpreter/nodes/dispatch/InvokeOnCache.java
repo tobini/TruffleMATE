@@ -1,6 +1,8 @@
 package som.interpreter.nodes.dispatch;
 
 import static som.interpreter.TruffleCompiler.transferToInterpreterAndInvalidate;
+import som.interpreter.SArguments;
+import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SInvokable;
 
 import com.oracle.truffle.api.Truffle;
@@ -33,13 +35,13 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
       super(depth);
     }
 
-    private InvokeOnCache specialize(final DynamicObject invokable) {
+    private InvokeOnCache specialize(final DynamicObject invokable, ExecutionLevel level) {
       transferToInterpreterAndInvalidate("Initialize a dispatch node.");
 
       if (depth < INLINE_CACHE_SIZE) {
         CachedDispatchNode specialized = new CachedDispatchNode(invokable,
             new UninitializedDispatchNode(depth + 1),
-            depth);
+            depth, level);
         return replace(specialized);
       }
 
@@ -51,7 +53,7 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
     @Override
     public Object executeDispatch(final VirtualFrame frame,
         final DynamicObject invokable, final Object[] arguments) {
-      return specialize(invokable).
+      return specialize(invokable, SArguments.getExecutionLevel(frame)).
           executeDispatch(frame, invokable, arguments);
     }
 
@@ -75,11 +77,11 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
     @Child private InvokeOnCache nextInCache;
 
     public CachedDispatchNode(final DynamicObject invokable,
-        final InvokeOnCache nextInCache, final int depth) {
+        final InvokeOnCache nextInCache, final int depth, ExecutionLevel level) {
       super(depth);
       this.invokable = invokable;
       this.nextInCache = nextInCache;
-      callNode = Truffle.getRuntime().createDirectCallNode(SInvokable.getCallTarget(invokable));
+      callNode = Truffle.getRuntime().createDirectCallNode(SInvokable.getCallTarget(invokable, level));
     }
 
     @Override
@@ -110,7 +112,7 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
     @Override
     public Object executeDispatch(final VirtualFrame frame,
         final DynamicObject invokable, final Object[] arguments) {
-      return callNode.call(frame, SInvokable.getCallTarget(invokable), arguments);
+      return callNode.call(frame, SInvokable.getCallTarget(invokable, SArguments.getExecutionLevel(frame)), arguments);
     }
 
     @Override

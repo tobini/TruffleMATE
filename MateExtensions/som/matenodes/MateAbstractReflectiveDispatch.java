@@ -37,7 +37,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
 
   public DirectCallNode createDispatch(final DynamicObject metaMethod) {
     DirectCallNode node = MateUniverse.current().getTruffleRuntime()
-        .createDirectCallNode(SInvokable.getCallTarget(metaMethod));
+        .createDirectCallNode(SInvokable.getCallTarget(metaMethod, ExecutionLevel.Meta));
     node.forceInlining();
     return node;
   }
@@ -85,7 +85,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     public Object doMegaMorphic(final VirtualFrame frame, final DynamicObject method,
         final Object subject, final Object[] arguments,
         @Cached("createIndirectCall()") final IndirectCallNode callNode) {
-      return callNode.call(frame, SInvokable.getCallTarget(method), this.computeArgumentsForMetaDispatch(frame, arguments));
+      return callNode.call(frame, SInvokable.getCallTarget(method, ExecutionLevel.Meta), this.computeArgumentsForMetaDispatch(frame, arguments));
     }
     
     @Override
@@ -285,12 +285,12 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
       Object[] args = { SArguments.getEnvironment(frame), ExecutionLevel.Meta, (DynamicObject) arguments[0], methodToActivate, 
           SArray.create(SArguments.createSArguments(SArguments.getEnvironment(frame), ExecutionLevel.Base, arguments))};
       SArray realArguments = (SArray)reflectiveMethod.call(frame, args);
-      return callNode.call(frame, SInvokable.getCallTarget(methodToActivate), realArguments.toJavaArray());
+      return callNode.call(frame, SInvokable.getCallTarget(methodToActivate, ExecutionLevel.Meta), realArguments.toJavaArray());
     }
   }
   
   public static DirectCallNode createDirectCall(DynamicObject methodToActivate){
-    DirectCallNode node = DirectCallNode.create(SInvokable.getCallTarget(methodToActivate)); 
+    DirectCallNode node = DirectCallNode.create(SInvokable.getCallTarget(methodToActivate, ExecutionLevel.Meta)); 
     node.forceInlining();
     return node;
   }

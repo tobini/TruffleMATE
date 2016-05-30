@@ -1,6 +1,8 @@
 package som.interpreter.nodes.specialized.whileloops;
 
+import som.interpreter.SArguments;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
+import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Globals;
 import som.vm.constants.Nil;
 import som.vmobjects.SBlock;
@@ -30,11 +32,15 @@ public abstract class WhileCache extends BinaryExpressionNode {
       final SBlock loopCondition, final SBlock loopBody,
       @Cached("loopCondition.getMethod()") final DynamicObject cachedLoopCondition,
       @Cached("loopBody.getMethod()") final      DynamicObject cachedLoopBody,
-      @Cached("create(loopCondition, loopBody, predicateBool)") final
+      @Cached("create(loopCondition, loopBody, predicateBool, getExecutionLevel(frame))") final
          WhileWithDynamicBlocksNode whileNode) {
     return whileNode.doWhileUnconditionally(frame, loopCondition, loopBody);
   }
-
+  
+  protected static ExecutionLevel getExecutionLevel(final VirtualFrame frame){
+    return SArguments.getExecutionLevel(frame);
+  }
+  
   private boolean obj2bool(final Object o) {
     if (o instanceof Boolean) {
       return (boolean) o;
@@ -53,15 +59,15 @@ public abstract class WhileCache extends BinaryExpressionNode {
       final SBlock loopBody) {
     CompilerAsserts.neverPartOfCompilation("WhileCache.GenericDispatch"); // no caching, direct invokes, no loop count reporting...
 
-    Object conditionResult = SInvokable.invoke(loopCondition.getMethod(), loopCondition);
+    Object conditionResult = SInvokable.invoke(loopCondition.getMethod(), frame, loopCondition);
 
     // TODO: this is a simplification, we don't cover the case receiver isn't a boolean
     boolean loopConditionResult = obj2bool(conditionResult);
 
     // TODO: this is a simplification, we don't cover the case receiver isn't a boolean
     while (loopConditionResult == predicateBool) {
-      SInvokable.invoke(loopBody.getMethod(), loopBody);
-      conditionResult = SInvokable.invoke(loopCondition.getMethod(), loopCondition);
+      SInvokable.invoke(loopBody.getMethod(), frame, loopBody);
+      conditionResult = SInvokable.invoke(loopCondition.getMethod(), frame, loopCondition);
       loopConditionResult = obj2bool(conditionResult);
     }
     return Nil.nilObject;

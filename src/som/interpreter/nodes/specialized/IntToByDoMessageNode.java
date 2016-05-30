@@ -4,6 +4,7 @@ import som.interpreter.Invokable;
 import som.interpreter.SArguments;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.QuaternaryExpressionNode;
+import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
 
@@ -23,11 +24,11 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
   @Child private DirectCallNode valueSend;
 
   public IntToByDoMessageNode(final ExpressionNode orignialNode,
-      final SBlock block) {
+      final SBlock block, ExecutionLevel level) {
     super(orignialNode.getSourceSection());
     blockMethod = block.getMethod();
     valueSend = Truffle.getRuntime().createDirectCallNode(
-                    SInvokable.getCallTarget(blockMethod));
+                    SInvokable.getCallTarget(blockMethod, level));
   }
 
   public IntToByDoMessageNode(final IntToByDoMessageNode node) {

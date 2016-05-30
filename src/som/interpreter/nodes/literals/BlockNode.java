@@ -10,10 +10,10 @@ import som.interpreter.SplitterForLexicallyEmbeddedCode;
 import som.interpreter.nodes.ExpressionNode;
 import som.vm.MateUniverse;
 import som.vm.Universe;
+import som.vmobjects.InvokableLayoutImpl;
+import som.vmobjects.MethodLayoutImpl;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
-import som.vmobjects.SInvokable.SMethod;
-
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -60,7 +60,7 @@ public class BlockNode extends LiteralNode {
 
   @Override
   public void replaceWithIndependentCopyForInlining(final SplitterForLexicallyEmbeddedCode inliner) {
-    Invokable clonedInvokable = SInvokable.getInvokable(blockMethod).
+    Invokable clonedInvokable = InvokableLayoutImpl.INSTANCE.getInvokable(blockMethod).
         cloneWithNewLexicalContext(inliner.getCurrentScope());
     replaceAdapted(clonedInvokable);
   }
@@ -68,7 +68,7 @@ public class BlockNode extends LiteralNode {
   @Override
   public void replaceWithLexicallyEmbeddedNode(
       final InlinerForLexicallyEmbeddedMethods inliner) {
-    Invokable adapted = ((Method) SInvokable.getInvokable(blockMethod)).
+    Invokable adapted = ((Method) InvokableLayoutImpl.INSTANCE.getInvokable(blockMethod)).
         cloneAndAdaptToEmbeddedOuterContext(inliner);
     replaceAdapted(adapted);
   }
@@ -76,15 +76,15 @@ public class BlockNode extends LiteralNode {
   @Override
   public void replaceWithCopyAdaptedToEmbeddedOuterContext(
       final InlinerAdaptToEmbeddedOuterContext inliner) {
-    Invokable adapted = ((Method) SInvokable.getInvokable(blockMethod)).
+    Invokable adapted = ((Method) InvokableLayoutImpl.INSTANCE.getInvokable(blockMethod)).
         cloneAndAdaptToSomeOuterContextBeingEmbedded(inliner);
     replaceAdapted(adapted);
   }
 
   private void replaceAdapted(final Invokable adaptedForContext) {
     DynamicObject adapted = Universe.newMethod(
-        SInvokable.getSignature(blockMethod), adaptedForContext, false,
-        SMethod.getEmbeddedBlocks(blockMethod));
+        MethodLayoutImpl.INSTANCE.getSignature(blockMethod), adaptedForContext, false,
+        MethodLayoutImpl.INSTANCE.getEmbeddedBlocks(blockMethod));
     replace(createNode(adapted));
   }
 
@@ -97,7 +97,7 @@ public class BlockNode extends LiteralNode {
       final Local... blockArguments) {
     // self doesn't need to be passed
     assert SInvokable.getNumberOfArguments(blockMethod) - 1 == blockArguments.length;
-    return SInvokable.getInvokable(blockMethod).inline(mgenc, blockArguments);
+    return InvokableLayoutImpl.INSTANCE.getInvokable(blockMethod).inline(mgenc, blockArguments);
   }
 
   public static final class BlockNodeWithContext extends BlockNode {

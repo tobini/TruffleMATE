@@ -2,6 +2,7 @@ package som.interpreter.nodes.specialized;
 
 import som.interpreter.SArguments;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
+import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
 
@@ -31,12 +32,12 @@ public abstract class IfTrueIfFalseMessageNode extends TernaryExpressionNode {
   @Child private IndirectCallNode call;
 
   public IfTrueIfFalseMessageNode(final Object rcvr, final Object arg1,
-      final Object arg2) {
+      final Object arg2, ExecutionLevel level) {
     if (arg1 instanceof SBlock) {
       SBlock trueBlock = (SBlock) arg1;
       trueMethod = trueBlock.getMethod();
       trueValueSend = Truffle.getRuntime().createDirectCallNode(
-          SInvokable.getCallTarget(trueMethod));
+          SInvokable.getCallTarget(trueMethod, level));
     } else {
       trueMethod = null;
     }
@@ -45,7 +46,7 @@ public abstract class IfTrueIfFalseMessageNode extends TernaryExpressionNode {
       SBlock falseBlock = (SBlock) arg2;
       falseMethod = falseBlock.getMethod();
       falseValueSend = Truffle.getRuntime().createDirectCallNode(
-          SInvokable.getCallTarget(falseMethod));
+          SInvokable.getCallTarget(falseMethod, level));
     } else {
       falseMethod = null;
     }
@@ -53,18 +54,18 @@ public abstract class IfTrueIfFalseMessageNode extends TernaryExpressionNode {
     call = Truffle.getRuntime().createIndirectCallNode();
   }
 
-  public IfTrueIfFalseMessageNode(final IfTrueIfFalseMessageNode node) {
+  public IfTrueIfFalseMessageNode(final IfTrueIfFalseMessageNode node, ExecutionLevel level) {
     super();
     trueMethod = node.trueMethod;
     if (node.trueMethod != null) {
       trueValueSend = Truffle.getRuntime().createDirectCallNode(
-          SInvokable.getCallTarget(trueMethod));
+          SInvokable.getCallTarget(trueMethod, level));
     }
 
     falseMethod = node.falseMethod;
     if (node.falseMethod != null) {
       falseValueSend = Truffle.getRuntime().createDirectCallNode(
-          SInvokable.getCallTarget(falseMethod));
+          SInvokable.getCallTarget(falseMethod, level));
     }
     call = Truffle.getRuntime().createIndirectCallNode();
   }

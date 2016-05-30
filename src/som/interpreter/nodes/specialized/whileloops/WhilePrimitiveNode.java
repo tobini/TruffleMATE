@@ -1,6 +1,7 @@
 package som.interpreter.nodes.specialized.whileloops;
 
 import som.interpreter.nodes.nary.BinaryExpressionNode;
+import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SBlock;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
@@ -14,14 +15,14 @@ public abstract class WhilePrimitiveNode extends BinaryExpressionNode {
   final boolean predicateBool;
   @Child protected WhileCache whileNode;
 
-  protected WhilePrimitiveNode(final boolean predicateBool) {
+  protected WhilePrimitiveNode(final boolean predicateBool, final ExecutionLevel level) {
     super(null);
     this.predicateBool = predicateBool;
     this.whileNode = WhileCacheNodeGen.create(predicateBool, null, null);
   }
 
-  protected WhilePrimitiveNode(final WhilePrimitiveNode node) {
-    this(node.predicateBool);
+  protected WhilePrimitiveNode(final WhilePrimitiveNode node, final ExecutionLevel level) {
+    this(node.predicateBool, level);
   }
 
   @Specialization
@@ -31,10 +32,10 @@ public abstract class WhilePrimitiveNode extends BinaryExpressionNode {
   }
 
   public abstract static class WhileTruePrimitiveNode extends WhilePrimitiveNode {
-    public WhileTruePrimitiveNode() { super(true); }
+    public WhileTruePrimitiveNode(final ExecutionLevel level) { super(true, level); }
   }
 
   public abstract static class WhileFalsePrimitiveNode extends WhilePrimitiveNode {
-    public WhileFalsePrimitiveNode() { super(false); }
+    public WhileFalsePrimitiveNode(final ExecutionLevel level) { super(false, level); }
   }
 }
