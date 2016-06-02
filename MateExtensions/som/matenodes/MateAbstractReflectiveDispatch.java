@@ -192,17 +192,6 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
       super(source, sel);
     }
     
-    @Specialization(guards = {"cachedMethod==method", "classOfReceiver(subject) == cachedClass"}, 
-        insertBefore="doMateNode", limit = "3")
-    public Object doMatePrimitiveNodeCached(final VirtualFrame frame, final DynamicObject method,
-        final Object subject, final Object[] arguments,
-        @Cached("method") final DynamicObject cachedMethod,
-        @Cached("classOfReceiver(subject)") final DynamicObject cachedClass,
-        @Cached("lookupResult(frame, method, subject, arguments)") final DynamicObject lookupResult){
-      // The MOP receives the class where the lookup must start (find: aSelector since: aClass)
-      return activationNode.doActivation(frame, lookupResult, arguments);
-    }
-
     @Specialization(guards = {"cachedMethod==method", "shapeOfReceiver(arguments) == cachedShape"}, 
         insertBefore="doMateNode", limit = "INLINE_CACHE_SIZE")
     public Object doMateNodeCached(final VirtualFrame frame, final DynamicObject method,
@@ -214,6 +203,18 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
       return activationNode.doActivation(frame, lookupResult, arguments);
     }
     
+    //TODO: Optimize. This case is taking too much time because of the classOfReceiver(subject) guard.
+    @Specialization(guards = {"cachedMethod==method", "classOfReceiver(subject) == cachedClass"}, 
+        insertBefore="doMateNode", limit = "3")
+    public Object doMatePrimitiveNodeCached(final VirtualFrame frame, final DynamicObject method,
+        final Object subject, final Object[] arguments,
+        @Cached("method") final DynamicObject cachedMethod,
+        @Cached("classOfReceiver(subject)") final DynamicObject cachedClass,
+        @Cached("lookupResult(frame, method, subject, arguments)") final DynamicObject lookupResult){
+      // The MOP receives the class where the lookup must start (find: aSelector since: aClass)
+      return activationNode.doActivation(frame, lookupResult, arguments);
+    }
+
     @Specialization(guards = {"cachedMethod==method"}, contains = {"doMateNodeCached"}, insertBefore="doMateNode")
     public Object doMegaMorphic(final VirtualFrame frame, final DynamicObject method,
         final DynamicObject subject, final Object[] arguments,
