@@ -16,7 +16,7 @@
         <pathelement location="${lib.dir}/junit-${junit.version}.jar" />
         <pathelement location="${lib.dir}/hamcrest-core-1.3.jar" />
     	<pathelement location="${lib.dir}/websocket/dist/websocket.jar" />
-		<pathelement location="${lib.dir}/minimal-json/build/minimal-json.jar" />
+    	<pathelement location="${lib.dir}/json/build/minimal-json.jar" />
         <pathelement location="${truffle.build}/truffle-api.jar" />
         <pathelement location="${truffle.build}/truffle-dsl-processor.jar" />
 		<pathelement location="${truffle.build}/truffle-debug.jar" />
@@ -37,7 +37,8 @@
     <target name="check-core-lib-available">
         <available file="core-lib/.git" property="core-lib.present"/>
     </target>
-    <target name="core-lib" depends="check-core-lib-available"
+    
+	<target name="core-lib" depends="check-core-lib-available"
             unless="core-lib.present">
       <exec executable="git">
         <arg value="submodule" />
