@@ -5,7 +5,9 @@ import som.interpreter.Types;
 import som.interpreter.nodes.ISuperReadNode;
 import som.interpreter.nodes.MateMethodActivationNode;
 import som.vm.MateUniverse;
+import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
+import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SInvokable;
 import som.vmobjects.SObject;
@@ -270,7 +272,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
         @Cached("createDirectCall(methodToActivate)") final DirectCallNode callNode,
         @Cached("createDispatch(method)") final DirectCallNode reflectiveMethod) {
       // The MOP receives the standard ST message Send stack (rcvr, method, arguments) and returns its own
-      Object[] args = { SArguments.getEnvironment(frame), ExecutionLevel.Meta, arguments[0], methodToActivate, 
+      Object[] args = { Nil.nilObject, ExecutionLevel.Base, arguments[0], methodToActivate, 
           SArray.create(SArguments.createSArguments(SArguments.getEnvironment(frame), ExecutionLevel.Base, arguments))};
       SArray realArguments = (SArray)reflectiveMethod.call(frame, args);
       return callNode.call(frame, realArguments.toJavaArray());
@@ -283,10 +285,10 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
         @Cached("method") final DynamicObject cachedMethod,
         @Cached("createDispatch(method)") final DirectCallNode reflectiveMethod,
         @Cached("createIndirectCall()") final IndirectCallNode callNode){
-      Object[] args = { SArguments.getEnvironment(frame), ExecutionLevel.Meta, (DynamicObject) arguments[0], methodToActivate, 
+      Object[] args = { Nil.nilObject, ExecutionLevel.Base, arguments[0], methodToActivate, 
           SArray.create(SArguments.createSArguments(SArguments.getEnvironment(frame), ExecutionLevel.Base, arguments))};
       SArray realArguments = (SArray)reflectiveMethod.call(frame, args);
-      return callNode.call(frame, SInvokable.getCallTarget(methodToActivate, ExecutionLevel.Meta), realArguments.toJavaArray());
+      return callNode.call(frame, SInvokable.getCallTarget(methodToActivate, ExecutionLevel.Base), realArguments.toJavaArray());
     }
   }
   
