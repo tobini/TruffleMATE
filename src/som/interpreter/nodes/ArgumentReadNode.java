@@ -209,8 +209,10 @@ public abstract class ArgumentReadNode {
         currentFrame = runtime.getCurrentFrame();
       }
       final Frame materialized = currentFrame.getFrame(FrameAccess.MATERIALIZE, true);
-      FrameSlot frameOnStackMarker = materialized.getFrameDescriptor().addFrameSlot(Universe.frameOnStackSlotName(), FrameSlotKind.Object);
-      frame.setObject(frameOnStackMarker, new FrameOnStackMarker());
+      if (materialized.getFrameDescriptor().findFrameSlot(Universe.frameOnStackSlotName()) == null){
+        FrameSlot frameOnStackMarker = materialized.getFrameDescriptor().addFrameSlot(Universe.frameOnStackSlotName(), FrameSlotKind.Object);
+        frame.setObject(frameOnStackMarker, new FrameOnStackMarker());
+      }
       return currentFrame;
     }
   }
