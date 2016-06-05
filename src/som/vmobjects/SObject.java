@@ -31,31 +31,33 @@ import som.vm.constants.Nil;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
-import com.oracle.truffle.api.object.Layout;
 import com.oracle.truffle.api.object.ObjectType;
-import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.object.dsl.Layout;
 
 
 public class SObject {
-
-  private static final SObjectObjectType SOBJECT_TYPE = new SObjectObjectType();
-
-  protected static final Layout LAYOUT = Layout.createLayout();
-
-  // Object shape with property for a class
-  protected static final Shape INIT_NIL_SHAPE = LAYOUT.createShape(SOBJECT_TYPE);
-  public static final DynamicObjectFactory NIL_DUMMY_FACTORY = INIT_NIL_SHAPE.createFactory();
-
-  protected SObject() { } // this class cannot be instantiated, it provides only static helpers
-
-  public static Shape createObjectShapeForClass(final DynamicObject clazz) {
-    return LAYOUT.createShape(INIT_NIL_SHAPE.getObjectType(), clazz);
+  
+  @Layout
+  public interface SObjectLayout {
+    DynamicObject createSObject(DynamicObjectFactory factory);
+    DynamicObjectFactory createSObjectShape(DynamicObject klass);
+    DynamicObject getKlass(DynamicObjectFactory factory);
+    DynamicObject getKlass(ObjectType objectType);
+    DynamicObject getKlass(DynamicObject object);
+    void setKlass(DynamicObject object, DynamicObject value);
+    boolean isSObject(DynamicObject object);
+    boolean isSObject(ObjectType objectType);
+  }
+  
+  public static final DynamicObjectFactory NIL_DUMMY_FACTORY = SObjectLayoutImpl.INSTANCE.createSObjectShape(Nil.nilObject);
+  
+  public static DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
+    return SObjectLayoutImpl.INSTANCE.createSObjectShape(clazz);
   }
 
   public static DynamicObject create(final DynamicObject instanceClass) {
     CompilerAsserts.neverPartOfCompilation("Basic create without factory caching");
     DynamicObjectFactory factory = SClass.getFactory(instanceClass);
-    assert factory != NIL_DUMMY_FACTORY;
     //The parameter is the metaobject, only valid for SReflectiveObjects
     return factory.newInstance(Nil.nilObject);
   }
@@ -63,7 +65,8 @@ public class SObject {
   public static DynamicObject createNil() {
     // TODO: this is work in progress, the class should go as shared data into the shape
     // TODO: ideally, nil is like in SOMns an SObjectWithoutFields
-    return NIL_DUMMY_FACTORY.newInstance(new Object[] { null });
+    return SObjectLayoutImpl.INSTANCE.createSObjectShape(null).newInstance();
+    //NIL_DUMMY_FACTORY.newInstance(new Object[] { null });
   }
   
   /**
@@ -79,41 +82,31 @@ public class SObject {
    * multiple shapes for each basic classes.
    */
   public static boolean isSObject(final DynamicObject obj) {
-    return obj.getShape().getObjectType() == SOBJECT_TYPE;
+    return SObjectLayoutImpl.INSTANCE.isSObject(obj);
   }
 
-  private static final class SObjectObjectType extends ObjectType {
+  /*private static final class SObjectObjectType extends ObjectType {
     @Override
     public String toString() {
       return "SObject";
     }
-  }
+  }*/
 
   public static DynamicObject getSOMClass(final DynamicObject obj) {
-    //Todo: Remove the if and make this method homegeneous when all objects use the @layout annotation
-    DynamicObject type = (DynamicObject) obj.getShape().getSharedData();
-    if (type == null) type = SInvokable.getSOMClass((DynamicObject)obj);
-    return type;
+    //Todo: Remove the if and make this method homogeneous when all objects use the @layout annotation
+    return SObjectLayoutImpl.INSTANCE.getKlass(obj);
+    /*DynamicObject type = (DynamicObject) obj.getShape().getSharedData();
+    if (type == null) type = SInvokable.getSOMClass(obj);
+    return type;*/
   }
 
-  public static final void internalSetNilClass(final DynamicObject obj, final DynamicObject value) {
-    assert obj.getShape().getObjectType() == SOBJECT_TYPE;
-    CompilerAsserts.neverPartOfCompilation("SObject.setClass");
-    assert obj != null;
+  public static final void internalSetNilClass(final DynamicObject object, final DynamicObject value) {
+    assert object != null;
     assert value != null;
-
     assert !Universe.current().objectSystemInitialized : "This should really only be used during initialization of object system";
-
-    Shape withoutClass = obj.getShape();
-    Shape withClass = withoutClass.createSeparateShape(value);
-
-    obj.setShapeAndGrow(withoutClass, withClass);
+    SObjectLayoutImpl.INSTANCE.setKlass(object, value);
   }
-
-  public static final int getFieldIndex(final DynamicObject obj, final SSymbol fieldName) {
-    return SClass.lookupFieldIndex(getSOMClass(obj), fieldName);
-  }
-
+  
   public static final int getNumberOfFields(final DynamicObject obj) {
     throw new NotYetImplementedException();
   }

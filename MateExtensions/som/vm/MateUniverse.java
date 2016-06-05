@@ -21,7 +21,6 @@ import som.vmobjects.SSymbol;
 import com.oracle.truffle.api.Assumption;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
-import com.oracle.truffle.api.object.Shape;
 
 public class MateUniverse extends Universe {
   private Assumption mateActivated;
@@ -118,11 +117,6 @@ public class MateUniverse extends Universe {
   @Override
   public DynamicObjectFactory getInstancesFactory(){
     return SReflectiveObject.SREFLECTIVE_OBJECT_FACTORY;
-  }
-  
-  @Override
-  public Shape createObjectShapeForClass(DynamicObject clazz){
-    return SReflectiveObject.createObjectShapeForClass(clazz);
   }
   
   public Assumption getMateDeactivatedAssumption(){

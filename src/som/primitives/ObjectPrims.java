@@ -8,6 +8,7 @@ import som.primitives.reflection.IndexDispatch;
 import som.vm.Universe;
 import som.vm.constants.Nil;
 import som.vmobjects.SAbstractObject;
+import som.vmobjects.SClass;
 import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObject;
 import som.vmobjects.SSymbol;
@@ -84,7 +85,7 @@ public final class ObjectPrims {
     @Specialization
     public final Object doSObject(final DynamicObject receiver, final SSymbol fieldName) {
       //CompilerAsserts.neverPartOfCompilation("InstVarNamedPrim");
-      return receiver.get(SObject.getFieldIndex(receiver, fieldName), Nil.nilObject);
+      return receiver.get(SClass.lookupFieldIndex(SObject.getSOMClass(receiver), fieldName), Nil.nilObject);
     }
   }
 

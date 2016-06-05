@@ -68,7 +68,6 @@ import com.oracle.truffle.api.TruffleRuntime;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
-import com.oracle.truffle.api.object.Shape;
 
 public class Universe extends ExecutionContext {
 
@@ -699,10 +698,6 @@ public class Universe extends ExecutionContext {
 
   public DynamicObjectFactory getInstancesFactory(){
     return SObject.NIL_DUMMY_FACTORY;
-  }
-  
-  public Shape createObjectShapeForClass(DynamicObject clazz){
-    return SObject.createObjectShapeForClass(clazz);
   }
   
   public static Universe current() {

@@ -77,8 +77,7 @@ public final class SClass {
   
   public static DynamicObject create(final DynamicObject clazzClazz) {
     CompilerAsserts.neverPartOfCompilation("Class creation");
-    Shape clazzShape = createClassShape(clazzClazz);
-    DynamicObjectFactory clazzFactory = clazzShape.createFactory();
+    DynamicObjectFactory clazzFactory = SObject.createObjectShapeFactoryForClass(clazzClazz);
 
     internalSetObjectFactory(clazzClazz, clazzFactory);
 
@@ -87,8 +86,7 @@ public final class SClass {
         new HashMap<SSymbol, SInvokable>(),         // INVOKABLES_TABLE
         Universe.current().getInstancesFactory());  // OBJECT_FACTORY, temporary value
 
-    Shape objectShape = Universe.current().createObjectShapeForClass(clazz);
-    internalSetObjectFactory(clazz, objectShape.createFactory());
+    internalSetObjectFactory(clazz, SObject.createObjectShapeFactoryForClass(clazz));
 
     return clazz;
   }
