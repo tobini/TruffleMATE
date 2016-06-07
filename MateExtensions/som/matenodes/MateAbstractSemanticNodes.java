@@ -234,8 +234,8 @@ public abstract class MateAbstractSemanticNodes {
       if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Base & arguments[0] instanceof DynamicObject){
         DynamicObject env = SArguments.getEnvironment(frame);
         DynamicObject method = null;
-        if (env != null){
-           method = SMateEnvironment.methodImplementing(env, environment.getReflectiveOperation());
+        if (env != Nil.nilObject){
+          method = SMateEnvironment.methodImplementing(env, environment.getReflectiveOperation());
         }
         if (method == null & SReflectiveObject.isSReflectiveObject(((DynamicObject)arguments[0]))){  
           env = SReflectiveObject.getEnvironment(((DynamicObject)arguments[0]).getShape());
