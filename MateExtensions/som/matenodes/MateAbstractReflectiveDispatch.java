@@ -4,12 +4,10 @@ import som.interpreter.SArguments;
 import som.interpreter.nodes.ISuperReadNode;
 import som.interpreter.nodes.MateMethodActivationNode;
 import som.vm.MateUniverse;
-import som.vm.Universe;
 import som.vm.constants.Classes;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
-import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
 import som.vmobjects.SObject;
 import som.vmobjects.SSymbol;
@@ -77,15 +75,16 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
       super(source);
     }
     
-    @Specialization(guards = "cachedMethod==method", limit = "INLINE_CACHE_SIZE")
+    /*@Specialization(guards = "cachedMethod==method", limit = "INLINE_CACHE_SIZE")
     public Object doMateNode(final VirtualFrame frame, final DynamicObject method,
         final Object subject, final Object[] arguments,
         @Cached("method") final DynamicObject cachedMethod,
         @Cached("createDispatch(method)") final DirectCallNode reflectiveMethod) {
       return reflectiveMethod.call(frame, this.computeArgumentsForMetaDispatch(frame, arguments));
-    }
+    }*/
     
-    @Specialization(contains = {"doMateNode"})
+    //@Specialization(contains = {"doMateNode"})
+    @Specialization()
     public Object doMegaMorphic(final VirtualFrame frame, final DynamicObject method,
         final Object subject, final Object[] arguments,
         @Cached("createIndirectCall()") final IndirectCallNode callNode) {
@@ -170,7 +169,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
       super(source, sel);
     }
     
-    @Specialization(guards = {"cachedMethod==method"}, insertBefore="doMateNode")
+    /*@Specialization(guards = {"cachedMethod==method"}, insertBefore="doMateNode")
     public Object doMateLongNodeCached(final VirtualFrame frame, final DynamicObject method,
         final long subject, final Object[] arguments,
         @Cached("method") final DynamicObject cachedMethod,
@@ -252,8 +251,10 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
       // The MOP receives the class where the lookup must start (find: aSelector since: aClass)
       return activationNode.doActivation(frame, lookupResult, arguments);
     }
+    */
     
-    @Specialization(guards = {"cachedMethod==method"}, contains = {"doMateNodeCached"}, insertBefore="doMateNode")
+    //@Specialization(guards = {"cachedMethod==method"}, contains = {"doMateNodeCached"}, insertBefore="doMateNode")
+    @Specialization(guards = {"cachedMethod==method"}, insertBefore="doMateNode")
     public Object doMegaMorphic(final VirtualFrame frame, final DynamicObject method,
         final DynamicObject subject, final Object[] arguments,
         @Cached("method") final DynamicObject cachedMethod,
@@ -300,7 +301,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     public abstract Object executeDispatch(final VirtualFrame frame,
         DynamicObject method, DynamicObject methodToActivate, Object[] arguments);
 
-    @Specialization(guards = {"cachedMethod==method","methodToActivate == cachedMethodToActivate"}, limit = "INLINE_CACHE_SIZE")
+    /*@Specialization(guards = {"cachedMethod==method","methodToActivate == cachedMethodToActivate"}, limit = "INLINE_CACHE_SIZE")
     public Object doMetaLevel(final VirtualFrame frame, 
         final DynamicObject method, final DynamicObject methodToActivate,
         final Object[] arguments,
@@ -313,9 +314,10 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
           SArray.create(SArguments.createSArguments(SArguments.getEnvironment(frame), ExecutionLevel.Base, arguments))};
       SArray realArguments = (SArray)reflectiveMethod.call(frame, args);
       return callNode.call(frame, realArguments.toJavaArray());
-    }
+    }*/
     
-    @Specialization(guards = {"cachedMethod==method"}, contains = "doMetaLevel")
+    //@Specialization(guards = {"cachedMethod==method"}, contains = "doMetaLevel")
+    @Specialization(guards = {"cachedMethod==method"})
     public Object doMegamorphicMetaLevel(final VirtualFrame frame,
         final DynamicObject method, final DynamicObject methodToActivate,
         final Object[] arguments,
