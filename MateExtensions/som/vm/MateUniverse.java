@@ -95,7 +95,14 @@ public class MateUniverse extends Universe {
     for (int i = 0; i < countOfInvokables; i++){
       DynamicObject method = SClass.getInstanceInvokable(clazz, i);
       Invokable node = InvokableLayoutImpl.INSTANCE.getInvokable(method);
-      node.accept(visitor);
+      if (SClass.getName(clazz).getString().equals("Handle class") &&
+          InvokableLayoutImpl.INSTANCE.getSignature(method).getString().equals("targetBaseeeeee:")){
+        return;
+      } else if (SClass.getName(clazz).getString().equals("Handle")){
+        return;
+      } else {
+        node.accept(visitor);
+      }
     }
   }
   
