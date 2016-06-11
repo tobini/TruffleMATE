@@ -28,6 +28,7 @@ package som.vm;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
@@ -84,7 +85,7 @@ public class Shell {
               myClass, universe.symbolFor("run:"));
 
           // Invoke the run method
-          it = SInvokable.invoke(shellMethod, myObject, it);
+          it = SInvokable.invoke(shellMethod, myObject, ExecutionLevel.Base, it);
         }
       } catch (Exception e) {
         Universe.errorPrintln("Caught exception: " + e.getMessage());

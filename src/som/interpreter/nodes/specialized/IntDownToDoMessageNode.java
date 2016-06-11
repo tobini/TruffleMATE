@@ -5,6 +5,7 @@ import som.interpreter.SArguments;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
 import som.vm.MateUniverse;
+import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
 
@@ -25,11 +26,11 @@ public abstract class IntDownToDoMessageNode extends TernaryExpressionNode {
   @Child private DirectCallNode valueSend;
 
   public IntDownToDoMessageNode(final ExpressionNode orignialNode,
-      final SBlock block) {
+      final SBlock block, ExecutionLevel level) {
     super(orignialNode.getSourceSection());
     blockMethod = block.getMethod();
     valueSend = Truffle.getRuntime().createDirectCallNode(
-                    SInvokable.getCallTarget(blockMethod));
+                    SInvokable.getCallTarget(blockMethod, level));
   }
 
   public IntDownToDoMessageNode(final IntDownToDoMessageNode node) {

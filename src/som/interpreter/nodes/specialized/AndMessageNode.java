@@ -2,6 +2,7 @@ package som.interpreter.nodes.specialized;
 
 import som.interpreter.SArguments;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
+import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
 
@@ -20,11 +21,11 @@ public abstract class AndMessageNode extends BinaryExpressionNode {
   private final DynamicObject blockMethod;
   @Child private DirectCallNode blockValueSend;
 
-  public AndMessageNode(final SBlock arg, final SourceSection source) {
+  public AndMessageNode(final SBlock arg, final SourceSection source, ExecutionLevel level) {
     super(source);
     blockMethod = arg.getMethod();
     blockValueSend = Truffle.getRuntime().createDirectCallNode(
-        SInvokable.getCallTarget(blockMethod));
+        SInvokable.getCallTarget(blockMethod, level));
   }
 
   public AndMessageNode(final AndMessageNode copy) {

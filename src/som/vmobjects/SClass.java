@@ -145,7 +145,7 @@ public final class SClass {
 // TODO: combine setters that are only used for initialization
 
   public static DynamicObject getSuperClass(final DynamicObject classObj) {
-    CompilerAsserts.neverPartOfCompilation("optimize caller");
+    //CompilerAsserts.neverPartOfCompilation("optimize caller");
     return (DynamicObject) classObj.get(SUPERCLASS);
   }
 

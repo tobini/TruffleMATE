@@ -57,7 +57,7 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
       if (method != null) {
         node = new CachedDispatchNode(guard, callTarget, newChainEnd);
       } else {
-        node = new CachedDnuNode(rcvrClass, guard, selector, newChainEnd);
+        node = new CachedDnuNode(rcvrClass, guard, selector, newChainEnd, SArguments.getExecutionLevel(frame));
       }
       return replace(node);
     }
@@ -76,7 +76,7 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
       final DynamicObject environment, final ExecutionLevel exLevel, final Object[] arguments) {
     transferToInterpreterAndInvalidate("Initialize a dispatch node.");
     return specialize(frame, arguments).
-    executeDispatch(frame, environment, exLevel, arguments);
+        executeDispatch(frame, environment, exLevel, arguments);
   }
 
   @Override

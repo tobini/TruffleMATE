@@ -57,6 +57,8 @@ public class SReflectiveObject extends SObject {
   }
   
   public static final DynamicObject getEnvironment(final Shape shape) {
+    //Todo: Remove the if when all objects use the new @layout annotation
+    if (InvokableLayoutImpl.INSTANCE.isInvokable(shape.getObjectType())) return Nil.nilObject;
     return ((SReflectiveObjectObjectType)shape.getObjectType()).getEnvironment();
   }
   

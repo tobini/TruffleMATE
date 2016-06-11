@@ -14,8 +14,8 @@ public final class CachedMethodDispatchNode extends AbstractMethodCachedDispatch
   private final DynamicObject cachedSomMethod;
 
   public CachedMethodDispatchNode(final DynamicObject method,
-      final AbstractMethodDispatchNode nextInCache) {
-    super(SInvokable.getCallTarget(method), nextInCache);
+      final AbstractMethodDispatchNode nextInCache, ExecutionLevel level) {
+    super(SInvokable.getCallTarget(method, level), nextInCache);
     this.cachedSomMethod = method;
   }
 

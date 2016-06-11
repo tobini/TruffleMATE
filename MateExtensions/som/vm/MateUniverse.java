@@ -11,8 +11,8 @@ import som.interpreter.MateifyVisitor;
 import som.interpreter.nodes.MateMessageSpecializationsFactory;
 import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
 import som.vm.constants.Nil;
+import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.SClass;
-import som.vmobjects.SInvokable;
 import som.vmobjects.SMateEnvironment;
 import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObject;
@@ -94,14 +94,21 @@ public class MateUniverse extends Universe {
     MateifyVisitor visitor = new MateifyVisitor();
     for (int i = 0; i < countOfInvokables; i++){
       DynamicObject method = SClass.getInstanceInvokable(clazz, i);
-      Invokable node = SInvokable.getInvokable(method);
-      node.accept(visitor);
+      Invokable node = InvokableLayoutImpl.INSTANCE.getInvokable(method);
+      if (SClass.getName(clazz).getString().equals("Handle class") &&
+          InvokableLayoutImpl.INSTANCE.getSignature(method).getString().equals("targetBaseeeeee:")){
+        return;
+      } else if (SClass.getName(clazz).getString().equals("Handle")){
+        return;
+      } else {
+        node.accept(visitor);
+      }
     }
   }
   
   public void mateifyMethod(DynamicObject method) {
     MateifyVisitor visitor = new MateifyVisitor();
-    Invokable node = SInvokable.getInvokable(method);
+    Invokable node = InvokableLayoutImpl.INSTANCE.getInvokable(method);
     node.accept(visitor);
   }
   
