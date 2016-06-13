@@ -6,7 +6,7 @@ Introduction
 
 Mate is an approach for building Virtual Machines that expose their whole 
 structure and behavior to the language level [Mate].
-A MOP[MOP] then enables to adapt reflectively the Virtual Machine behavior at run time.
+A [MOP][MOP] then enables to adapt reflectively the Virtual Machine behavior at run time.
 TruffleMate is an implementation of the Mate approach in Truffle that started as a branch from the [TruffleSOM] VM.
 
 This repository contains an extension to the [Truffle][T]-based implementation of SOM, including
