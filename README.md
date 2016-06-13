@@ -10,7 +10,7 @@ A [MOP][MOP] then enables to adapt reflectively the Virtual Machine behavior at 
 TruffleMate is an implementation of the Mate approach in Truffle that started as a branch from the [TruffleSOM] VM.
 
 This repository contains an extension to the [Truffle][T]-based implementation of SOM, including
-SOM's standard library, a number of examples and the Mate v1 Metaobject protocol[MOP]. 
+SOM's standard library, a number of examples and the Mate v1 Metaobject protocol. 
 
 Obtaining and Running TruffleMate
 --------------------------------
