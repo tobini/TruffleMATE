@@ -34,26 +34,23 @@ import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
 import com.oracle.truffle.api.object.ObjectType;
 import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.object.dsl.Layout;
 
 public class SReflectiveObject extends SObject {
-  public static final SSymbol ENVIRONMENT = Universe.current().symbolFor("environment");
-  public static final SReflectiveObjectObjectType SREFLECTIVE_OBJECT_TYPE = new SReflectiveObjectObjectType(Nil.nilObject);
-  
-  protected static HashMap<DynamicObject, SReflectiveObjectObjectType> SREFLECTIVE_OBJECT_TYPES = 
-      new HashMap<DynamicObject, SReflectiveObjectObjectType>();
-  
-  protected static final Shape SREFLECTIVE_OBJECT_SHAPE = 
-      INIT_NIL_SHAPE.createSeparateShape(INIT_NIL_SHAPE.getSharedData())
-      .changeType(SREFLECTIVE_OBJECT_TYPE);
-      
-  public static final DynamicObjectFactory SREFLECTIVE_OBJECT_FACTORY = SREFLECTIVE_OBJECT_SHAPE.createFactory();
-  
-  public static final Shape createObjectShapeForClass(final DynamicObject clazz) {
-    return LAYOUT.createShape(SREFLECTIVE_OBJECT_TYPE, clazz);
+  @Layout
+  public interface SReflectiveObjectLayout extends SObjectLayout {
+    DynamicObject createSReflectiveObject(DynamicObjectFactory factory);
+    DynamicObjectFactory createSReflectiveObjectShape(DynamicObject klass, DynamicObject environment);
+    DynamicObject getEnvironment(DynamicObjectFactory factory);
+    DynamicObject getEnvironment(ObjectType objectType);
+    DynamicObject getEnvironment(DynamicObject object);
+    void setEnvironment(DynamicObject object, DynamicObject value);
+    boolean isSReflectiveObject(DynamicObject object);
+    boolean isSReflectiveObject(ObjectType objectType);
   }
   
   public static final DynamicObject getEnvironment(final DynamicObject obj) {
-    return getEnvironment(obj.getShape());
+    return SReflectiveObjectLayoutImpl.INSTANCE.getEnvironment(obj);
   }
   
   public static final DynamicObject getEnvironment(final Shape shape) {
@@ -72,6 +69,7 @@ public class SReflectiveObject extends SObject {
          * Needs a fix so that the same metaobject can be assigned to instances and classes. 
          * It still was no needed.
          */
+        SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(DynamicObject klass, DynamicObject environment);
         if (SClass.isSClass(target)){
           type = new SClass.SClassObjectType(environment);
         } else {
@@ -83,11 +81,10 @@ public class SReflectiveObject extends SObject {
   }
 
   public static final void setEnvironment(final DynamicObject obj, final DynamicObject value) {
-    SReflectiveObjectObjectType type = objectTypeFor(value, obj);
-    obj.setShapeAndResize(obj.getShape(), obj.getShape().changeType(type));
+    SReflectiveObjectLayoutImpl.INSTANCE.setEnvironment(obj, value);
   }
   
-  public static class SReflectiveObjectObjectType extends ObjectType {
+  /*public static class SReflectiveObjectObjectType extends ObjectType {
     public final DynamicObject environment;
     
     public SReflectiveObjectObjectType(DynamicObject metaobj){
@@ -111,13 +108,13 @@ public class SReflectiveObject extends SObject {
     public DynamicObject getEnvironment(){
       return this.environment;
     }
-  }
+  }*/
   
   public static boolean isSReflectiveObject(final DynamicObject obj) {
-    return obj.getShape().getObjectType() instanceof SReflectiveObjectObjectType;
+    return SReflectiveObjectLayoutImpl.INSTANCE.isSReflectiveObject(obj);
   }
   
   public static boolean isSReflectiveObject(ObjectType type) {
-    return type == SREFLECTIVE_OBJECT_TYPE;
+    return SReflectiveObjectLayoutImpl.INSTANCE.isSReflectiveObject(type);
   }
 }

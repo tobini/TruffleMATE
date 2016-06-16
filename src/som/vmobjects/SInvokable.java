@@ -30,6 +30,7 @@ import som.interpreter.SArguments;
 import som.vm.constants.Classes;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
+import som.vmobjects.SReflectiveObject.SReflectiveObjectLayout;
 
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -42,7 +43,7 @@ import com.oracle.truffle.api.object.dsl.Layout;
 public class SInvokable {
   
   @Layout
-  public interface InvokableLayout {
+  public interface InvokableLayout extends SReflectiveObjectLayout {
     SSymbol getSignature(DynamicObject object);
     Invokable getInvokable(DynamicObject object);
     RootCallTarget getCallTarget(DynamicObject object);
@@ -51,15 +52,12 @@ public class SInvokable {
     RootCallTarget getCallTargetMeta(final DynamicObject object);
     void setHolderUnsafe(DynamicObject object, DynamicObject value);
     DynamicObject createInvokable(DynamicObjectFactory factory, SSymbol signature, Invokable invokable, RootCallTarget callTarget, Invokable invokableMeta, RootCallTarget callTargetMeta, DynamicObject holder);
-    DynamicObjectFactory createInvokableShape(DynamicObject klass);
-    DynamicObject getKlass(DynamicObjectFactory factory);
-    DynamicObject getKlass(ObjectType objectType);
-    DynamicObject getKlass(DynamicObject object);
+    DynamicObjectFactory createInvokableShape(DynamicObject klass, DynamicObject environment);
     boolean isInvokable(DynamicObject object);
     boolean isInvokable(ObjectType objectType);
   }
     
-  private static final DynamicObjectFactory INVOKABLES_FACTORY = InvokableLayoutImpl.INSTANCE.createInvokableShape(Classes.methodClass);
+  private static final DynamicObjectFactory INVOKABLES_FACTORY = InvokableLayoutImpl.INSTANCE.createInvokableShape(Classes.methodClass, Nil.nilObject);
   
   public static DynamicObject create(final SSymbol signature, final Invokable invokable) {
     Invokable invokableMeta = (Invokable) invokable.deepCopy();
@@ -130,7 +128,7 @@ public class SInvokable {
       DynamicObject[] getEmbeddedBlocks(final DynamicObject object);
       DynamicObject createMethod(DynamicObjectFactory factory, SSymbol signature, Invokable invokable, 
           RootCallTarget callTarget, Invokable invokableMeta, RootCallTarget callTargetMeta, DynamicObject holder, DynamicObject[] embeddedBlocks);
-      DynamicObjectFactory createMethodShape(DynamicObject klass);
+      DynamicObjectFactory createMethodShape(DynamicObject klass, DynamicObject environment);
       boolean isMethod(DynamicObject object);
       boolean isMethod(ObjectType objectType);
     }
