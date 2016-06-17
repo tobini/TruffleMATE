@@ -67,7 +67,8 @@ public final class MatePrims {
   public abstract static class MateUpdateShapeForInstancesPrim extends BinaryExpressionNode {
     @Specialization
     public final DynamicObject doSObject(DynamicObject clazz, SShape shape) {
-      SClass.internalSetObjectFactory(clazz, shape.getShape().createFactory());
+      //Todo: Take into account that this would not work if the factory was already compiled in a fast path.
+      SClass.setInstacesFactory(clazz, shape.getShape().createFactory());
       return clazz;
     }
   }

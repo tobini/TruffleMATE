@@ -133,7 +133,7 @@ public class SInvokable {
       boolean isMethod(ObjectType objectType);
     }
     
-    private static final DynamicObjectFactory SMETHOD_FACTORY    = MethodLayoutImpl.INSTANCE.createMethodShape(Classes.methodClass);
+    private static final DynamicObjectFactory SMETHOD_FACTORY    = MethodLayoutImpl.INSTANCE.createMethodShape(Classes.methodClass, Nil.nilObject);
     
     public static DynamicObject create(final SSymbol signature, final Invokable invokable, final DynamicObject[] embeddedBlocks) {
       Invokable invokableMeta = (Invokable) invokable.deepCopy();

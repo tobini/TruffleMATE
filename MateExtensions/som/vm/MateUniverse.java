@@ -10,12 +10,15 @@ import som.interpreter.Invokable;
 import som.interpreter.MateifyVisitor;
 import som.interpreter.nodes.MateMessageSpecializationsFactory;
 import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
+import som.vm.constants.Classes;
 import som.vm.constants.Nil;
 import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.SClass;
 import som.vmobjects.SMateEnvironment;
 import som.vmobjects.SObject;
+import som.vmobjects.SObjectLayoutImpl;
 import som.vmobjects.SReflectiveObject;
+import som.vmobjects.SReflectiveObjectLayoutImpl;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.Assumption;
@@ -37,15 +40,6 @@ public class MateUniverse extends Universe {
       return;
     } else {
       super.initializeObjectSystem();
-      
-      mateifyNilObject();
-      
-      // Initialize the Mate metamodel.
-      initializeSystemClass(environmentMO, objectClass, "EnvironmentMO");
-      initializeSystemClass(operationalSemanticsMO, objectClass, "OperationalSemanticsMO");
-      initializeSystemClass(messageMO, objectClass, "MessageMO");
-      initializeSystemClass(shapeClass, objectClass, "Shape");
-      initializeSystemClass(contextClass, objectClass, "Context");
       
       // Load methods and fields into the Mate MOP.
       loadSystemClass(environmentMO);
@@ -149,7 +143,9 @@ public class MateUniverse extends Universe {
     return (MateUniverse) Universe.getCurrent();
   }
   
-  public void mateifyNilObject(){
-    Nil.nilObject.setShapeAndGrow(Nil.nilObject.getShape(), Nil.nilObject.getShape().changeType(SReflectiveObject.SREFLECTIVE_OBJECT_TYPE));
+  @Override
+  public DynamicObject createNilObject() {
+    return SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(Classes.nilClass,Nil.nilObject).newInstance();
   }
+
 }

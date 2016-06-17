@@ -27,10 +27,12 @@ package som.compiler;
 import java.util.ArrayList;
 import java.util.List;
 
+import som.vm.MateUniverse;
 import som.vm.Universe;
 import som.vm.constants.Classes;
 import som.vmobjects.SArray;
 import som.vmobjects.SClass;
+import som.vmobjects.SClassLayoutImpl;
 import som.vmobjects.SObject;
 import som.vmobjects.SSymbol;
 
@@ -123,44 +125,13 @@ public final class ClassGenerationContext {
     DynamicObject superClass = universe.loadClass(superName);
 
     // Allocate the class of the resulting class
-    DynamicObject resultClass = universe.newClass(Classes.metaclassClass);
-
-    // Initialize the class of the resulting class
-    SClass.setInstanceFields(resultClass,
-        SArray.create(classFields.toArray(new Object[0])));
-    SClass.setInstanceInvokables(resultClass,
-        SArray.create(classMethods.toArray(new Object[0])));
-    SClass.setName(resultClass, universe.symbolFor(ccname));
-
-    DynamicObject superMClass = SObject.getSOMClass(superClass);
-    SClass.setSuperClass(resultClass, superMClass);
+    DynamicObject resultClass = SClass.createSClass(universe.symbolFor(ccname), SObject.getSOMClass(superClass), 
+        SArray.create(classFields.toArray(new Object[0])), SArray.create(classMethods.toArray(new Object[0])), MateUniverse.current().getInstancesFactory());
 
     // Allocate the resulting class
-    DynamicObject result = universe.newClass(resultClass);
-
-    // Initialize the resulting class
-    SClass.setName(result, name);
-    SClass.setSuperClass(result, superClass);
-    SClass.setInstanceFields(result,
-        SArray.create(instanceFields.toArray(new Object[0])));
-    SClass.setInstanceInvokables(result,
-        SArray.create(instanceMethods.toArray(new Object[0])));
-
+    DynamicObject result = SClass.createSClass(name, superClass, SArray.create(instanceFields.toArray(new Object[0])),
+        SArray.create(instanceMethods.toArray(new Object[0])), MateUniverse.current().getInstancesFactory());
     return result;
-  }
-
-  @TruffleBoundary
-  public void assembleSystemClass(final DynamicObject systemClass) {
-    SClass.setInstanceInvokables(systemClass,
-        SArray.create(instanceMethods.toArray(new Object[0])));
-    SClass.setInstanceFields(systemClass,
-        SArray.create(instanceFields.toArray(new Object[0])));
-    // class-bound == class-instance-bound
-    DynamicObject superMClass = SObject.getSOMClass(systemClass);
-    SClass.setInstanceInvokables(superMClass,
-        SArray.create(classMethods.toArray(new Object[0])));
-    SClass.setInstanceFields(superMClass,
-        SArray.create(classFields.toArray(new Object[0])));
   }
 
   @Override

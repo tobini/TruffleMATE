@@ -62,27 +62,13 @@ public class SObject {
     return factory.newInstance(Nil.nilObject);
   }
   
-  public static DynamicObject createNil() {
-    // TODO: this is work in progress, the class should go as shared data into the shape
-    // TODO: ideally, nil is like in SOMns an SObjectWithoutFields
-    return SObjectLayoutImpl.INSTANCE.createSObjectShape(null).newInstance();
-    //NIL_DUMMY_FACTORY.newInstance(new Object[] { null });
-  }
-  
-  /**
-   * For SObjects, we store the class in the shape's shared data.
-   * This makes sure that each class has a separate shape tree and the shapes
-   * can be used for field accesses as well as message sends as guards.
-   * Without the separation, it could well be that objects from two different
-   * classes end up with the same shape, which would mean shapes could not be
-   * used as guards for message sends, because it would not be guaranteed that
-   * the right message is send/method is activated.
-   *
-   * Note, the SClasses store their class as a property, to avoid having
-   * multiple shapes for each basic classes.
-   */
   public static boolean isSObject(final DynamicObject obj) {
     return SObjectLayoutImpl.INSTANCE.isSObject(obj);
+  }
+  
+  public static void setClass(final DynamicObject obj, final DynamicObject value) {
+    CompilerAsserts.neverPartOfCompilation("Should not compile changing the class of an object, it should only happen in the slow path?");
+    SObjectLayoutImpl.INSTANCE.setKlass(obj, value);
   }
 
   /*private static final class SObjectObjectType extends ObjectType {

@@ -24,12 +24,6 @@
 
 package som.vmobjects;
 
-import java.util.HashMap;
-
-import som.vm.Universe;
-import som.vm.constants.Nil;
-
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
 import com.oracle.truffle.api.object.ObjectType;
@@ -54,13 +48,11 @@ public class SReflectiveObject extends SObject {
   }
   
   public static final DynamicObject getEnvironment(final Shape shape) {
-    //Todo: Remove the if when all objects use the new @layout annotation
-    if (InvokableLayoutImpl.INSTANCE.isInvokable(shape.getObjectType())) return Nil.nilObject;
-    return ((SReflectiveObjectObjectType)shape.getObjectType()).getEnvironment();
+    return SReflectiveObjectLayoutImpl.INSTANCE.getEnvironment(shape.getObjectType());
   }
   
   //@TruffleBoundary
-  public static SReflectiveObjectObjectType objectTypeFor(DynamicObject environment, DynamicObject target){
+  /*public static SReflectiveObjectObjectType objectTypeFor(DynamicObject environment, DynamicObject target){
       SReflectiveObjectObjectType type = SREFLECTIVE_OBJECT_TYPES.get(environment);
       if (type == null){
         CompilerDirectives.transferToInterpreter();
@@ -69,7 +61,7 @@ public class SReflectiveObject extends SObject {
          * Needs a fix so that the same metaobject can be assigned to instances and classes. 
          * It still was no needed.
          */
-        SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(DynamicObject klass, DynamicObject environment);
+    /*    SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(DynamicObject klass, DynamicObject environment);
         if (SClass.isSClass(target)){
           type = new SClass.SClassObjectType(environment);
         } else {
@@ -78,7 +70,7 @@ public class SReflectiveObject extends SObject {
         SREFLECTIVE_OBJECT_TYPES.put(environment, type);
       }
       return type;
-  }
+  }*/
 
   public static final void setEnvironment(final DynamicObject obj, final DynamicObject value) {
     SReflectiveObjectLayoutImpl.INSTANCE.setEnvironment(obj, value);

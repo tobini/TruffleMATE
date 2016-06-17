@@ -54,6 +54,7 @@ import som.vmobjects.SArray;
 import som.vmobjects.SBlock;
 import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
+import som.vmobjects.SObjectLayoutImpl;
 import som.vmobjects.SInvokable.SMethod;
 import som.vmobjects.SInvokable.SPrimitive;
 import som.vmobjects.SObject;
@@ -338,11 +339,8 @@ public class Universe extends ExecutionContext {
     initializeSystemClass(doubleClass,     objectClass, "Double");
     initializeSystemClass(booleanClass,    objectClass, "Boolean");
 
-    trueClass  = newSystemClass();
-    falseClass = newSystemClass();
-
-    initializeSystemClass(trueClass,      booleanClass, "True");
-    initializeSystemClass(falseClass,     booleanClass, "False");
+    trueClass  = newSystemClass(booleanClass, "True");
+    falseClass = newSystemClass(booleanClass, "False");
 
     // Load methods and fields into the system classes
     loadSystemClass(objectClass);
@@ -426,7 +424,7 @@ public class Universe extends ExecutionContext {
   @TruffleBoundary
   public static DynamicObject newMetaclassClass() {
     DynamicObject result = SClass.createWithoutClass();
-    SClass.internalSetClass(result, SClass.create(result));
+    SObject.setClass(result, SClass.create(result));
     return result;
   }
 
@@ -437,33 +435,24 @@ public class Universe extends ExecutionContext {
   }
 
   @TruffleBoundary
-  public static DynamicObject newSystemClass() {
-    return SClass.create(SClass.create(metaclassClass));
+  public static DynamicObject newSystemClass(final DynamicObject superClass, final String name) {
+    DynamicObject classClassSuperClass;
+    if (superClass != null) {
+      classClassSuperClass = SObject.getSOMClass(superClass);
+    } else {
+      classClassSuperClass =  classClass;
+    }
+    DynamicObject classClass = SClass.createSClass(name, classClassSuperClass, SArray.create(new Object[0]), 
+        SArray.create(new Object[0]), instancesFactory);
+    SObject.setClass(superClass, metaclassClass);
+    return SClass.createSClass(Universe.current().symbolFor(name), superClass, SArray.create(new Object[0]), 
+        SArray.create(new Object[0]), instancesFactory);
   }
 
   protected void initializeSystemClass(final DynamicObject systemClass,
       final DynamicObject superClass, final String name) {
     // Initialize the superclass hierarchy
-    if (superClass != null) {
-      SClass.setSuperClass(systemClass, superClass);
-      SClass.setSuperClass(SObject.getSOMClass(systemClass), SObject.getSOMClass(superClass));
-    } else {
-      SClass.setSuperClass(SObject.getSOMClass(systemClass), classClass);
-    }
-
-    // Initialize the array of instance fields
-    SClass.setInstanceFields(systemClass, SArray.create(new Object[0]));
-    SClass.setInstanceFields(SObject.getSOMClass(systemClass), SArray.create(new Object[0]));
-
-    // Initialize the array of instance invokables
-    SClass.setInstanceInvokables(systemClass, SArray.create(new Object[0]));
-    SClass.setInstanceInvokables(SObject.getSOMClass(systemClass), SArray.create(new Object[0]));
-
-    // Initialize the name of the system class
-    SClass.setName(systemClass, symbolFor(name));
-    SClass.setName(SObject.getSOMClass(systemClass), symbolFor(name + " class"));
-
-    // Insert the system class into the dictionary of globals
+        // Insert the system class into the dictionary of globals
     setGlobal(SClass.getName(systemClass), systemClass);
   }
 
@@ -717,5 +706,9 @@ public class Universe extends ExecutionContext {
     // Name for the frameOnStack slot,
     // starting with ! to make it a name that's not possible in Smalltalk
     return "!frameOnStack";
+  }
+  
+  public DynamicObject createNilObject() {
+    return SObjectLayoutImpl.INSTANCE.createSObjectShape(nilClass).newInstance();
   }
 }

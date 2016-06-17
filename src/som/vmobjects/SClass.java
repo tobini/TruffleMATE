@@ -27,50 +27,56 @@ package som.vmobjects;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
+import som.interpreter.Invokable;
 import som.primitives.Primitives;
 import som.vm.Universe;
 import som.vm.constants.Nil;
+import som.vmobjects.SInvokable.SMethod;
 import som.vmobjects.SInvokable.SPrimitive;
-import som.vmobjects.SReflectiveObject.SReflectiveObjectObjectType;
+import som.vmobjects.SObject.SObjectLayout;
+import som.vmobjects.SReflectiveObject.SReflectiveObjectLayout;
 
 import com.oracle.truffle.api.CompilerAsserts;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.object.ObjectType;
 import com.oracle.truffle.api.object.Property;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.profiles.ValueProfile;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
+import com.oracle.truffle.api.object.dsl.Layout;
 
 public final class SClass {
-
-  private SClass() {} // just static helpers
-
-  private static final SClassObjectType SCLASS_TYPE = new SClassObjectType(Nil.nilObject);
-
-  private static final SSymbol SUPERCLASS = Universe.current().symbolFor("superclass");
-  private static final SSymbol NAME       = Universe.current().symbolFor("name");
-  private static final SSymbol INSTANCE_FIELDS     = Universe.current().symbolFor("instanceFields");
-  private static final SSymbol INSTANCE_INVOKABLES = Universe.current().symbolFor("instanceInvokables");
-
+  @Layout
+  public interface SClassLayout extends SReflectiveObjectLayout {
+    DynamicObject createSClass(DynamicObjectFactory factory, SSymbol name, DynamicObject superclass, SArray instanceFields, SArray instanceInvokables, DynamicObjectFactory instancesFactory);
+    DynamicObjectFactory createSClassShape(DynamicObject klass, DynamicObject environment);
+    DynamicObject getSuperclass(DynamicObject object);
+    SSymbol getName(DynamicObject object);
+    SArray getInstanceFields(DynamicObject object);
+    SArray getInstanceInvokables(DynamicObject object);
+    DynamicObjectFactory getInstancesFactory(DynamicObject object);
+    void setInstancesFactoryUnsafe(DynamicObject object, DynamicObjectFactory value);
+    void setInstanceInvokablesUnsafe(DynamicObject object, SArray instanceInvokables);
+    boolean isSClass(DynamicObject object);
+    boolean isSClass(ObjectType objectType);
+  }
+ 
   private static final Object INVOKABLES_TABLE = new Object();
-  private static final Object OBJECT_FACTORY   = new Object();
   
   //class which get's its own class set only later (to break up cyclic dependencies)
-  private static final Shape INIT_CLASS_SHAPE = createClassShape(null);
-  private static final DynamicObjectFactory INIT_CLASS_FACTORY = INIT_CLASS_SHAPE.createFactory();
-
-  private static Shape createClassShape(final DynamicObject clazz) {
-    return SObject.LAYOUT.createShape(SCLASS_TYPE, clazz).
-        defineProperty(SUPERCLASS,          Nil.nilObject, 0).
-        defineProperty(INVOKABLES_TABLE,    new HashMap<SSymbol, SInvokable>(), 0).
-        defineProperty(OBJECT_FACTORY,      Universe.current().getInstancesFactory(), 0);
+  private static final DynamicObjectFactory INIT_CLASS_FACTORY = SClassLayoutImpl.INSTANCE.createSClassShape(null, Nil.nilObject);
+  
+  public static DynamicObject createSClass(SSymbol name, DynamicObject superclass, SArray instanceFields, SArray instanceInvokables, DynamicObjectFactory instancesFactory){
+    return SClassLayoutImpl.INSTANCE.createSClass(INIT_CLASS_FACTORY, name, superclass, instanceFields, instanceInvokables, instancesFactory);
   }
   
   public static DynamicObject createWithoutClass() {
     CompilerAsserts.neverPartOfCompilation("Class creation");
     DynamicObject clazz =  INIT_CLASS_FACTORY.newInstance(
         Nil.nilObject,                       // SUPERCLASS
-        new HashMap<SSymbol, DynamicObject>(),  // INVOKABLES_TABLE
+        new HashMap<SSymbol, SInvokable>(),  // INVOKABLES_TABLE
         Universe.current().getInstancesFactory());          // OBJECT_FACTORY, temporary value
     return clazz;
   }
@@ -78,79 +84,35 @@ public final class SClass {
   public static DynamicObject create(final DynamicObject clazzClazz) {
     CompilerAsserts.neverPartOfCompilation("Class creation");
     DynamicObjectFactory clazzFactory = SObject.createObjectShapeFactoryForClass(clazzClazz);
+    
+    setInstacesFactory(clazzClazz, clazzFactory);
 
-    internalSetObjectFactory(clazzClazz, clazzFactory);
-
-    DynamicObject clazz = clazzFactory.newInstance(
+    DynamicObject clazz = INIT_CLASS_FACTORY.newInstance(
         Nil.nilObject,                              // SUPERCLASS
         new HashMap<SSymbol, SInvokable>(),         // INVOKABLES_TABLE
         Universe.current().getInstancesFactory());  // OBJECT_FACTORY, temporary value
 
-    internalSetObjectFactory(clazz, SObject.createObjectShapeFactoryForClass(clazz));
+    setInstacesFactory(clazz, SObject.createObjectShapeFactoryForClass(clazz));
 
     return clazz;
   }
   
-  public static void internalSetObjectFactory(final DynamicObject clazz, final DynamicObjectFactory factory) {
-    Shape shape = clazz.getShape();
-    Property property = shape.getProperty(OBJECT_FACTORY);
-    property.setInternal(clazz, factory);
-    assert shape == clazz.getShape();
+  public static void setInstacesFactory(final DynamicObject clazz, final DynamicObjectFactory factory) {
+    SClassLayoutImpl.INSTANCE.setInstancesFactoryUnsafe(clazz, factory);
   }
   
-  public static final void internalSetClass(final DynamicObject obj, final DynamicObject clazzClazz) {
-    assert obj.getShape().getObjectType() == SCLASS_TYPE;
-    CompilerAsserts.neverPartOfCompilation("SObject.setClass");
-    assert obj != null;
-    assert clazzClazz != null;
-
-    assert !Universe.current().objectSystemInitialized : "This should really only be used during initialization of object system";
-
-    Shape withoutClass = obj.getShape();
-    Shape withClass = withoutClass.createSeparateShape(clazzClazz);
-
-    obj.setShapeAndGrow(withoutClass, withClass);
-    DynamicObjectFactory clazzFactory = withClass.createFactory();
-    internalSetObjectFactory(clazzClazz, clazzFactory);
+  public static boolean isSClass(final DynamicObject clazz){
+    return SClassLayoutImpl.INSTANCE.isSClass(clazz);
   }
   
   public static final DynamicObjectFactory getFactory(final DynamicObject clazz) {
     assert isSClass(clazz);
-    return (DynamicObjectFactory) clazz.get(OBJECT_FACTORY);
+    return (DynamicObjectFactory) SClassLayoutImpl.INSTANCE.getInstancesFactory(clazz);
   }
-  
-  public static boolean isSClass(final DynamicObject obj) {
-    return 
-        obj.getShape().getObjectType() == SCLASS_TYPE ||
-        obj.getShape().getObjectType() instanceof SClassObjectType;
-  }
-
-  // TODO: figure out whether this is really the best way for doing guards
-  //       there is the tradeoff with having two different hierarchies of shapes
-  //       for SClass and SObject. But, might not be performance critical in
-  //       either case
-  public static final class SClassObjectType extends SReflectiveObjectObjectType {
-    public SClassObjectType(DynamicObject metaobj) {
-      super(metaobj);
-    }
-
-    @Override
-    public String toString() {
-      return "SClass";
-    }
-  }
-
-// TODO: combine setters that are only used for initialization
-
+ 
   public static DynamicObject getSuperClass(final DynamicObject classObj) {
     CompilerAsserts.neverPartOfCompilation("optimize caller");
-    return (DynamicObject) classObj.get(SUPERCLASS);
-  }
-
-  public static void setSuperClass(final DynamicObject classObj, final DynamicObject value) {
-    CompilerAsserts.neverPartOfCompilation("should only be used during class initialization");
-//    classObj.set(SUPERCLASS, value);
-    classObj.define(SUPERCLASS, value);
+    return SClassLayoutImpl.INSTANCE.getSuperclass(classObj);
   }
 
   public static boolean hasSuperClass(final DynamicObject classObj) {
@@ -162,38 +124,15 @@ public final class SClass {
     /*We are using it inside the fast path for checking if the class is a byteArray. 
      * We should optimize NewPrim>>doByteSClass to enable again the neverPartOfCompilation 
      */
-    return (SSymbol) classObj.get(NAME);
-  }
-
-  public static void setName(final DynamicObject classObj, final SSymbol value) {
-    CompilerAsserts.neverPartOfCompilation("should only be used during class initialization");
-//    classObj.set(NAME, value);
-    classObj.define(NAME, value);
+    return SClassLayoutImpl.INSTANCE.getName(classObj);
   }
 
   public static SArray getInstanceFields(final DynamicObject classObj) {
-    return (SArray) classObj.get(INSTANCE_FIELDS);
-  }
-
-  public static void setInstanceFields(final DynamicObject classObj, final SArray fields) {
-    CompilerAsserts.neverPartOfCompilation("should only be used during class initialization");
-    //classObj.set(INSTANCE_FIELDS, fields);
-    classObj.define(INSTANCE_FIELDS, fields);
+    return SClassLayoutImpl.INSTANCE.getInstanceFields(classObj);
   }
 
   public static SArray getInstanceInvokables(final DynamicObject classObj) {
-    return (SArray) classObj.get(INSTANCE_INVOKABLES);
-  }
-
-  public static void setInstanceInvokables(final DynamicObject classObj, final SArray value) {
-    CompilerAsserts.neverPartOfCompilation("should only be used during class initialization");
-    //classObj.set(INSTANCE_INVOKABLES, value);
-    classObj.define(INSTANCE_INVOKABLES, value);
-
-    // Make sure this class is the holder of all invokables in the array
-    for (int i = 0; i < getNumberOfInstanceInvokables(classObj); i++) {
-      SInvokable.setHolder(getInstanceInvokable(classObj, i), classObj);
-    }
+    return SClassLayoutImpl.INSTANCE.getInstanceInvokables(classObj);
   }
 
   private static final ValueProfile storageType = ValueProfile.createClassProfile();
@@ -208,10 +147,7 @@ public final class SClass {
   }
 
   public static void setInstanceInvokable(final DynamicObject classObj, final int index, final DynamicObject value) {
-  CompilerAsserts.neverPartOfCompilation("setInstanceInvokable");
-    // Set this class as the holder of the given invokable
-    SInvokable.setHolder(value, classObj);
-
+    CompilerAsserts.neverPartOfCompilation("setInstanceInvokable");
     getInstanceInvokables(classObj).getObjectStorage(storageType)[index] = value;
 
     HashMap<SSymbol, DynamicObject> invokablesTable = getInvokablesTable(classObj);
@@ -275,7 +211,7 @@ public final class SClass {
   private static boolean addInstanceInvokable(final DynamicObject classObj,
       final DynamicObject invokable) {
     CompilerAsserts.neverPartOfCompilation("SClass.addInstanceInvokable(.)");
-
+    SMethod.setHolder(invokable, classObj);
     // Add the given invokable to the array of instance invokables
     for (int i = 0; i < getNumberOfInstanceInvokables(classObj); i++) {
       // Get the next invokable in the instance invokable array
@@ -287,11 +223,15 @@ public final class SClass {
         return false;
       }
     }
-
+    
     // Append the given method to the array of instance methods
     setInstanceInvokables(
         classObj, getInstanceInvokables(classObj).copyAndExtendWith(invokable));
     return true;
+  }
+  
+  public static void setInstanceInvokables(final DynamicObject classObj, final SArray value) {
+    SClassLayoutImpl.INSTANCE.setInstanceInvokablesUnsafe(classObj, value);
   }
 
   public static void addInstancePrimitive(final DynamicObject classObj,

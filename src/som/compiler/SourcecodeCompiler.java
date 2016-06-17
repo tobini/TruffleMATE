@@ -83,11 +83,11 @@ public final class SourcecodeCompiler {
       Universe.errorExit(pe.toString());
     }
 
-    if (systemClass == null) {
+    /*if (systemClass == null) {
       result = cgc.assemble();
     } else {
       cgc.assembleSystemClass(result);
-    }
+    }*/
 
     return result;
   }

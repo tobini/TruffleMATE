@@ -15,11 +15,11 @@ public final class MateClasses extends Classes {
   
   static {
     // Allocate the Metaclass classes
-    environmentMO = MateUniverse.newSystemClass();
-    operationalSemanticsMO = MateUniverse.newSystemClass();
-    messageMO = MateUniverse.newSystemClass();
-    shapeClass = MateUniverse.newSystemClass();
-    contextClass    = Universe.newSystemClass();
+    environmentMO = MateUniverse.newSystemClass(objectClass, "EnvironmentMO");
+    operationalSemanticsMO = MateUniverse.newSystemClass(objectClass, "OperationalSemanticsMO");
+    messageMO = MateUniverse.newSystemClass(objectClass, "MessageMO");
+    shapeClass = MateUniverse.newSystemClass(objectClass, "Shape");
+    contextClass    = Universe.newSystemClass(objectClass, "Context");
     STANDARD_ENVIRONMENT = Nil.nilObject;
     //environment = Universe.newSystemClass();
   }
