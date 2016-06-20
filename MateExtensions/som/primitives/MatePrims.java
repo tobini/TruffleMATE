@@ -6,7 +6,7 @@ import som.vm.MateUniverse;
 import som.vm.constants.Nil;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SClass;
-import som.vmobjects.SReflectiveObject;
+import som.vmobjects.SReflectiveObjectLayoutImpl;
 import som.vmobjects.SShape;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
@@ -59,7 +59,8 @@ public final class MatePrims {
   public abstract static class MateInstallEnvironmentInShapePrim extends BinaryExpressionNode {
     @Specialization
     public final SShape doSObject(SShape shape, DynamicObject environment) {
-      return new SShape(shape.getShape().changeType(SReflectiveObject.objectTypeFor(environment, Nil.nilObject)));
+      return new SShape(
+          SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(Nil.nilObject, environment).getShape());
     }
   }
   
@@ -68,7 +69,7 @@ public final class MatePrims {
     @Specialization
     public final DynamicObject doSObject(DynamicObject clazz, SShape shape) {
       //Todo: Take into account that this would not work if the factory was already compiled in a fast path.
-      SClass.setInstacesFactory(clazz, shape.getShape().createFactory());
+      SClass.setInstancesFactory(clazz, shape.getShape().createFactory());
       return clazz;
     }
   }

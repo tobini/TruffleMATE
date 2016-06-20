@@ -51,10 +51,12 @@ import som.vm.constants.Globals;
 import som.vm.constants.MateClasses;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
+import som.vmobjects.SBasicObjectLayoutImpl;
 import som.vmobjects.SBlock;
 import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
 import som.vmobjects.SObjectLayoutImpl;
+import som.vmobjects.SReflectiveObject;
 import som.vmobjects.SInvokable.SMethod;
 import som.vmobjects.SInvokable.SPrimitive;
 import som.vmobjects.SObject;
@@ -311,6 +313,7 @@ public class Universe extends ExecutionContext {
     return SInvokable.invoke(initialize, MateClasses.STANDARD_ENVIRONMENT, ExecutionLevel.Base, systemObject,SArray.create(arguments));
   }
 
+  @TruffleBoundary
   protected void initializeObjectSystem() {
     CompilerAsserts.neverPartOfCompilation("initializeObjectSystem");
     if (alreadyInitialized) {
@@ -319,29 +322,14 @@ public class Universe extends ExecutionContext {
       alreadyInitialized = true;
     }
 
-    // Allocate the nil object
+    //Setup the fields that were not possible to setup before to avoid cyclic initialization dependencies
     DynamicObject nilObject = Nil.nilObject;
-
-    // Setup the class reference for the nil object
-    SObject.internalSetNilClass(nilObject, nilClass);
-
-    // Initialize the system classes.
-    initializeSystemClass(objectClass,            null, "Object");
-    initializeSystemClass(classClass,      objectClass, "Class");
-    initializeSystemClass(metaclassClass,   classClass, "Metaclass");
-    initializeSystemClass(nilClass,        objectClass, "Nil");
-    initializeSystemClass(arrayClass,      objectClass, "Array");
-    initializeSystemClass(methodClass,     objectClass, "Method");
-    initializeSystemClass(stringClass,     objectClass, "String");
-    initializeSystemClass(symbolClass,     stringClass, "Symbol");
-    initializeSystemClass(integerClass,    objectClass, "Integer");
-    initializeSystemClass(primitiveClass,  objectClass, "Primitive");
-    initializeSystemClass(doubleClass,     objectClass, "Double");
-    initializeSystemClass(booleanClass,    objectClass, "Boolean");
-
-    trueClass  = newSystemClass(booleanClass, "True");
-    falseClass = newSystemClass(booleanClass, "False");
-
+    SObject.setClass(nilObject, nilClass);
+    SClass.setSuperclass(SObject.getSOMClass(objectClass), classClass);
+    SClass.setSuperclass(metaclassClass, classClass);
+    SClass.setSuperclass(SObject.getSOMClass(metaclassClass), SObject.getSOMClass(classClass));
+    
+    
     // Load methods and fields into the system classes
     loadSystemClass(objectClass);
     loadSystemClass(classClass);
@@ -349,12 +337,15 @@ public class Universe extends ExecutionContext {
     loadSystemClass(nilClass);
     loadSystemClass(arrayClass);
     loadSystemClass(methodClass);
+    loadSystemClass(stringClass);
     loadSystemClass(symbolClass);
     loadSystemClass(integerClass);
     loadSystemClass(primitiveClass);
-    loadSystemClass(stringClass);
     loadSystemClass(doubleClass);
     loadSystemClass(booleanClass);
+    
+    trueClass  = newSystemClass(booleanClass, "True");
+    falseClass = newSystemClass(booleanClass, "False");
     loadSystemClass(trueClass);
     loadSystemClass(falseClass);
 
@@ -406,11 +397,6 @@ public class Universe extends ExecutionContext {
   }
 
   @TruffleBoundary
-  public DynamicObject newClass(final DynamicObject classClass) {
-    return SClass.create(classClass);
-  }
-
-  @TruffleBoundary
   public static DynamicObject newMethod(final SSymbol signature,
       final Invokable truffleInvokable, final boolean isPrimitive,
       final DynamicObject[] embeddedBlocks) {
@@ -421,10 +407,9 @@ public class Universe extends ExecutionContext {
     }
   }
 
-  @TruffleBoundary
-  public static DynamicObject newMetaclassClass() {
-    DynamicObject result = SClass.createWithoutClass();
-    SObject.setClass(result, SClass.create(result));
+  public static DynamicObject newMetaclassClass(String name) {
+    DynamicObject result = SClass.createWithoutClass(Universe.current().symbolFor(name));
+    SObject.setClass(result, SClass.createEmptyClass(result, Universe.current().symbolFor(name + " class")));
     return result;
   }
 
@@ -434,26 +419,18 @@ public class Universe extends ExecutionContext {
     return result;
   }
 
-  @TruffleBoundary
   public static DynamicObject newSystemClass(final DynamicObject superClass, final String name) {
     DynamicObject classClassSuperClass;
-    if (superClass != null) {
+    if (superClass != Nil.nilObject) {
       classClassSuperClass = SObject.getSOMClass(superClass);
     } else {
-      classClassSuperClass =  classClass;
+      classClassSuperClass =  Nil.nilObject;
     }
-    DynamicObject classClass = SClass.createSClass(name, classClassSuperClass, SArray.create(new Object[0]), 
-        SArray.create(new Object[0]), instancesFactory);
-    SObject.setClass(superClass, metaclassClass);
-    return SClass.createSClass(Universe.current().symbolFor(name), superClass, SArray.create(new Object[0]), 
-        SArray.create(new Object[0]), instancesFactory);
-  }
-
-  protected void initializeSystemClass(final DynamicObject systemClass,
-      final DynamicObject superClass, final String name) {
-    // Initialize the superclass hierarchy
-        // Insert the system class into the dictionary of globals
-    setGlobal(SClass.getName(systemClass), systemClass);
+    
+    DynamicObject classClass = SClass.createSClass(metaclassClass, Universe.current().symbolFor(name + " class"), classClassSuperClass, 
+        SArray.create(new Object[0]), SArray.create(new Object[0]));
+    return SClass.createSClass(classClass, Universe.current().symbolFor(name), superClass, SArray.create(new Object[0]), 
+        SArray.create(new Object[0]));
   }
 
   @TruffleBoundary
@@ -516,7 +493,6 @@ public class Universe extends ExecutionContext {
     blockClasses[numberOfArguments] = result;
   }
 
-  @TruffleBoundary
   public DynamicObject loadClass(final SSymbol name) {
     // Check if the requested class is already in the dictionary of globals
     DynamicObject result = (DynamicObject) getGlobal(name);
@@ -540,9 +516,9 @@ public class Universe extends ExecutionContext {
     }
   }
 
-  @TruffleBoundary
   protected void loadSystemClass(final DynamicObject systemClass) {
     // Load the system class
+    setGlobal(SClass.getName(systemClass), systemClass);
     DynamicObject result = loadClass(SClass.getName(systemClass), systemClass);
 
     if (result == null) {
@@ -556,7 +532,6 @@ public class Universe extends ExecutionContext {
     loadPrimitives(result, true);
   }
 
-  @TruffleBoundary
   private DynamicObject loadClass(final SSymbol name, final DynamicObject systemClass) {
     // Try loading the class from all different paths
     for (String cpEntry : classPath) {
@@ -686,7 +661,7 @@ public class Universe extends ExecutionContext {
   }
 
   public DynamicObjectFactory getInstancesFactory(){
-    return SObject.NIL_DUMMY_FACTORY;
+    return SObject.SOBJECT_FACTORY;
   }
   
   public static Universe current() {
@@ -709,6 +684,11 @@ public class Universe extends ExecutionContext {
   }
   
   public DynamicObject createNilObject() {
-    return SObjectLayoutImpl.INSTANCE.createSObjectShape(nilClass).newInstance();
+    DynamicObject dummyObjectForInitialization = SBasicObjectLayoutImpl.INSTANCE.createSBasicObject();
+    return SObjectLayoutImpl.INSTANCE.createSObjectShape(dummyObjectForInitialization).newInstance();
+  }
+  
+  public DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
+    return SObject.createObjectShapeFactoryForClass(clazz);
   }
 }

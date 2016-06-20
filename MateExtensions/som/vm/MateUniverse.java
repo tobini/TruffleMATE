@@ -1,6 +1,5 @@
 package som.vm;
 
-import static som.vm.constants.Classes.objectClass;
 import static som.vm.constants.MateClasses.shapeClass;
 import static som.vm.constants.MateClasses.environmentMO;
 import static som.vm.constants.MateClasses.messageMO;
@@ -10,13 +9,12 @@ import som.interpreter.Invokable;
 import som.interpreter.MateifyVisitor;
 import som.interpreter.nodes.MateMessageSpecializationsFactory;
 import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
-import som.vm.constants.Classes;
 import som.vm.constants.Nil;
 import som.vmobjects.InvokableLayoutImpl;
+import som.vmobjects.SBasicObjectLayoutImpl;
 import som.vmobjects.SClass;
 import som.vmobjects.SMateEnvironment;
 import som.vmobjects.SObject;
-import som.vmobjects.SObjectLayoutImpl;
 import som.vmobjects.SReflectiveObject;
 import som.vmobjects.SReflectiveObjectLayoutImpl;
 import som.vmobjects.SSymbol;
@@ -41,6 +39,9 @@ public class MateUniverse extends Universe {
     } else {
       super.initializeObjectSystem();
       
+      //Setup the fields that were not possible to setup before to avoid cyclic initialization dependencies
+      SReflectiveObject.setEnvironment(Nil.nilObject, Nil.nilObject);
+      
       // Load methods and fields into the Mate MOP.
       loadSystemClass(environmentMO);
       loadSystemClass(operationalSemanticsMO);
@@ -62,18 +63,16 @@ public class MateUniverse extends Universe {
   
   @Override
   public DynamicObject loadClass(final SSymbol name) {
+    DynamicObject result = super.loadClass(name);
     if ((DynamicObject) getGlobal(name) != null){
-      return super.loadClass(name);
-    } else {
-      DynamicObject result = super.loadClass(name);
       try{
         mateify(result);
       } catch (NullPointerException e){
         println(name.getString());
       }
       mateify(SObject.getSOMClass(result));
-      return result;
     }
+    return result;
   }
   
   protected void loadSystemClass(final DynamicObject systemClass) {
@@ -145,7 +144,12 @@ public class MateUniverse extends Universe {
   
   @Override
   public DynamicObject createNilObject() {
-    return SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(Classes.nilClass,Nil.nilObject).newInstance();
+    DynamicObject dummyObjectForInitialization = SBasicObjectLayoutImpl.INSTANCE.createSBasicObject();
+    return SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(dummyObjectForInitialization, dummyObjectForInitialization).newInstance();
   }
-
+  
+  @Override 
+  public DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
+    return SReflectiveObject.createObjectShapeFactoryForClass(clazz);
+  }
 }

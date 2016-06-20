@@ -24,6 +24,8 @@
 
 package som.vmobjects;
 
+import som.vm.constants.Nil;
+
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
 import com.oracle.truffle.api.object.ObjectType;
@@ -42,6 +44,10 @@ public class SReflectiveObject extends SObject {
     boolean isSReflectiveObject(DynamicObject object);
     boolean isSReflectiveObject(ObjectType objectType);
   }
+  
+  //Only needed for system initialization
+  public static final DynamicObjectFactory SREFLECTIVE_OBJECT_FACTORY = 
+      SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(Nil.nilObject, Nil.nilObject);
   
   public static final DynamicObject getEnvironment(final DynamicObject obj) {
     return SReflectiveObjectLayoutImpl.INSTANCE.getEnvironment(obj);
@@ -108,5 +114,9 @@ public class SReflectiveObject extends SObject {
   
   public static boolean isSReflectiveObject(ObjectType type) {
     return SReflectiveObjectLayoutImpl.INSTANCE.isSReflectiveObject(type);
+  }
+  
+  public static DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
+    return SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(clazz, Nil.nilObject);
   }
 }

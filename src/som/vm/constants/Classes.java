@@ -23,10 +23,9 @@ public class Classes {
   // These classes can be statically preinitialized.
   static {
     // Allocate the Metaclass classes
-    //classClass, "Metaclass"
-    metaclassClass = Universe.newMetaclassClass();
+    metaclassClass = Universe.newMetaclassClass("Metaclass");
     // Allocate the rest of the system classes
-    objectClass     = Universe.newSystemClass(null, "Object");
+    objectClass     = Universe.newSystemClass(Nil.nilObject, "Object");
     nilClass        = Universe.newSystemClass(objectClass, "Nil");
     classClass      = Universe.newSystemClass(objectClass, "Class");
     arrayClass      = Universe.newSystemClass(objectClass, "Array");

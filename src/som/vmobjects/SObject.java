@@ -25,7 +25,6 @@
 package som.vmobjects;
 
 import som.vm.NotYetImplementedException;
-import som.vm.Universe;
 import som.vm.constants.Nil;
 
 import com.oracle.truffle.api.CompilerAsserts;
@@ -36,6 +35,11 @@ import com.oracle.truffle.api.object.dsl.Layout;
 
 
 public class SObject {
+  
+  @Layout
+  public interface SBasicObjectLayout {
+    DynamicObject createSBasicObject();
+  }
   
   @Layout
   public interface SObjectLayout {
@@ -49,7 +53,8 @@ public class SObject {
     boolean isSObject(ObjectType objectType);
   }
   
-  public static final DynamicObjectFactory NIL_DUMMY_FACTORY = SObjectLayoutImpl.INSTANCE.createSObjectShape(Nil.nilObject);
+  //Only needed for system initialization
+  public static final DynamicObjectFactory SOBJECT_FACTORY = SObjectLayoutImpl.INSTANCE.createSObjectShape(Nil.nilObject);
   
   public static DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
     return SObjectLayoutImpl.INSTANCE.createSObjectShape(clazz);
@@ -58,8 +63,7 @@ public class SObject {
   public static DynamicObject create(final DynamicObject instanceClass) {
     CompilerAsserts.neverPartOfCompilation("Basic create without factory caching");
     DynamicObjectFactory factory = SClass.getFactory(instanceClass);
-    //The parameter is the metaobject, only valid for SReflectiveObjects
-    return factory.newInstance(Nil.nilObject);
+    return factory.newInstance();
   }
   
   public static boolean isSObject(final DynamicObject obj) {
@@ -71,28 +75,10 @@ public class SObject {
     SObjectLayoutImpl.INSTANCE.setKlass(obj, value);
   }
 
-  /*private static final class SObjectObjectType extends ObjectType {
-    @Override
-    public String toString() {
-      return "SObject";
-    }
-  }*/
-
   public static DynamicObject getSOMClass(final DynamicObject obj) {
-    //Todo: Remove the if and make this method homogeneous when all objects use the @layout annotation
     return SObjectLayoutImpl.INSTANCE.getKlass(obj);
-    /*DynamicObject type = (DynamicObject) obj.getShape().getSharedData();
-    if (type == null) type = SInvokable.getSOMClass(obj);
-    return type;*/
   }
 
-  public static final void internalSetNilClass(final DynamicObject object, final DynamicObject value) {
-    assert object != null;
-    assert value != null;
-    assert !Universe.current().objectSystemInitialized : "This should really only be used during initialization of object system";
-    SObjectLayoutImpl.INSTANCE.setKlass(object, value);
-  }
-  
   public static final int getNumberOfFields(final DynamicObject obj) {
     throw new NotYetImplementedException();
   }

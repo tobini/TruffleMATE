@@ -122,6 +122,10 @@ public class SInvokable {
     return InvokableLayoutImpl.INSTANCE.getKlass(obj);
   }
   
+  public static boolean isSInvokable (final DynamicObject obj) {
+    return InvokableLayoutImpl.INSTANCE.isInvokable(obj);
+  }
+  
   public static final class SMethod extends SInvokable {
     @Layout
     public interface MethodLayout extends InvokableLayout {
@@ -155,7 +159,7 @@ public class SInvokable {
   
   public static final class SPrimitive extends SInvokable {
     public static boolean isSPrimitive(final DynamicObject obj) {
-      return obj.getShape() == INVOKABLES_FACTORY.getShape();
+      return SInvokable.isSInvokable(obj) && !SMethod.isSMethod(obj);
     }
   }
 }
