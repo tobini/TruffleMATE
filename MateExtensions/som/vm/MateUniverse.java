@@ -63,15 +63,15 @@ public class MateUniverse extends Universe {
   
   @Override
   public DynamicObject loadClass(final SSymbol name) {
-    DynamicObject result = super.loadClass(name);
-    if ((DynamicObject) getGlobal(name) != null){
-      try{
-        mateify(result);
-      } catch (NullPointerException e){
-        println(name.getString());
-      }
-      mateify(SObject.getSOMClass(result));
+    DynamicObject result = (DynamicObject) getGlobal(name);
+    if (result != null) { return result; }
+    result = super.loadClass(name);
+    try{
+      mateify(result);
+    } catch (NullPointerException e){
+      println(name.getString());
     }
+    mateify(SObject.getSOMClass(result));
     return result;
   }
   

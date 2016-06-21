@@ -35,7 +35,7 @@ public abstract class EqualsEqualsPrim extends BinaryExpressionNode {
 
   @Specialization
   public final boolean doBigInteger(final BigInteger left, final BigInteger right) {
-    return left == right;
+    return left.equals(right);
   }
 
   @Specialization

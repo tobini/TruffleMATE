@@ -69,8 +69,10 @@ public abstract class Invokable extends RootNode implements MateNode{
   
   public void wrapIntoMateNode() {
     if (this.asMateNode() != null) this.replace(this.asMateNode());
-    this.expressionOrSequence.replace(new MateReturnNode(this.expressionOrSequence));
-    uninitializedBody.accept(new MateifyVisitor());
+    if (!(this.expressionOrSequence instanceof MateReturnNode)){
+      this.expressionOrSequence.replace(new MateReturnNode(this.expressionOrSequence));
+      uninitializedBody.accept(new MateifyVisitor());
+    }
   }
   
   private ExpressionNode mateifyUninitializedNode(ExpressionNode uninitialized){

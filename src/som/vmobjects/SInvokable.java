@@ -57,7 +57,7 @@ public class SInvokable {
     boolean isInvokable(ObjectType objectType);
   }
     
-  private static final DynamicObjectFactory INVOKABLES_FACTORY = InvokableLayoutImpl.INSTANCE.createInvokableShape(Classes.methodClass, Nil.nilObject);
+  private static final DynamicObjectFactory INVOKABLES_FACTORY = InvokableLayoutImpl.INSTANCE.createInvokableShape(Classes.primitiveClass, Nil.nilObject);
   
   public static DynamicObject create(final SSymbol signature, final Invokable invokable) {
     Invokable invokableMeta = (Invokable) invokable.deepCopy();

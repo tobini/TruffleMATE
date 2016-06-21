@@ -7,6 +7,7 @@ import som.vm.constants.Nil;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SClass;
 import som.vmobjects.SReflectiveObjectLayoutImpl;
+import som.vmobjects.SReflectiveObjectLayoutImpl.SReflectiveObjectType;
 import som.vmobjects.SShape;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
@@ -60,7 +61,8 @@ public final class MatePrims {
     @Specialization
     public final SShape doSObject(SShape shape, DynamicObject environment) {
       return new SShape(
-          SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(Nil.nilObject, environment).getShape());
+          shape.getShape().changeType(
+              ((SReflectiveObjectType)shape.getShape().getObjectType()).setEnvironment(environment)));
     }
   }
   

@@ -211,7 +211,7 @@ public abstract class ArgumentReadNode {
       final Frame materialized = currentFrame.getFrame(FrameAccess.MATERIALIZE, true);
       if (materialized.getFrameDescriptor().findFrameSlot(Universe.frameOnStackSlotName()) == null){
         FrameSlot frameOnStackMarker = materialized.getFrameDescriptor().addFrameSlot(Universe.frameOnStackSlotName(), FrameSlotKind.Object);
-        frame.setObject(frameOnStackMarker, new FrameOnStackMarker());
+        materialized.setObject(frameOnStackMarker, new FrameOnStackMarker());
       }
       return currentFrame;
     }
