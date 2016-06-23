@@ -55,9 +55,9 @@ public final class SClass {
     HashMap getInvokablesTable(DynamicObject object);
     DynamicObjectFactory getInstancesFactory(DynamicObject object);
     void setInstancesFactoryUnsafe(DynamicObject object, DynamicObjectFactory value);
-    void setInstanceFieldsUnsafe(DynamicObject object, SArray instanceFields);
-    void setInstanceInvokablesUnsafe(DynamicObject object, SArray instanceInvokables);
-    void setSuperclassUnsafe(DynamicObject object, DynamicObject klass);
+    void setInstanceFieldsUnsafe(DynamicObject object, SArray value);
+    void setInstanceInvokablesUnsafe(DynamicObject object, SArray value);
+    void setSuperclassUnsafe(DynamicObject object, DynamicObject value);
     boolean isSClass(DynamicObject object);
     boolean isSClass(ObjectType objectType);
   }
