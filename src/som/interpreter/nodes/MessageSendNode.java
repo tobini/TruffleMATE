@@ -591,6 +591,7 @@ public final class MessageSendNode {
       super(arguments, source);
       this.selector = selector;
       this.dispatchNode = dispatchNode;
+      this.adoptChildren();
     }
 
     @Override
@@ -622,11 +623,6 @@ public final class MessageSendNode {
     @Override
     public SSymbol getSelector(){
       return this.selector;
-    }
-
-    @Override
-    public ExpressionNode asMateNode() {
-      return new MateGenericMessageSendNode(this);
     }
   }
 }
