@@ -13,7 +13,7 @@ GRAAL_LOCATIONS = ['/home/smarr/Projects/SOM/graal/jvmci',
                    BASE_DIR + '/../GraalBasic/jvmci']
 
 if sys.argv[0].endswith('oficial'):
-    GRAAL_LOCATIONS.insert(0, BASE_DIR + '/../graalvm-0.11-dev-dk')
+    GRAAL_LOCATIONS.insert(0, BASE_DIR + '/../graalvm-0.12-dk')
     JAVA_BIN  = '/jre/bin/javao'
 else:
     JAVA_BIN  = '/bin/java'

@@ -24,11 +24,6 @@ public class MateGenericMessageSendNode extends GenericMessageSendNode implement
     this.initializeMateNodes();
   }
   
-  protected MateGenericMessageSendNode(GenericMessageSendNode somNode) {
-    super(somNode.getSelector(), somNode.argumentNodes, somNode.getDispatchListHead(), somNode.getSourceSection());
-    this.initializeMateNodes();
-  }
-  
   protected void initializeMateNodes(){
     this.initializeMateSemantics(this.getSourceSection(), this.reflectiveOperation());
     if (this.isSuperSend()){
