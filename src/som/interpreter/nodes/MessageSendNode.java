@@ -1,5 +1,6 @@
 package som.interpreter.nodes;
 
+import som.instrumentation.MessageSendNodeWrapper;
 import som.interpreter.SArguments;
 import som.interpreter.TypesGen;
 import som.interpreter.TruffleCompiler;
@@ -66,11 +67,11 @@ import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.instrumentation.Instrumentable;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeCost;
 import com.oracle.truffle.api.source.SourceSection;
-
 
 public final class MessageSendNode {
 
@@ -121,8 +122,6 @@ public final class MessageSendNode {
       return arguments;
     }
 
-    public abstract SSymbol getSelector();
-
     @Override
     public ReflectiveOp reflectiveOperation(){
       return ReflectiveOp.MessageLookup;
@@ -133,6 +132,10 @@ public final class MessageSendNode {
       extends AbstractMessageSendNode {
 
     protected final SSymbol selector;
+    
+    public SSymbol getSelector(){
+      return this.selector;
+    }
 
     protected AbstractUninitializedMessageSendNode(final SSymbol selector,
         final ExpressionNode[] arguments, final SourceSection source) {
@@ -501,13 +504,9 @@ public final class MessageSendNode {
       }
       return makeGenericSend();
     }
-
-    @Override
-    public SSymbol getSelector(){
-      return this.selector;
-    }
   }
 
+  @Instrumentable(factory = MessageSendNodeWrapper.class)
   public static class UninitializedMessageSendNode
       extends AbstractUninitializedMessageSendNode implements PreevaluatedExpression{
 
@@ -524,6 +523,10 @@ public final class MessageSendNode {
         argumentNodes, SuperDispatchNode.create(selector,
             argumentNode), getSourceSection());
       return replace(node);
+    }
+    
+    protected UninitializedMessageSendNode(final UninitializedMessageSendNode wrappedNode) {
+      super(wrappedNode.selector, null, null);
     }
 
     @Override
@@ -619,7 +622,6 @@ public final class MessageSendNode {
       return Cost.getCost(dispatchNode);
     }
 
-    @Override
     public SSymbol getSelector(){
       return this.selector;
     }
