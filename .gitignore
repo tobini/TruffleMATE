@@ -6,3 +6,4 @@ rebench.conf
 user-dict.txt
 .classpath
 libs/*.jar
+*.data
