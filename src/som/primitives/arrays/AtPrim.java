@@ -4,6 +4,8 @@ import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
+import tools.dym.Tags.ArrayRead;
+import tools.dym.Tags.BasicPrimitiveOperation;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
@@ -51,5 +53,16 @@ public abstract class AtPrim extends BinaryExpressionNode {
   @Specialization(guards = "isBooleanType(receiver)")
   public final boolean doBooleanSArray(final SArray receiver, final long idx) {
     return receiver.getBooleanStorage(storageType)[(int) idx - 1];
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == BasicPrimitiveOperation.class) {
+      return true;
+    } else if (tag == ArrayRead.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
+    }
   }
 }

@@ -4,6 +4,7 @@ import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.vm.constants.Classes;
 import som.vmobjects.SArray;
 import som.vmobjects.SClass;
+import tools.dym.Tags.NewArray;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -17,7 +18,6 @@ public abstract class NewPrim extends BinaryExpressionNode {
     return receiver == Classes.arrayClass;
   }
   
-  
   protected static final boolean receiverIsByteArrayClass(final DynamicObject receiver) {
     return (SClass.getName(receiver).getString() == "ByteArray");
   }
@@ -30,5 +30,14 @@ public abstract class NewPrim extends BinaryExpressionNode {
   @Specialization(guards = "receiverIsByteArrayClass(receiver)")
   public final SArray doByteSClass(final DynamicObject receiver, final long length) {
     return SArray.create(new byte[(int) length]);
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == NewArray.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
+    }
   }
 }

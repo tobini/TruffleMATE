@@ -14,6 +14,7 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 
@@ -87,6 +88,15 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
     }
     if (current != null) {
       ((Invokable) current).propagateLoopCountThroughoutLexicalScope(count);
+    }
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == LoopNode.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
     }
   }
 }

@@ -6,6 +6,7 @@ import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
+import tools.dym.Tags.ControlFlowCondition;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
@@ -72,6 +73,15 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
       return arg;
     } else {
       return Nil.nilObject;
+    }
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == ControlFlowCondition.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
     }
   }
 }

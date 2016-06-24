@@ -4,6 +4,31 @@ import java.io.IOException;
 
 import som.vm.MateUniverse;
 import som.vm.NotYetImplementedException;
+import tools.dym.Tags.ArrayRead;
+import tools.dym.Tags.ArrayWrite;
+import tools.dym.Tags.BasicPrimitiveOperation;
+import tools.dym.Tags.CachedClosureInvoke;
+import tools.dym.Tags.CachedVirtualInvoke;
+import tools.dym.Tags.ClassRead;
+import tools.dym.Tags.ComplexPrimitiveOperation;
+import tools.dym.Tags.ControlFlowCondition;
+import tools.dym.Tags.FieldRead;
+import tools.dym.Tags.FieldWrite;
+import tools.dym.Tags.LocalArgRead;
+import tools.dym.Tags.LocalVarRead;
+import tools.dym.Tags.LocalVarWrite;
+import tools.dym.Tags.LoopBody;
+import tools.dym.Tags.NewArray;
+import tools.dym.Tags.NewObject;
+import tools.dym.Tags.OpArithmetic;
+import tools.dym.Tags.OpClosureApplication;
+import tools.dym.Tags.OpComparison;
+import tools.dym.Tags.OpLength;
+import tools.dym.Tags.PrimitiveArgument;
+import tools.dym.Tags.StringAccess;
+import tools.dym.Tags.UnspecifiedInvoke;
+import tools.dym.Tags.VirtualInvoke;
+import tools.dym.Tags.VirtualInvokeReceiver;
 import tools.highlight.Tags.ArgumentTag;
 import tools.highlight.Tags.CommentTag;
 import tools.highlight.Tags.DelimiterClosingTag;
@@ -21,15 +46,27 @@ import com.oracle.truffle.api.instrumentation.ProvidedTags;
 import com.oracle.truffle.api.instrumentation.StandardTags.CallTag;
 import com.oracle.truffle.api.instrumentation.StandardTags.RootTag;
 import com.oracle.truffle.api.instrumentation.StandardTags.StatementTag;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.Source;
 
 @TruffleLanguage.Registration(name = "TruffleMate", version = "0.1.0", mimeType = SomLanguage.MIME_TYPE)
-@ProvidedTags({RootTag.class, StatementTag.class, CallTag.class,
+ @ProvidedTags({RootTag.class, StatementTag.class, CallTag.class,
   KeywordTag.class, LiteralTag.class,
   CommentTag.class, IdentifierTag.class, ArgumentTag.class,
   LocalVariableTag.class, StatementSeparatorTag.class,
-  DelimiterOpeningTag.class, DelimiterClosingTag.class})
+  DelimiterOpeningTag.class, DelimiterClosingTag.class,
+
+  UnspecifiedInvoke.class, CachedVirtualInvoke.class,
+  CachedClosureInvoke.class, VirtualInvoke.class,
+  VirtualInvokeReceiver.class, NewObject.class, NewArray.class,
+  ControlFlowCondition.class, FieldRead.class, FieldWrite.class, ClassRead.class,
+  LocalVarRead.class, LocalVarWrite.class, LocalArgRead.class, ArrayRead.class,
+  ArrayWrite.class, LoopNode.class, LoopBody.class, BasicPrimitiveOperation.class,
+  ComplexPrimitiveOperation.class, PrimitiveArgument.class,
+  StringAccess.class, OpClosureApplication.class, OpArithmetic.class,
+  OpComparison.class, OpLength.class
+})
 public class SomLanguage extends TruffleLanguage<MateUniverse> {
 
   public static final String MIME_TYPE = "application/x-mate-som";

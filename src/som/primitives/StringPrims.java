@@ -6,6 +6,8 @@ import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vm.Universe;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SSymbol;
+import tools.dym.Tags.ComplexPrimitiveOperation;
+import tools.dym.Tags.StringAccess;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -34,6 +36,15 @@ public class StringPrims {
     public final String doSSymbol(final SSymbol receiver, final SSymbol argument) {
       return receiver.getString() + argument.getString();
     }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == StringAccess.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
   }
 
   @GenerateNodeFactory
@@ -49,6 +60,15 @@ public class StringPrims {
     @Specialization
     public final SAbstractObject doSSymbol(final SSymbol receiver) {
       return receiver;
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == StringAccess.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
     }
   }
 
@@ -68,6 +88,17 @@ public class StringPrims {
     public final String doSSymbol(final SSymbol receiver, final long start,
         final long end) {
       return doString(receiver.getString(), start, end);
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == StringAccess.class) {
+        return true;
+      } else if (tag == ComplexPrimitiveOperation.class) {
+        return true;
+      } else {  
+        return super.isTaggedWith(tag);
+      }
     }
   }
 }

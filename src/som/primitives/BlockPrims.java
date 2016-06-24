@@ -9,6 +9,7 @@ import som.interpreter.nodes.nary.TernaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SBlock;
+import tools.dym.Tags.OpClosureApplication;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
@@ -75,6 +76,15 @@ public abstract class BlockPrims {
         return NodeCost.MEGAMORPHIC;
       }
     }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == OpClosureApplication.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
   }
 
   @GenerateNodeFactory
@@ -111,6 +121,15 @@ public abstract class BlockPrims {
         return NodeCost.MEGAMORPHIC;
       }
     }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == OpClosureApplication.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
   }
 
   @GenerateNodeFactory
@@ -145,6 +164,15 @@ public abstract class BlockPrims {
         return NodeCost.POLYMORPHIC;
       } else {
         return NodeCost.MEGAMORPHIC;
+      }
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == OpClosureApplication.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
       }
     }
   }

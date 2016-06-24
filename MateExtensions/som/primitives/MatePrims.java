@@ -3,10 +3,8 @@ package som.primitives;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vm.MateUniverse;
-import som.vm.constants.Nil;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SClass;
-import som.vmobjects.SReflectiveObjectLayoutImpl;
 import som.vmobjects.SReflectiveObjectLayoutImpl.SReflectiveObjectType;
 import som.vmobjects.SShape;
 

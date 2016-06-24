@@ -9,6 +9,9 @@ import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SSymbol;
+import tools.dym.Tags.LocalArgRead;
+import tools.highlight.Tags.ArgumentTag;
+import tools.highlight.Tags.KeywordTag;
 
 import com.oracle.truffle.api.TruffleRuntime;
 import com.oracle.truffle.api.frame.Frame;
@@ -51,11 +54,22 @@ public abstract class ArgumentReadNode {
     public Node asMateNode() {
       return new MateArgumentReadNode.MateLocalArgumentReadNode(this);
     }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == KeywordTag.class && SArguments.RCVR_IDX == argumentIndex) {
+        return true;
+      } else if (tag == LocalArgRead.class || tag == ArgumentTag.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
   }
 
   public static class NonLocalArgumentReadNode extends ContextualNode {
     protected final int argumentIndex;
-
+    
     public NonLocalArgumentReadNode(final int argumentIndex,
         final int contextLevel, final SourceSection source) {
       super(contextLevel, source);
@@ -114,6 +128,17 @@ public abstract class ArgumentReadNode {
     public Node asMateNode() {
       return new MateArgumentReadNode.MateNonLocalArgumentReadNode(this);
     }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == KeywordTag.class && SArguments.RCVR_IDX == argumentIndex) {
+        return true;
+      } else if (tag == ArgumentTag.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
   }
 
   public static class LocalSuperReadNode extends LocalArgumentReadNode
@@ -146,6 +171,15 @@ public abstract class ArgumentReadNode {
     @Override
     public Node asMateNode() {
       return new MateArgumentReadNode.MateLocalSuperReadNode(this);
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == KeywordTag.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
     }
   }
 
@@ -192,6 +226,15 @@ public abstract class ArgumentReadNode {
     public Node asMateNode() {
       return new MateArgumentReadNode.MateNonLocalSuperReadNode(this);
     }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == KeywordTag.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
   }
   
   public static class ThisContextNode extends ExpressionNode {
@@ -214,6 +257,15 @@ public abstract class ArgumentReadNode {
         materialized.setObject(frameOnStackMarker, new FrameOnStackMarker());
       }
       return currentFrame;
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == KeywordTag.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
     }
   }
 }

@@ -1,6 +1,9 @@
 package som.interpreter.nodes.specialized;
 
 import som.interpreter.nodes.ExpressionNode;
+import tools.dym.Tags.ControlFlowCondition;
+import tools.dym.Tags.OpComparison;
+
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
@@ -15,6 +18,7 @@ public abstract class BooleanInlinedLiteralNode extends ExpressionNode {
 
   // In case we need to revert from this optimistic optimization, keep the
   // original nodes around
+  @SuppressWarnings("unused")
   private final ExpressionNode argumentAcutalNode;
 
   public BooleanInlinedLiteralNode(
@@ -51,6 +55,15 @@ public abstract class BooleanInlinedLiteralNode extends ExpressionNode {
   public ExpressionNode getReceiver(){
     return receiverNode;
   }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == ControlFlowCondition.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
+    }
+  }
 
   public static final class AndInlinedLiteralNode extends BooleanInlinedLiteralNode {
 
@@ -74,6 +87,15 @@ public abstract class BooleanInlinedLiteralNode extends ExpressionNode {
         return evaluateArgument(frame);
       } else {
         return false;
+      }
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == OpComparison.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
       }
     }
   }
@@ -100,6 +122,15 @@ public abstract class BooleanInlinedLiteralNode extends ExpressionNode {
         return true;
       } else {
         return evaluateArgument(frame);
+      }
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == OpComparison.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
       }
     }
   }

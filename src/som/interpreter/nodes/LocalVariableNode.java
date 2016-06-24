@@ -5,6 +5,9 @@ import som.compiler.Variable.Local;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
 import som.vm.constants.Nil;
 import som.vm.constants.ReflectiveOp;
+import tools.dym.Tags.LocalVarRead;
+import tools.dym.Tags.LocalVarWrite;
+import tools.highlight.Tags.LocalVariableTag;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -28,6 +31,15 @@ public abstract class LocalVariableNode extends ExpressionNode {
 
   public final Object getSlotIdentifier() {
     return slot.getIdentifier();
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == LocalVariableTag.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
+    }
   }
   
   public abstract static class LocalVariableReadNode extends LocalVariableNode {
@@ -100,6 +112,15 @@ public abstract class LocalVariableNode extends ExpressionNode {
     @Override
     public Node asMateNode() {
       return new MateLocalVariableNode.MateLocalVariableReadNode(this);
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == LocalVarRead.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
     }
   }
 
@@ -201,6 +222,15 @@ public abstract class LocalVariableNode extends ExpressionNode {
     @Override
     public Node asMateNode() {
       return new MateLocalVariableNode.MateLocalVariableWriteNode(this);
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == LocalVarWrite.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
     }
   }
 }

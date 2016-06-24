@@ -5,6 +5,8 @@ import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
+import tools.dym.Tags.ControlFlowCondition;
+import tools.dym.Tags.OpComparison;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -51,6 +53,17 @@ public abstract class OrMessageNode extends BinaryExpressionNode {
     public final boolean doOr(final VirtualFrame frame, final boolean receiver,
         final boolean argument) {
       return receiver || argument;
+    }
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == ControlFlowCondition.class) {
+      return true;
+    } else if (tag == OpComparison.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
     }
   }
 }

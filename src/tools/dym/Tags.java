@@ -13,6 +13,11 @@ public abstract class Tags {
   public final class CachedVirtualInvoke extends Tags {
     private CachedVirtualInvoke() { }
   }
+  
+  //a closure invoke where the closure method was cached
+  public final class CachedClosureInvoke extends Tags {
+    private CachedClosureInvoke() { }
+  }
 
   // the lexical site of a virtual invoke
   public final class VirtualInvoke extends Tags {

@@ -6,6 +6,7 @@ import som.vmobjects.SBlock;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.object.DynamicObject;
 
 
@@ -36,5 +37,14 @@ public abstract class WhilePrimitiveNode extends BinaryExpressionNode {
 
   public abstract static class WhileFalsePrimitiveNode extends WhilePrimitiveNode {
     public WhileFalsePrimitiveNode() { super(false); }
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == LoopNode.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
+    }
   }
 }

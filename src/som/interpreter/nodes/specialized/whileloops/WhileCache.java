@@ -12,6 +12,7 @@ import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.object.DynamicObject;
 
 
@@ -71,5 +72,14 @@ public abstract class WhileCache extends BinaryExpressionNode {
       loopConditionResult = obj2bool(conditionResult);
     }
     return Nil.nilObject;
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == LoopNode.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
+    }
   }
 }

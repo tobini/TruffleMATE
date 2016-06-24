@@ -4,6 +4,7 @@ import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
 import som.vmobjects.SSymbol;
+import tools.dym.Tags.OpLength;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
@@ -62,5 +63,14 @@ public abstract class LengthPrim extends UnaryExpressionNode {
   @Specialization
   public final long doSSymbol(final SSymbol receiver) {
     return receiver.getString().length();
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == OpLength.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
+    }
   }
 }

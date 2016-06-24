@@ -8,6 +8,9 @@ import som.primitives.arithmetic.ArithmeticPrim;
 import som.vm.constants.Classes;
 import som.vmobjects.SArray;
 import som.vmobjects.SSymbol;
+import tools.dym.Tags.ComplexPrimitiveOperation;
+import tools.dym.Tags.OpArithmetic;
+import tools.dym.Tags.StringAccess;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -31,6 +34,15 @@ public abstract class IntegerPrims {
     public final long doLong(final long receiver) {
       return (int) receiver;
     }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == OpArithmetic.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
   }
 
   @GenerateNodeFactory
@@ -38,6 +50,15 @@ public abstract class IntegerPrims {
     @Specialization
     public final long doLong(final long receiver) {
       return Integer.toUnsignedLong((int) receiver);
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == OpArithmetic.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
     }
   }
 
@@ -55,6 +76,17 @@ public abstract class IntegerPrims {
     @Specialization(guards = "receiverIsIntegerClass(receiver)")
     public final Object doSClass(final DynamicObject receiver, final SSymbol argument) {
       return Long.parseLong(argument.getString());
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == ComplexPrimitiveOperation.class) {
+        return true;
+      } else if (tag == StringAccess.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
     }
   }
 
@@ -109,6 +141,15 @@ public abstract class IntegerPrims {
       }
       return SArray.create(arr);
     }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == OpArithmetic.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
   }
 
   @GenerateNodeFactory
@@ -116,6 +157,15 @@ public abstract class IntegerPrims {
     @Specialization
     public final long doLong(final long receiver) {
       return Math.abs(receiver);
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == OpArithmetic.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
     }
   }
 }

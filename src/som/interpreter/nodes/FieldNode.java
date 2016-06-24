@@ -27,6 +27,8 @@ import som.interpreter.objectstorage.FieldAccessorNode;
 import som.interpreter.objectstorage.FieldAccessorNode.ReadFieldNode;
 import som.interpreter.objectstorage.FieldAccessorNode.WriteFieldNode;
 import som.vm.constants.ReflectiveOp;
+import tools.dym.Tags.FieldRead;
+import tools.dym.Tags.FieldWrite;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
@@ -72,6 +74,15 @@ public abstract class FieldNode extends ExpressionNode {
     public ExpressionNode asMateNode() {
       return MateFieldReadNodeGen.create(this, this.getSelf());
     }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == FieldRead.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
   }
 
   @NodeChildren({
@@ -107,6 +118,15 @@ public abstract class FieldNode extends ExpressionNode {
     @Override
     public ExpressionNode asMateNode() {
       return MateFieldWriteNodeGen.create(this, this.getSelf(), this.getValue());
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == FieldWrite.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
     }
   }
 }

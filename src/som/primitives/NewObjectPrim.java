@@ -1,9 +1,9 @@
 package som.primitives;
 
 import som.interpreter.nodes.nary.UnaryExpressionNode;
-import som.vm.constants.Nil;
+import som.vm.Universe;
 import som.vmobjects.SClass;
-import som.vmobjects.SObject;
+import tools.dym.Tags.NewObject;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Cached;
@@ -22,13 +22,22 @@ public abstract class NewObjectPrim extends UnaryExpressionNode {
       @Cached("receiver") final DynamicObject cachedClass,
       @Cached("getFactory(cachedClass)") final DynamicObjectFactory factory) {
     //The parameter is only valid for SReflectiveObjects
-    return factory.newInstance(Nil.nilObject);
+    return factory.newInstance();
   }
 
   @TruffleBoundary
   @Specialization(contains = "cachedClass")
   public DynamicObject uncached(final DynamicObject receiver) {
-    return SObject.create(receiver);
+    return Universe.current().create(receiver);
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == NewObject.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
+    }
   }
 }
 

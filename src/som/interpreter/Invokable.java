@@ -6,13 +6,13 @@ import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.MateReturnNode;
 import som.vm.MateUniverse;
 import som.vm.Universe;
-
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.ExecutionContext;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.instrumentation.StandardTags.RootTag;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
@@ -83,8 +83,16 @@ public abstract class Invokable extends RootNode implements MateNode{
     }
   }
   
-
   public void setMethod(DynamicObject method) {
     this.belongsToMethod = method;
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == RootTag.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
+    }
   }
 }

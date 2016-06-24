@@ -64,10 +64,12 @@ import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SArray;
 import som.vmobjects.SBlock;
 import som.vmobjects.SSymbol;
+import tools.dym.Tags.VirtualInvoke;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.instrumentation.Instrumentable;
+import com.oracle.truffle.api.instrumentation.StandardTags.CallTag;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeCost;
@@ -125,6 +127,14 @@ public final class MessageSendNode {
     @Override
     public ReflectiveOp reflectiveOperation(){
       return ReflectiveOp.MessageLookup;
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == CallTag.class) {
+        return true;
+      }
+      return super.isTaggedWith(tag);
     }
   }
 
@@ -625,6 +635,15 @@ public final class MessageSendNode {
 
     public SSymbol getSelector(){
       return this.selector;
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == VirtualInvoke.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
     }
   }
 }

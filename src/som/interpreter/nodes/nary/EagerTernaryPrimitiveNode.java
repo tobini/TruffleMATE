@@ -9,6 +9,7 @@ import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.instrumentation.StandardTags.RootTag;
 
 
 public class EagerTernaryPrimitiveNode extends TernaryExpressionNode {
@@ -68,5 +69,14 @@ public class EagerTernaryPrimitiveNode extends TernaryExpressionNode {
   
   protected SSymbol getSelector(){
     return selector;
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == RootTag.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
+    }
   }
 }

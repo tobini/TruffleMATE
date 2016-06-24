@@ -5,6 +5,8 @@ import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
 import som.vmobjects.SArray.PartiallyEmptyArray;
+import tools.dym.Tags.ArrayWrite;
+import tools.dym.Tags.BasicPrimitiveOperation;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
@@ -261,5 +263,16 @@ public abstract class AtPutPrim extends TernaryExpressionNode {
     long idx = index - 1;
     receiver.getByteStorage(storageType)[(int) idx] = (byte)value;
     return value;
+  }
+  
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    if (tag == BasicPrimitiveOperation.class) {
+      return true;
+    } else if (tag == ArrayWrite.class) {
+      return true;
+    } else {
+      return super.isTaggedWith(tag);
+    }
   }
 }
