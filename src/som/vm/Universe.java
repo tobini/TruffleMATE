@@ -690,4 +690,8 @@ public class Universe extends ExecutionContext {
   public DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
     return SObject.createObjectShapeFactoryForClass(clazz);
   }
+  
+  public DynamicObject create(DynamicObject clazz){
+    return SObject.create(clazz);
+  }
 }

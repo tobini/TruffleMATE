@@ -152,4 +152,8 @@ public class MateUniverse extends Universe {
   public DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
     return SReflectiveObject.createObjectShapeFactoryForClass(clazz);
   }
+  
+  public DynamicObject create(DynamicObject clazz){
+    return SReflectiveObject.create(clazz);
+  }
 }
