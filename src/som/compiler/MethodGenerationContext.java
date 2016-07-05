@@ -346,14 +346,12 @@ public final class MethodGenerationContext {
         holderGenc.getFieldIndex(fieldName), source);
   }
 
-  public GlobalNode getGlobalRead(final SSymbol varName,
-      final Universe universe, final SourceSection source) {
-    return createGlobalRead(varName, universe, source);
+  public GlobalNode getGlobalRead(final SSymbol varName, final SourceSection source) {
+    return createGlobalRead(varName, source);
   }
 
   public FieldWriteNode getObjectFieldWrite(final SSymbol fieldName,
-      final ExpressionNode exp, final Universe universe,
-      final SourceSection source) {
+      final ExpressionNode exp, final SourceSection source) {
     if (!holderGenc.hasField(fieldName)) {
       return null;
     }

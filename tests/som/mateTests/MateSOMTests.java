@@ -26,7 +26,7 @@ public class MateSOMTests extends SomTests {
   
   @Override
   protected String[] getArguments(){
-    String[] args = {"-activateMate", "-cp", "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:Smalltalk/FileSystem/Streams:Smalltalk/FileSystem/Directories:Smalltalk/Collections/Streams::Smalltalk/Languages:TestSuite/FileSystem", "TestSuite/TestHarness.som", testName};
+    String[] args = {"--mate", "-activateMate", "-cp", "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:Smalltalk/FileSystem/Streams:Smalltalk/FileSystem/Directories:Smalltalk/Collections/Streams::Smalltalk/Languages:TestSuite/FileSystem", "TestSuite/TestHarness.som", testName};
     return args;
   }
   

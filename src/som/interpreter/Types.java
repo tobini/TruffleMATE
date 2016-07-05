@@ -24,7 +24,6 @@ package som.interpreter;
 import java.math.BigInteger;
 
 import som.vm.constants.Classes;
-import som.vm.constants.Globals;
 import som.vm.constants.MateClasses;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SArray;
@@ -63,9 +62,9 @@ public class Types {
       return ((SAbstractObject) obj).getSOMClass();
     } else if (obj instanceof Boolean) {
       if ((boolean) obj) {
-        return Globals.trueClass;
+        return Classes.trueClass;
       } else {
-        return Globals.falseClass;
+        return Classes.falseClass;
       }
     } else if (obj instanceof Long || obj instanceof BigInteger) {
       return Classes.integerClass;

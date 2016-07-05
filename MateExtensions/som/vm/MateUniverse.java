@@ -1,24 +1,13 @@
 package som.vm;
 
-import static som.vm.constants.MateClasses.shapeClass;
-import static som.vm.constants.MateClasses.environmentMO;
-import static som.vm.constants.MateClasses.messageMO;
-import static som.vm.constants.MateClasses.operationalSemanticsMO;
-import static som.vm.constants.MateClasses.contextClass;
 import som.interpreter.Invokable;
 import som.interpreter.MateifyVisitor;
-import som.interpreter.nodes.MateMessageSpecializationsFactory;
-import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
-import som.vm.constants.Nil;
 import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.SBasicObjectLayoutImpl;
 import som.vmobjects.SClass;
 import som.vmobjects.SMateEnvironment;
-import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObject;
 import som.vmobjects.SReflectiveObjectLayoutImpl;
-import som.vmobjects.SSymbol;
-
 import com.oracle.truffle.api.Assumption;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
@@ -33,52 +22,12 @@ public class MateUniverse extends Universe {
     mateActivated = null;
   }
 
-  protected void initializeObjectSystem() {
-    if (alreadyInitialized) {
-      return;
-    } else {
-      super.initializeObjectSystem();
-      
-      //Setup the fields that were not possible to setup before to avoid cyclic initialization dependencies
-      SReflectiveObject.setEnvironment(Nil.nilObject, Nil.nilObject);
-      
-      // Load methods and fields into the Mate MOP.
-      loadSystemClass(environmentMO);
-      loadSystemClass(operationalSemanticsMO);
-      loadSystemClass(messageMO);
-      loadSystemClass(shapeClass);
-      loadSystemClass(contextClass);
-      
-      AbstractMessageSendNode.specializationFactory = new MateMessageSpecializationsFactory();
-    }
-  }
-  
   public static DynamicObject newInstance(final DynamicObject instanceClass) {
     return SReflectiveObject.create(instanceClass);
   }
   
   public static DynamicObject newEnvironment(final DynamicObject instanceClass) {
     return SMateEnvironment.create(instanceClass);
-  }
-  
-  @Override
-  public DynamicObject loadClass(final SSymbol name) {
-    DynamicObject result = (DynamicObject) getGlobal(name);
-    if (result != null) { return result; }
-    result = super.loadClass(name);
-    try{
-      mateify(result);
-    } catch (NullPointerException e){
-      println(name.getString());
-    }
-    mateify(SObject.getSOMClass(result));
-    return result;
-  }
-  
-  protected void loadSystemClass(final DynamicObject systemClass) {
-    super.loadSystemClass(systemClass);
-    mateify(systemClass);
-    mateify(SObject.getSOMClass(systemClass));
   }
   
   public void mateify(DynamicObject clazz) {
