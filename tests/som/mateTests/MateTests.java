@@ -49,7 +49,7 @@ public class MateTests extends SomTests {
         "--mate",
         "-activateMate",
         "-cp", 
-        "Smalltalk:TestSuite:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:TestSuite/FileSystem", 
+        "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:TestSuite:TestSuite/MateMOPSuite:Examples/Benchmarks/Mate/DelegationProxies:TestSuite/FileSystem", 
         "TestHarness", 
         testName};
     return arg;
