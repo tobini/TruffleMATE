@@ -42,27 +42,24 @@ import com.oracle.truffle.api.object.DynamicObject;
 
 //This is a pseudo object memory because the objects are actually managed by the Truffle/Java memory manager
 public class ObjectMemory {
-  @CompilationFinal
-  private static ObjectMemory last;
+  @CompilationFinal public static ObjectMemory last;
   private final HashMap<SSymbol, DynamicObject> globals;
   private final HashMap<String, SSymbol> symbolTable;
   
+  @CompilationFinal private String[] classPath;
   @CompilationFinal private DynamicObject trueObject;
   @CompilationFinal private DynamicObject falseObject;
   @CompilationFinal private DynamicObject systemObject;
-  @CompilationFinal private boolean printAST;
-  
-  private String[] classPath;
   
   // Optimizations
   private final DynamicObject[] blockClasses;
   
-  protected ObjectMemory() {
+  protected ObjectMemory(String[] path) {
     last = this;
-    this.globals      = new HashMap<SSymbol, DynamicObject>();
-    this.symbolTable  = new HashMap<>();
-    this.blockClasses = new DynamicObject[4];
-    printAST = false;
+    globals      = new HashMap<SSymbol, DynamicObject>();
+    symbolTable  = new HashMap<>();
+    blockClasses = new DynamicObject[4];
+    classPath = path;
   }
   
   protected void initializeSystem() {
@@ -118,7 +115,7 @@ public class ObjectMemory {
       Universe.errorExit("Initialization went wrong for class Blocks");
     }
     
-    if (Universe.current().vmReflectionEnabled()){
+    if (Universe.getCurrent().vmReflectionEnabled()){
       //Setup the fields that were not possible to setup before to avoid cyclic initialization dependencies
       SReflectiveObject.setEnvironment(Nil.nilObject, Nil.nilObject);
       
@@ -152,21 +149,6 @@ public class ObjectMemory {
       globals.put(name, value);
   }
   
-  public void setClassPath(final String[] cp) {
-    classPath = cp;
-  }
-
-  public void addPath(final String path) {
-    String[] tmp = new String[classPath.length + 1];
-    System.arraycopy(classPath, 0, tmp, 1, classPath.length);
-    tmp[0] = path;
-    classPath = tmp;
-  }
-  
-  public void setASTPrinting(){
-    printAST = true;
-  }
-  
   @TruffleBoundary
   public SSymbol symbolFor(final String string) {
     String interned = string.intern();
@@ -190,15 +172,15 @@ public class ObjectMemory {
       classClassSuperClass =  Nil.nilObject;
     }
     
-    DynamicObject classClass = SClass.createSClass(metaclassClass, Universe.current().symbolFor(name + " class"), classClassSuperClass, 
+    DynamicObject classClass = SClass.createSClass(metaclassClass, Universe.getCurrent().symbolFor(name + " class"), classClassSuperClass, 
         SArray.create(new Object[0]), SArray.create(new Object[0]));
-    return SClass.createSClass(classClass, Universe.current().symbolFor(name), superClass, SArray.create(new Object[0]), 
+    return SClass.createSClass(classClass, Universe.getCurrent().symbolFor(name), superClass, SArray.create(new Object[0]), 
         SArray.create(new Object[0]));
   }
   
   public static DynamicObject newMetaclassClass(String name) {
-    DynamicObject result = SClass.createWithoutClass(Universe.current().symbolFor(name));
-    SObject.setClass(result, SClass.createEmptyClass(result, Universe.current().symbolFor(name + " class")));
+    DynamicObject result = SClass.createWithoutClass(Universe.getCurrent().symbolFor(name));
+    SObject.setClass(result, SClass.createEmptyClass(result, Universe.getCurrent().symbolFor(name + " class")));
     return result;
   }
   
@@ -220,11 +202,11 @@ public class ObjectMemory {
             name.getString(), systemClass, this);
         setGlobal(name, result);
         if (loadPrimitives) loadPrimitives(result, systemClass != null);
-        if (Universe.current().vmReflectionEnabled()){
-          MateUniverse.current().mateify(result);
-          MateUniverse.current().mateify(SObject.getSOMClass(result));
+        if (Universe.getCurrent().vmReflectionEnabled()){
+          //MateUniverse.current().mateify(result);
+          //MateUniverse.current().mateify(SObject.getSOMClass(result));
         }
-        if (printAST) {
+        if (Universe.getCurrent().printAST()) {
           Disassembler.dump(SObject.getSOMClass(result));
           Disassembler.dump(result);
         }
@@ -233,7 +215,7 @@ public class ObjectMemory {
         // Continue trying different paths
       }
     }
-    throw new IllegalStateException(SClass.getName(systemClass).getString()
+    throw new IllegalStateException(name.getString()
           + " class could not be loaded. "
           + "It is likely that the class path has not been initialized properly. "
           + "Please set system property 'system.class.path' or "
@@ -257,7 +239,7 @@ public class ObjectMemory {
 
     // Add the appropriate value primitive to the block class
     SClass.addInstancePrimitive(result, SBlock.getEvaluationPrimitive(
-        numberOfArguments, Universe.current(), result), true);
+        numberOfArguments, Universe.getCurrent(), result), true);
 
     // Insert the block class into the dictionary of globals
     setGlobal(name, result);
@@ -269,7 +251,7 @@ public class ObjectMemory {
   public DynamicObject loadShellClass(final String stmt) throws IOException {
     // Load the class from a stream and return the loaded class
     DynamicObject result = som.compiler.SourcecodeCompiler.compileClass(stmt, null, this);
-    if (printAST) { Disassembler.dump(result); }
+    if (Universe.getCurrent().printAST()) { Disassembler.dump(result); }
     return result;
   }
   
@@ -277,6 +259,10 @@ public class ObjectMemory {
     DynamicObject result = blockClasses[numberOfArguments];
     assert result != null || numberOfArguments == 0;
     return result;
+  }
+  
+  public void setClassPath(String[] path){
+    classPath = path;
   }
   
   public DynamicObject getTrueObject()   { return trueObject; }

@@ -12,8 +12,8 @@ public final class Globals {
   public static final DynamicObject systemObject;
 
  static {
-    trueObject   = Universe.current().getTrueObject();
-    falseObject  = Universe.current().getFalseObject();
-    systemObject = Universe.current().getSystemObject();
+    trueObject   = Universe.getCurrent().getTrueObject();
+    falseObject  = Universe.getCurrent().getFalseObject();
+    systemObject = Universe.getCurrent().getSystemObject();
   }
 }

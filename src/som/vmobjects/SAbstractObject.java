@@ -29,7 +29,7 @@ public abstract class SAbstractObject {
       final DynamicObject environment,
       final ExecutionLevel exLevel) {
     CompilerAsserts.neverPartOfCompilation("SAbstractObject.send()");
-    SSymbol selector = Universe.current().symbolFor(selectorString);
+    SSymbol selector = Universe.getCurrent().symbolFor(selectorString);
 
     // Lookup the invokable
     DynamicObject invokable = SClass.lookupInvokable(Types.getClassOf(arguments[0]), selector);

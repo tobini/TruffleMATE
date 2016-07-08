@@ -44,7 +44,7 @@ public abstract class HasGlobalPrim extends BinarySystemNode {
 
     public UninitializedHasGlobal(final int depth) {
       this.depth = depth;
-      universe = Universe.current();
+      universe = Universe.getCurrent();
     }
 
     @Override
@@ -92,7 +92,7 @@ public abstract class HasGlobalPrim extends BinarySystemNode {
   }
 
   private static final class HasGlobalFallback extends HasGlobalNode {
-    private final Universe universe = Universe.current();
+    private final Universe universe = Universe.getCurrent();
 
     @Override
     public boolean hasGlobal(final SSymbol argument) {

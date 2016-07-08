@@ -1,7 +1,6 @@
 package som.primitives;
 
 import som.interpreter.nodes.nary.UnaryExpressionNode;
-import som.vm.Universe;
 import som.vmobjects.SClass;
 import tools.dym.Tags.NewObject;
 
@@ -28,7 +27,7 @@ public abstract class NewObjectPrim extends UnaryExpressionNode {
   @TruffleBoundary
   @Specialization(contains = "cachedClass")
   public DynamicObject uncached(final DynamicObject receiver) {
-    return Universe.current().create(receiver);
+    return SClass.getFactory(receiver).newInstance();
   }
   
   @Override

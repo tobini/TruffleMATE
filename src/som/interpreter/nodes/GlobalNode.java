@@ -87,7 +87,7 @@ public abstract class GlobalNode extends ExpressionNode {
 
     public UninitializedGlobalReadNode(final SSymbol globalName,
         final SourceSection source) {
-      super(globalName, Universe.current(), source);
+      super(globalName, Universe.getCurrent(), source);
     }
 
     @Override
@@ -106,7 +106,7 @@ public abstract class GlobalNode extends ExpressionNode {
   public static final class UninitializedGlobalReadWithoutErrorNode extends AbstractUninitializedGlobalReadNode {
     public UninitializedGlobalReadWithoutErrorNode(final SSymbol globalName,
         final SourceSection source) {
-      super(globalName, Universe.current(), source);
+      super(globalName, Universe.getCurrent(), source);
     }
 
     @Override

@@ -24,6 +24,7 @@ package som.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -154,19 +155,17 @@ public class BasicInterpreterTests {
     fail("SOM Value handler missing");
   }
 
-  protected String getClasspath(){
-    return "Smalltalk:TestSuite/BasicInterpreterTests";
-  }
-
-  protected static Universe u = Universe.current();
-  
   @Test
-  public void testBasicInterpreterBehavior() {
-    u.setAvoidExit(true);
-    u.setupClassPath(this.getClasspath());
-
-    Object actualResult = u.interpret(testClass, testSelector);
-
+  public void testBasicInterpreterBehavior() throws IOException {
+    Universe vm = Universe.getInitializedVM(getVMArguments());
+    vm.setAvoidExit(true);
+    Object actualResult = vm.execute(testClass, testSelector);
     assertEqualsSOMValue(expectedResult, actualResult);
+  }
+  
+  protected String[] getVMArguments() {
+    return new String[] {
+        "-cp",
+        "Smalltalk:TestSuite/BasicInterpreterTests"};
   }
 }

@@ -48,7 +48,7 @@ public abstract class Primitives {
   protected final boolean displayWarning;
 
   public Primitives(final boolean displayWarning) {
-    this.universe = Universe.current();
+    this.universe = Universe.getCurrent();
     this.displayWarning = displayWarning;
   }
 

@@ -33,7 +33,7 @@ public interface ISuperReadNode {
   boolean isClassSide();
   
   public default DynamicObject getLexicalSuperClass() {
-    DynamicObject clazz = (DynamicObject) Universe.current().getGlobal(this.getHolderClass());
+    DynamicObject clazz = (DynamicObject) Universe.getCurrent().getGlobal(this.getHolderClass());
     if (this.isClassSide()) {
       clazz = SObject.getSOMClass(clazz);
     }

@@ -92,7 +92,7 @@ public abstract class GlobalPrim extends BinarySystemNode {
     private final Universe universe;
 
     public GetGlobalFallback() {
-      this.universe = Universe.current();
+      this.universe = Universe.getCurrent();
     }
 
     @Override

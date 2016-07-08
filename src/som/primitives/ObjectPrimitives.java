@@ -37,7 +37,6 @@ import som.primitives.reflection.PerformInSuperclassPrimFactory;
 import som.primitives.reflection.PerformPrimFactory;
 import som.primitives.reflection.PerformWithArgumentsInSuperclassPrimFactory;
 import som.primitives.reflection.PerformWithArgumentsPrimFactory;
-import som.vm.MateUniverse;
 import som.vm.Universe;
 
 public final class ObjectPrimitives extends Primitives {
@@ -58,7 +57,7 @@ public final class ObjectPrimitives extends Primitives {
     installInstancePrimitive("instVarNamed:",          InstVarNamedPrimFactory.getInstance());
     installInstancePrimitive("halt",                   HaltPrimFactory.getInstance());
     installInstancePrimitive("class",                  ClassPrimFactory.getInstance());
-    if (Universe.current() instanceof MateUniverse)
+    if (Universe.getCurrent().vmReflectionEnabled())
       installInstancePrimitive("installEnvironment:", installEnvironmentPrimFactory.getInstance());
       installInstancePrimitive("changeShape:", MateChangeShapePrimFactory.getInstance());
       installInstancePrimitive("shape", MateGetShapePrimFactory.getInstance());

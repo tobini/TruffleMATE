@@ -22,7 +22,7 @@ public final class SystemPrims {
   @GenerateNodeFactory
   public abstract static class BinarySystemNode extends BinaryExpressionNode {
     protected final Universe universe;
-    protected BinarySystemNode() { super(null); this.universe = Universe.current(); }
+    protected BinarySystemNode() { super(null); this.universe = Universe.getCurrent(); }
   }
 
   @ImportStatic(SystemPrims.class)
@@ -47,7 +47,7 @@ public final class SystemPrims {
   @GenerateNodeFactory
   public abstract static class GlobalPutPrim extends TernaryExpressionNode {
     private final Universe universe;
-    public GlobalPutPrim()  { this.universe = Universe.current(); }
+    public GlobalPutPrim()  { this.universe = Universe.getCurrent(); }
 
     @Specialization(guards = "receiverIsSystemObject(receiver)")
     public final Object doSObject(final DynamicObject receiver, final SSymbol global,

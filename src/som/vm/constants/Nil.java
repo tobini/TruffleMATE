@@ -8,6 +8,6 @@ public final class Nil {
   public static final DynamicObject nilObject;
 
   static {
-    nilObject = Universe.current().createNilObject();
+    nilObject = Universe.getCurrent().createNilObject();
   }
 }

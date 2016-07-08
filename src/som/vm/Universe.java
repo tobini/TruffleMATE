@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2013 Stefan Marr,   stefan.marr@vub.ac.be
  * Copyright (c) 2009 Michael Haupt, michael.haupt@hpi.uni-potsdam.de
  * Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
  * http://www.hpi.uni-potsdam.de/swa/
+ * Copyright (c) 2013 Stefan Marr,   stefan.marr@vub.ac.be
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,67 +27,173 @@ package som.vm;
 
 import static som.vm.constants.Classes.systemClass;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.StringTokenizer;
+import java.util.Map;
 
+import som.VMOptions;
+import som.VmSettings;
 import som.interpreter.Invokable;
+import som.interpreter.MateifyVisitor;
+import som.interpreter.SomLanguage;
 import som.interpreter.TruffleCompiler;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.MateClasses;
+import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.SArray;
 import som.vmobjects.SBasicObjectLayoutImpl;
 import som.vmobjects.SBlock;
 import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
 import som.vmobjects.SObjectLayoutImpl;
+import som.vmobjects.SReflectiveObject;
+import som.vmobjects.SReflectiveObjectLayoutImpl;
 import som.vmobjects.SInvokable.SMethod;
 import som.vmobjects.SInvokable.SPrimitive;
 import som.vmobjects.SObject;
 import som.vmobjects.SSymbol;
+import tools.debugger.WebDebugger;
+import tools.highlight.Highlight;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.Assumption;
 import com.oracle.truffle.api.ExecutionContext;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleRuntime;
+import com.oracle.truffle.api.debug.Debugger;
+import com.oracle.truffle.api.debug.ExecutionEvent;
+import com.oracle.truffle.api.debug.SuspendedEvent;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
+import com.oracle.truffle.api.vm.EventConsumer;
+import com.oracle.truffle.api.vm.PolyglotEngine;
+import com.oracle.truffle.api.vm.PolyglotEngine.Builder;
+import com.oracle.truffle.api.vm.PolyglotEngine.Instrument;
 
 public class Universe extends ExecutionContext {
-
-  public static void main(final String[] arguments) {
-    Universe u = current();
-    try {
-      u.interpret(arguments);
-      u.exit(0);
-    } catch (IllegalStateException e) {
-      errorExit(e.getMessage());
+  public Universe(final String[] args) throws IOException {
+    current = this;
+    this.truffleRuntime = Truffle.getRuntime();
+    this.avoidExit    = false;
+    this.lastExitCode = 0;
+    options = new VMOptions(args);
+    mateDeactivated = this.getTruffleRuntime().createAssumption();
+    mateActivated = null;
+    if (ObjectMemory.last == null){
+      objectMemory = new ObjectMemory(options.classPath);
+      objectMemory.initializeSystem();
+    } else {
+      objectMemory = ObjectMemory.last;
+      objectMemory.setClassPath(options.classPath);    
+    }
+    if (options.showUsage) {
+      VMOptions.printUsageAndExit();
+    }
+    if (options.vmReflectionActivated){
+      activatedMate();
     }
   }
 
-  public Object interpret(String[] arguments) {
-    // Check for command line switches
-    arguments = handleArguments(arguments);
+  public static void main(final String[] args) {
+    Builder builder = PolyglotEngine.newBuilder();
+    builder.config(SomLanguage.MIME_TYPE, SomLanguage.CMD_ARGS, args);
+    VMOptions vmOptions = new VMOptions(args);
 
-    // Initialize the known universe
-    return execute(arguments);
-  }
-
-  protected Universe() {
-    this.truffleRuntime = Truffle.getRuntime();
-    this.avoidExit    = false;
-    this.alreadyInitialized = false;
-    this.lastExitCode = 0;
-    objectMemory = new ObjectMemory();
-    vmReflectionEnabled = false;
+    if (vmOptions.debuggerEnabled) {
+      //startDebugger(builder);
+    } else {
+      startExecution(builder, vmOptions);
+    }
   }
   
-  public void initalize() {
-    objectMemory.initializeSystem();
+  private static void startExecution(final Builder builder,
+      final VMOptions vmOptions) {
+    if (vmOptions.webDebuggerEnabled) {
+      builder.onEvent(onExec).onEvent(onHalted);
+    }
+    engine = builder.build();
+
+    try {
+      Map<String, Instrument> instruments = engine.getInstruments();
+      Instrument profiler = instruments.get("profiler");
+      if (vmOptions.profilingEnabled && profiler == null) {
+        errorPrintln("Truffle profiler not available. Might be a class path issue");
+      } else if (profiler != null) {
+        profiler.setEnabled(vmOptions.profilingEnabled);
+      }
+      instruments.get(Highlight.ID).setEnabled(vmOptions.highlightingEnabled);
+
+      if (VmSettings.TRUFFLE_DEBUGGER_ENABLED) {
+        debugger = Debugger.find(engine);
+      }
+
+      if (vmOptions.webDebuggerEnabled) {
+        assert debugger != null;
+        Instrument webDebuggerInst = instruments.get(WebDebugger.ID);
+        webDebuggerInst.setEnabled(true);
+
+        webDebugger = webDebuggerInst.lookup(WebDebugger.class);
+        //webDebugger.startServer(debugger);
+      }
+
+      /*if (vmOptions.dynamicMetricsEnabled) {
+        assert VmSettings.DYNAMIC_METRICS;
+        Instrument dynM = instruments.get(DynamicMetrics.ID);
+        dynM.setEnabled(true);
+        structuralProbes = dynM.lookup(StructuralProbe.class);
+        assert structuralProbes != null : "Initialization of DynamicMetrics tool incomplete";
+      }*/
+
+      engine.eval(null);
+      //engine.eval(SomLanguage.START);
+      engine.dispose();
+    } catch (IOException e) {
+      throw new RuntimeException("This should never happen", e);
+    }
+    System.exit(Universe.getCurrent().lastExitCode);
   }
 
+  public Object execute(final String className, final String selector) {
+    DynamicObject clazz = objectMemory.loadClass(symbolFor(className), null);
+
+    // Lookup the initialize invokable on the system class
+    DynamicObject initialize = SClass.lookupInvokable(SObject.getSOMClass(clazz),
+        symbolFor(selector));
+    return SInvokable.invoke(initialize, MateClasses.STANDARD_ENVIRONMENT, ExecutionLevel.Base, clazz);
+  }
+
+  public Object execute() {
+    // Start the shell if no filename is given
+    String[] arguments = options.args;
+    if (arguments.length == 0) {
+      Shell shell = new Shell(this);
+      return shell.start();
+    }
+
+    // Lookup the initialize invokable on the system class
+    DynamicObject initialize = SClass.lookupInvokable(
+        systemClass, symbolFor("initialize:"));
+
+    return SInvokable.invoke(initialize, MateClasses.STANDARD_ENVIRONMENT, ExecutionLevel.Base, objectMemory.getSystemObject(), SArray.create(arguments));
+  }
+  
+  public void mateify(DynamicObject clazz) {
+    int countOfInvokables = SClass.getNumberOfInstanceInvokables(clazz);
+    MateifyVisitor visitor = new MateifyVisitor();
+    for (int i = 0; i < countOfInvokables; i++){
+      DynamicObject method = SClass.getInstanceInvokable(clazz, i);
+      Invokable node = InvokableLayoutImpl.INSTANCE.getInvokable(method);
+      node.accept(visitor);
+    }
+  }
+  
+  public void mateifyMethod(DynamicObject method) {
+    MateifyVisitor visitor = new MateifyVisitor();
+    Invokable node = InvokableLayoutImpl.INSTANCE.getInvokable(method);
+    node.accept(visitor);
+  }
+  
   public TruffleRuntime getTruffleRuntime() {
     return truffleRuntime;
   }
@@ -109,169 +215,7 @@ public class Universe extends ExecutionContext {
   public static void errorExit(final String message) {
     TruffleCompiler.transferToInterpreter("errorExit");
     errorPrintln("Runtime Error: " + message);
-    current().exit(1);
-  }
-
-  @TruffleBoundary
-  public String[] handleArguments(String[] arguments) {
-    boolean gotClasspath = false;
-    String[] remainingArgs = new String[arguments.length];
-    int cnt = 0;
-
-    for (int i = 0; i < arguments.length; i++) {
-      if (arguments[i].equals("-cp")) {
-        if (i + 1 >= arguments.length) {
-          printUsageAndExit();
-        }
-        setupClassPath(arguments[i + 1]);
-        ++i;
-        gotClasspath = true;
-      } else if (arguments[i].equals("-d")) {
-        objectMemory.setASTPrinting();
-      } else if (arguments[i].equals("-activateMate")) {
-        this.activatedMate();
-      } else if (arguments[i].equals("--mate")) {
-        this.enableVMReflection();
-      }else {
-        remainingArgs[cnt++] = arguments[i];
-      }
-    }
-
-    if (!gotClasspath) {
-      // Get the default class path of the appropriate size
-      objectMemory.setClassPath(setupDefaultClassPath(0));
-    }
-
-    // Copy the remaining elements from the original array into the new
-    // array
-    arguments = new String[cnt];
-    System.arraycopy(remainingArgs, 0, arguments, 0, cnt);
-
-    // check remaining args for class paths, and strip file extension
-    for (int i = 0; i < arguments.length; i++) {
-      String[] split = getPathClassExt(arguments[i]);
-      if (!("".equals(split[0]))) { // there was a path
-        objectMemory.addPath(split[0]);
-      }
-      arguments[i] = split[1];
-    }
-
-    return arguments;
-  }
-
-  @TruffleBoundary
-  // take argument of the form "../foo/Test.som" and return
-  // "../foo", "Test", "som"
-  private String[] getPathClassExt(final String arg) {
-    File file = new File(arg);
-
-    String path = file.getParent();
-    StringTokenizer tokenizer = new StringTokenizer(file.getName(), ".");
-
-    if (tokenizer.countTokens() > 2) {
-      errorPrintln("Class with . in its name?");
-      exit(1);
-    }
-
-    String[] result = new String[3];
-    result[0] = (path == null) ? "" : path;
-    result[1] = tokenizer.nextToken();
-    result[2] = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "";
-
-    return result;
-  }
-
-  @TruffleBoundary
-  public void setupClassPath(final String cp) {
-    // Create a new tokenizer to split up the string of directories
-    StringTokenizer tokenizer = new StringTokenizer(cp, File.pathSeparator);
-
-    // Get the default class path of the appropriate size
-    String [] classPath = setupDefaultClassPath(tokenizer.countTokens());
-
-    // Get the directories and put them into the class path array
-    for (int i = 0; tokenizer.hasMoreTokens(); i++) {
-      classPath[i] = tokenizer.nextToken();
-    }
-    
-    objectMemory.setClassPath(classPath);
-  }
-
-  @TruffleBoundary
-  private String[] setupDefaultClassPath(final int directories) {
-    // Get the default system class path
-    String systemClassPath = System.getProperty("system.class.path");
-
-    // Compute the number of defaults
-    int defaults = (systemClassPath != null) ? 2 : 1;
-
-    // Allocate an array with room for the directories and the defaults
-    String[] result = new String[directories + defaults];
-
-    // Insert the system class path into the defaults section
-    if (systemClassPath != null) {
-      result[directories] = systemClassPath;
-    }
-
-    // Insert the current directory into the defaults section
-    result[directories + defaults - 1] = ".";
-
-    // Return the class path
-    return result;
-  }
-
-  private void printUsageAndExit() {
-    // Print the usage
-    println("Usage: som [-options] [args...]                          ");
-    println("                                                         ");
-    println("where options include:                                   ");
-    println("    -cp <directories separated by " + File.pathSeparator + ">");
-    println("                  set search path for application classes");
-    println("    -d            enable disassembling");
-
-    // Exit
-    System.exit(0);
-  }
-
-  /**
-   * Start interpretation by sending the selector to the given class. This is
-   * mostly meant for testing currently.
-   *
-   * @param className
-   * @param selector
-   * @return
-   */
-  public Object interpret(final String className, final String selector) {
-    if (!alreadyInitialized) {
-      objectMemory.initializeSystem();
-      alreadyInitialized = true;
-    }
-
-    DynamicObject clazz = objectMemory.loadClass(symbolFor(className), null);
-
-    // Lookup the initialize invokable on the system class
-    DynamicObject initialize = SClass.lookupInvokable(SObject.getSOMClass(clazz),
-        symbolFor(selector));
-    return SInvokable.invoke(initialize, MateClasses.STANDARD_ENVIRONMENT, ExecutionLevel.Base, clazz);
-  }
-
-  private Object execute(final String[] arguments) {
-    if (!alreadyInitialized) {
-      objectMemory.initializeSystem();
-      alreadyInitialized = true;
-    }
-    
-    // Start the shell if no filename is given
-    if (arguments.length == 0) {
-      Shell shell = new Shell(this);
-      return shell.start();
-    }
-
-    // Lookup the initialize invokable on the system class
-    DynamicObject initialize = SClass.lookupInvokable(
-        systemClass, symbolFor("initialize:"));
-
-    return SInvokable.invoke(initialize, MateClasses.STANDARD_ENVIRONMENT, ExecutionLevel.Base, objectMemory.getSystemObject(), SArray.create(arguments));
+    Universe.getCurrent().exit(1);
   }
 
   @TruffleBoundary
@@ -373,10 +317,6 @@ public class Universe extends ExecutionContext {
     // Checkstyle: resume
   }
 
-  public boolean isObjectSystemInitialized() {
-    return objectSystemInitialized;
-  }
-
   public static Universe getCurrent(){
     return current;
   }
@@ -386,17 +326,12 @@ public class Universe extends ExecutionContext {
   }
 
   public DynamicObjectFactory getInstancesFactory(){
-    return SObject.SOBJECT_FACTORY;
-  }
-  
-  public static Universe current() {
-    if (current == null) {
-      current = new Universe();
+    if (options.vmReflectionEnabled){
+      return SReflectiveObject.SREFLECTIVE_OBJECT_FACTORY;
+    } else {
+      return SObject.SOBJECT_FACTORY;
     }
-    return current;
   }
-  
-  public void activatedMate(){};
   
   public String imageName(){
     return "Smalltalk/fake.image";
@@ -410,28 +345,82 @@ public class Universe extends ExecutionContext {
   
   public DynamicObject createNilObject() {
     DynamicObject dummyObjectForInitialization = SBasicObjectLayoutImpl.INSTANCE.createSBasicObject();
-    return SObjectLayoutImpl.INSTANCE.createSObjectShape(dummyObjectForInitialization).newInstance();
+    if (options.vmReflectionEnabled){
+      return SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(dummyObjectForInitialization, dummyObjectForInitialization).newInstance();
+    } else {
+      return SObjectLayoutImpl.INSTANCE.createSObjectShape(dummyObjectForInitialization).newInstance();
+    }
   }
   
   public DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
-    return SObject.createObjectShapeFactoryForClass(clazz);
-  }
-  
-  public DynamicObject create(DynamicObject clazz){
-    return SObject.create(clazz);
-  }
-  
-  public void enableVMReflection(){
-    vmReflectionEnabled = true;
+    if (options.vmReflectionEnabled){
+      return SReflectiveObject.createObjectShapeFactoryForClass(clazz);
+    } else {
+      return SObject.createObjectShapeFactoryForClass(clazz);
+   }
   }
   
   public boolean vmReflectionEnabled(){
-    return vmReflectionEnabled;
+    return options.vmReflectionEnabled;
+  }
+  
+  public boolean printAST(){
+    return options.printAST;
+  }
+  
+  public Assumption getMateDeactivatedAssumption(){
+    return this.mateDeactivated;
+  }
+  
+  public Assumption getMateActivatedAssumption(){
+    return this.mateActivated;
+  }
+  
+  public void activatedMate(){
+    if (this.getMateDeactivatedAssumption().isValid()){
+      this.getMateDeactivatedAssumption().invalidate();
+    }
+    mateActivated = this.getTruffleRuntime().createAssumption();
+  }
+  
+  public void deactivateMate(){
+    if (this.getMateActivatedAssumption().isValid()){
+      this.getMateActivatedAssumption().invalidate();
+    }
+    mateDeactivated = this.getTruffleRuntime().createAssumption();
   }
   
   public DynamicObject getTrueObject()   { return objectMemory.getTrueObject(); }
   public DynamicObject getFalseObject()  { return objectMemory.getFalseObject(); }
   public DynamicObject getSystemObject() { return objectMemory.getSystemObject(); }
+  
+  private static final EventConsumer<ExecutionEvent> onExec =
+      new EventConsumer<ExecutionEvent>(ExecutionEvent.class) {
+    @Override
+    protected void on(final ExecutionEvent event) {
+      webDebugger.reportExecutionEvent(event);
+    }
+  };
+
+  private static final EventConsumer<SuspendedEvent> onHalted =
+      new EventConsumer<SuspendedEvent>(SuspendedEvent.class) {
+    @Override
+    protected void on(final SuspendedEvent e) {
+      webDebugger.reportSuspendedEvent(e);
+    }
+  };
+  
+  public static Universe getInitializedVM(String[] arguments) throws IOException {
+    Builder builder = PolyglotEngine.newBuilder();
+    builder.config(SomLanguage.MIME_TYPE, SomLanguage.CMD_ARGS, arguments);
+    PolyglotEngine engine = builder.build();
+
+    engine.getInstruments().values().forEach(i -> i.setEnabled(false));
+
+    // Trigger initialization
+    assert null == engine.getLanguages().get(SomLanguage.MIME_TYPE).getGlobalObject();
+    return Universe.getCurrent();
+  }
   
   private final TruffleRuntime                  truffleRuntime;
   // TODO: this is not how it is supposed to be... it is just a hack to cope
@@ -442,8 +431,13 @@ public class Universe extends ExecutionContext {
   // Latest instance
   // WARNING: this is problematic with multiple interpreters in the same VM...
   @CompilationFinal private static Universe current;
-  @CompilationFinal protected boolean alreadyInitialized;
-  @CompilationFinal protected boolean vmReflectionEnabled;
-  @CompilationFinal public boolean objectSystemInitialized = false;
+  @CompilationFinal private static PolyglotEngine engine;
   private final ObjectMemory objectMemory;
+  
+  @CompilationFinal private static Debugger    debugger;
+  @CompilationFinal private static WebDebugger webDebugger;
+  private final VMOptions options;
+  
+  @CompilationFinal private Assumption mateActivated;
+  @CompilationFinal private Assumption mateDeactivated;
 }

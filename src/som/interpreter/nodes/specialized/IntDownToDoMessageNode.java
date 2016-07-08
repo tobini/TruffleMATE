@@ -4,7 +4,7 @@ import som.interpreter.Invokable;
 import som.interpreter.SArguments;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
-import som.vm.MateUniverse;
+import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
@@ -96,7 +96,7 @@ public abstract class IntDownToDoMessageNode extends TernaryExpressionNode {
   @Override
   public void wrapIntoMateNode(){
     super.wrapIntoMateNode();
-    MateUniverse.current().mateifyMethod(blockMethod);
+    Universe.getCurrent().mateifyMethod(blockMethod);
   }
   
   @Override

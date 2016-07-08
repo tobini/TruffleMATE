@@ -67,14 +67,14 @@ public final class SClass {
   
   public static DynamicObject createSClass(DynamicObject klass, SSymbol name, DynamicObject superclass, SArray fields, SArray methods){
     return createSClass(klass, name, superclass, fields, methods, 
-        new HashMap<SSymbol, DynamicObject>(), Universe.current().getInstancesFactory());
+        new HashMap<SSymbol, DynamicObject>(), Universe.getCurrent().getInstancesFactory());
     
   }
   
   public static DynamicObject createSClass(DynamicObject klass, SSymbol name, DynamicObject superclass, SArray instanceFields, SArray instanceInvokables, HashMap<SSymbol, DynamicObject> invokablesTable, DynamicObjectFactory instancesFactory){
     DynamicObject resultClass = SClassLayoutImpl.INSTANCE.createSClass(SClassLayoutImpl.INSTANCE.createSClassShape(klass, Nil.nilObject), 
         name, superclass, instanceFields, instanceInvokables, invokablesTable, instancesFactory);
-    setInstancesFactory(resultClass, Universe.current().createObjectShapeFactoryForClass(resultClass));
+    setInstancesFactory(resultClass, Universe.getCurrent().createObjectShapeFactoryForClass(resultClass));
     return resultClass;
   }
   
@@ -90,8 +90,8 @@ public final class SClass {
         SArray.create(new Object[0]),              // INSTANCE_FIELDS
         SArray.create(new Object[0]),              // INSTANCE_INVOKABLES
         new HashMap<SSymbol, SInvokable>(),        // INVOKABLES_TABLE
-        Universe.current().getInstancesFactory()); // OBJECT_FACTORY, temporary value
-    setInstancesFactory(clazz, Universe.current().createObjectShapeFactoryForClass(clazz));
+        Universe.getCurrent().getInstancesFactory()); // OBJECT_FACTORY, temporary value
+    setInstancesFactory(clazz, Universe.getCurrent().createObjectShapeFactoryForClass(clazz));
     return clazz;
   }
   

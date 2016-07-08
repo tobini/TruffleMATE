@@ -2,9 +2,9 @@ package som.primitives;
 
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
-import som.vm.MateUniverse;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SClass;
+import som.vmobjects.SMateEnvironment;
 import som.vmobjects.SReflectiveObjectLayoutImpl.SReflectiveObjectType;
 import som.vmobjects.SShape;
 
@@ -17,7 +17,7 @@ public final class MatePrims {
   public abstract static class MateNewEnvironmentPrim extends UnaryExpressionNode {
     @Specialization
     public final DynamicObject doSClass(final DynamicObject receiver) {
-      return MateUniverse.newEnvironment(receiver);
+      return SMateEnvironment.create(receiver);
     }
   }
   
