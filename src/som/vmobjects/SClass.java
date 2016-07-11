@@ -30,7 +30,6 @@ import java.util.HashMap;
 import som.primitives.Primitives;
 import som.vm.Universe;
 import som.vm.constants.Nil;
-import som.vmobjects.SInvokable.SMethod;
 import som.vmobjects.SInvokable.SPrimitive;
 import som.vmobjects.SReflectiveObject.SReflectiveObjectLayout;
 
@@ -75,6 +74,10 @@ public final class SClass {
     DynamicObject resultClass = SClassLayoutImpl.INSTANCE.createSClass(SClassLayoutImpl.INSTANCE.createSClassShape(klass, Nil.nilObject), 
         name, superclass, instanceFields, instanceInvokables, invokablesTable, instancesFactory);
     setInstancesFactory(resultClass, Universe.current().createObjectShapeFactoryForClass(resultClass));
+    for (Object invokable : instanceInvokables.getObjectStorage(null)){
+      SInvokable.setHolder((DynamicObject)invokable,resultClass);
+    }
+    //setInstanceInvokables(instanceInvokables, resultClass);
     return resultClass;
   }
   
@@ -204,12 +207,7 @@ public final class SClass {
   private static boolean addInstanceInvokable(final DynamicObject classObj,
       final DynamicObject invokable) {
     CompilerAsserts.neverPartOfCompilation("SClass.addInstanceInvokable(.)");
-    if (SMethod.isSMethod(invokable)){
-      SMethod.setHolder(invokable, classObj);
-    } else {
-      SInvokable.setHolder(invokable, classObj);
-    }
-    
+    SInvokable.setHolder(invokable, classObj);
     // Add the given invokable to the array of instance invokables
     for (int i = 0; i < getNumberOfInstanceInvokables(classObj); i++) {
       // Get the next invokable in the instance invokable array
@@ -243,7 +241,6 @@ public final class SClass {
   public static void setInstancesFactory(final DynamicObject clazz, final DynamicObjectFactory factory) {
     SClassLayoutImpl.INSTANCE.setInstancesFactoryUnsafe(clazz, factory);
   }
-
 
   public static void addInstancePrimitive(final DynamicObject classObj,
       final DynamicObject value, final boolean displayWarning) {

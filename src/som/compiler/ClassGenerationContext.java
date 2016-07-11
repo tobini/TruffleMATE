@@ -31,6 +31,7 @@ import som.vm.Universe;
 import som.vm.constants.Classes;
 import som.vmobjects.SArray;
 import som.vmobjects.SClass;
+import som.vmobjects.SInvokable;
 import som.vmobjects.SObject;
 import som.vmobjects.SSymbol;
 
@@ -134,12 +135,18 @@ public final class ClassGenerationContext {
   
   @TruffleBoundary
   public void assembleSystemClass(final DynamicObject systemClass) {
+    for (Object invokable : instanceMethods){
+      SInvokable.setHolder((DynamicObject)invokable,systemClass);
+    }
     SClass.setInstanceInvokables(systemClass,
         SArray.create(instanceMethods.toArray(new Object[0])));
     SClass.setInstanceFields(systemClass,
         SArray.create(instanceFields.toArray(new Object[0])));
     // class-bound == class-instance-bound
     DynamicObject superMClass = SObject.getSOMClass(systemClass);
+    for (Object invokable : instanceMethods){
+      SInvokable.setHolder((DynamicObject)invokable,systemClass);
+    }
     SClass.setInstanceInvokables(superMClass,
         SArray.create(classMethods.toArray(new Object[0])));
     SClass.setInstanceFields(superMClass,

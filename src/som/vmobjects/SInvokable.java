@@ -95,7 +95,7 @@ public class SInvokable {
       InvokableLayoutImpl.INSTANCE.setHolderUnsafe(invokable, value);
     }
   }
-
+  
   public static final Object invoke(final DynamicObject invokable, final VirtualFrame frame, final Object... arguments) {
     return getCallTarget(invokable,SArguments.getExecutionLevel(frame)).call(arguments);
   }
