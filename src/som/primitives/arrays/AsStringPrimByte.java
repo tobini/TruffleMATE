@@ -5,7 +5,6 @@ import java.nio.charset.Charset;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
-
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -25,7 +24,15 @@ public abstract class AsStringPrimByte extends UnaryExpressionNode {
 
   @Specialization(guards = "isObjectType(receiver)")
   public final Object doObjectSArray(final SArray receiver) {
-    Object[] chars = receiver.getObjectStorage(storageType);
+    return arrayToString(receiver.getObjectStorage(storageType));
+  }
+  
+  @Specialization(guards = "isPartiallyEmptyType(receiver)")
+  public final Object doPartiallyEmptyObjectSArray(final SArray receiver) {
+    return arrayToString(receiver.getPartiallyEmptyStorage(storageType).getStorage());
+  }
+  
+  private String arrayToString(Object[] chars){
     StringBuilder output = new StringBuilder();
     for (int i = 0; i < chars.length; i++){
       output = output.append(chars[i]);
