@@ -4,8 +4,8 @@ import som.compiler.MethodGenerationContext;
 import som.compiler.Variable.Local;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.MateReturnNode;
-import som.vm.MateUniverse;
 import som.vm.Universe;
+
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.ExecutionContext;
 import com.oracle.truffle.api.RootCallTarget;
@@ -54,7 +54,7 @@ public abstract class Invokable extends RootNode implements MateNode{
   
   @Override
   public ExecutionContext getExecutionContext() {
-    return Universe.current();
+    return Universe.getCurrent();
   }
   
   public DynamicObject getBelongsToMethod() {
@@ -76,7 +76,7 @@ public abstract class Invokable extends RootNode implements MateNode{
   }
   
   private ExpressionNode mateifyUninitializedNode(ExpressionNode uninitialized){
-    if (!(Universe.current() instanceof MateUniverse) || uninitialized.asMateNode() == null) {
+    if (!(Universe.getCurrent().vmReflectionEnabled()) || uninitialized.asMateNode() == null) {
         return uninitialized;
     } else {
       return (ExpressionNode)uninitialized.asMateNode();

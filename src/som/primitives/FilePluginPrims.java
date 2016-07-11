@@ -28,7 +28,7 @@ public abstract class FilePluginPrims {
   public abstract static class ImageFilePrim extends UnaryExpressionNode {
     @Specialization
     public String doGeneric(DynamicObject receiver) {
-      return System.getProperty("user.dir") + "/" + Universe.current().imageName();
+      return System.getProperty("user.dir") + "/" + Universe.getCurrent().imageName();
     }
   }
   

@@ -21,20 +21,20 @@
  */
 package som.mateTests;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Arrays;
 
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import som.vm.MateUniverse;
-import som.vm.Universe;
+import som.tests.SomTests;
 
 @RunWith(Parameterized.class)
-public class MateTests {
+public class MateTests extends SomTests {
+
+  public MateTests(String testName) {
+    super(testName);
+  }
 
   @Parameters
   public static Iterable<Object[]> data() {
@@ -44,28 +44,14 @@ public class MateTests {
       });
   }
 
-  private String testName;
-
-  public MateTests(final String testName) {
-    this.testName = testName;
-  }
-
-  @Test
-  public void testSomeTest() {
-    u.setAvoidExit(true);
-    String[] args = {"-activateMate", "-cp", "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:TestSuite/:Examples/Benchmarks/Mate:Examples/Benchmarks/Mate/DelegationProxies", "TestSuite/MateMOPSuite/MateTestHarness.som", testName};
-
-    u.interpret(args);
-
-    assertEquals(0, u.lastExitCode());
-  }
-  
-  
-  private static final MateUniverse u;
-  static{
-    if (!(Universe.getCurrent() instanceof MateUniverse)){
-        Universe.setCurrent(new MateUniverse());
-    }
-    u = (MateUniverse) MateUniverse.current();
+  protected String[] getArguments(){
+    String[] arg = {
+        "--mate",
+        "-activateMate",
+        "-cp", 
+        "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:TestSuite:TestSuite/MateMOPSuite:Examples/Benchmarks/Mate/DelegationProxies:TestSuite/FileSystem", 
+        "TestHarness", 
+        testName};
+    return arg;
   }
 }

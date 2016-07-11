@@ -386,7 +386,7 @@ public final class SArray extends SAbstractObject {
     if (this.type != ArrayType.BYTE){
       return Classes.arrayClass;
     } else {
-      Universe current = Universe.current();
+      Universe current = Universe.getCurrent();
       return (DynamicObject) current.getGlobal(current.symbolFor("ByteArray"));
     }
   }

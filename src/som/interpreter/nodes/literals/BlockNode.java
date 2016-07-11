@@ -8,7 +8,6 @@ import som.interpreter.Invokable;
 import som.interpreter.Method;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
 import som.interpreter.nodes.ExpressionNode;
-import som.vm.MateUniverse;
 import som.vm.Universe;
 import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.MethodLayoutImpl;
@@ -28,18 +27,18 @@ public class BlockNode extends LiteralNode {
   public BlockNode(final DynamicObject blockMethod,
       final SourceSection source) {
     super(source);
-    if ((Universe.current() instanceof MateUniverse)){
-      MateUniverse.current().mateifyMethod(blockMethod);
+    if ((Universe.getCurrent().vmReflectionEnabled())){
+      Universe.getCurrent().mateifyMethod(blockMethod);
     }
     this.blockMethod = blockMethod;
   }
 
   protected void setBlockClass() {
     switch (SInvokable.getNumberOfArguments(blockMethod)) {
-      case 1: blockClass = Universe.current().getBlockClass(1); break;
-      case 2: blockClass = Universe.current().getBlockClass(2); break;
-      case 3: blockClass = Universe.current().getBlockClass(3); break;
-      case 4: blockClass = Universe.current().getBlockClass(4); break;
+      case 1: blockClass = Universe.getCurrent().getBlockClass(1); break;
+      case 2: blockClass = Universe.getCurrent().getBlockClass(2); break;
+      case 3: blockClass = Universe.getCurrent().getBlockClass(3); break;
+      case 4: blockClass = Universe.getCurrent().getBlockClass(4); break;
       default:
         throw new RuntimeException("We do currently not have support for more than 3 arguments to a block.");
     }

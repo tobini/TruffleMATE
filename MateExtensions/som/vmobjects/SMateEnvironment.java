@@ -39,34 +39,34 @@ public class SMateEnvironment extends SObject {
     SSymbol selector; 
     switch (operation){
       case MessageLookup:
-        selector = Universe.current().symbolFor("find:since:");
+        selector = Universe.getCurrent().symbolFor("find:since:");
         break;
       case MessageActivation:  
-        selector = Universe.current().symbolFor("activate:withArguments:");
+        selector = Universe.getCurrent().symbolFor("activate:withArguments:");
         break;
       case ExecutorReadField: 
-        selector = Universe.current().symbolFor("read:");
+        selector = Universe.getCurrent().symbolFor("read:");
         break;
       case ExecutorWriteField: 
-        selector = Universe.current().symbolFor("write:value:");
+        selector = Universe.getCurrent().symbolFor("write:value:");
         break;
       case ExecutorReturn: 
-        selector = Universe.current().symbolFor("return:");
+        selector = Universe.getCurrent().symbolFor("return:");
         break;
       case ExecutorLocalArg: 
-        selector = Universe.current().symbolFor("localArgument:inFrame:");
+        selector = Universe.getCurrent().symbolFor("localArgument:inFrame:");
         break;
       case ExecutorReadLocal: 
-        selector = Universe.current().symbolFor("readLocal:inFrame:");
+        selector = Universe.getCurrent().symbolFor("readLocal:inFrame:");
         break;
       case ExecutorWriteLocal:
-        selector = Universe.current().symbolFor("writeLocal:inFrame:");
+        selector = Universe.getCurrent().symbolFor("writeLocal:inFrame:");
         break;
       case LayoutReadField: 
-        selector = Universe.current().symbolFor("read:");
+        selector = Universe.getCurrent().symbolFor("read:");
         break;
       case LayoutWriteField: 
-        selector = Universe.current().symbolFor("write:value:");
+        selector = Universe.getCurrent().symbolFor("write:value:");
         break;
         
       default:

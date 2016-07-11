@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import som.compiler.Parser.ParseError;
+import som.vm.ObjectMemory;
 import som.vm.Universe;
 import som.vmobjects.SClass;
 import som.vmobjects.SSymbol;
@@ -42,15 +43,15 @@ public final class SourcecodeCompiler {
 
   @TruffleBoundary
   public static DynamicObject compileClass(final String path, final String file,
-      final DynamicObject systemClass, final Universe universe)
+      final DynamicObject systemClass, final ObjectMemory memory)
       throws IOException {
     String fname = path + File.separator + file + ".som";
     FileReader stream = new FileReader(fname);
 
     Source source = Source.fromFileName(fname);
-    Parser parser = new Parser(stream, new File(fname).length(), source, universe);
+    Parser parser = new Parser(stream, new File(fname).length(), source, memory);
 
-    DynamicObject result = compile(parser, systemClass, universe);
+    DynamicObject result = compile(parser, systemClass, memory);
 
     SSymbol cname = SClass.getName(result);
     String cnameC = cname.getString();
@@ -65,16 +66,16 @@ public final class SourcecodeCompiler {
 
   @TruffleBoundary
   public static DynamicObject compileClass(final String stmt,
-      final DynamicObject systemClass, final Universe universe) {
-    Parser parser = new Parser(new StringReader(stmt), stmt.length(), null, universe);
+      final DynamicObject systemClass, final ObjectMemory memory) {
+    Parser parser = new Parser(new StringReader(stmt), stmt.length(), null, memory);
 
-    DynamicObject result = compile(parser, systemClass, universe);
+    DynamicObject result = compile(parser, systemClass, memory);
     return result;
   }
 
   private static DynamicObject compile(final Parser parser,
-      final DynamicObject systemClass, final Universe universe) {
-    ClassGenerationContext cgc = new ClassGenerationContext(universe);
+      final DynamicObject systemClass, final ObjectMemory memory) {
+    ClassGenerationContext cgc = new ClassGenerationContext(memory);
 
     DynamicObject result = systemClass;
     try {

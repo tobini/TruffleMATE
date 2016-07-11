@@ -3,7 +3,7 @@ package som.matenodes;
 import som.interpreter.SArguments;
 import som.interpreter.nodes.ISuperReadNode;
 import som.interpreter.nodes.MateMethodActivationNode;
-import som.vm.MateUniverse;
+import som.vm.Universe;
 import som.vm.constants.Classes;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
@@ -38,7 +38,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
   }
 
   public DirectCallNode createDispatch(final DynamicObject metaMethod) {
-    DirectCallNode node = MateUniverse.current().getTruffleRuntime()
+    DirectCallNode node = Universe.getCurrent().getTruffleRuntime()
         .createDirectCallNode(SInvokable.getCallTarget(metaMethod, ExecutionLevel.Meta));
     node.forceInlining();
     return node;

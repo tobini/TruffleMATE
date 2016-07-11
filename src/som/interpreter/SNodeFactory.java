@@ -28,7 +28,7 @@ import som.interpreter.nodes.UninitializedVariableNode.UninitializedVariableRead
 import som.interpreter.nodes.UninitializedVariableNode.UninitializedVariableWriteNode;
 import som.interpreter.nodes.literals.BlockNode;
 import som.interpreter.nodes.literals.BlockNode.BlockNodeWithContext;
-import som.vm.Universe;
+import som.vm.ObjectMemory;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.FrameSlot;
@@ -50,11 +50,10 @@ public final class SNodeFactory {
   }
 
   public static GlobalNode createGlobalRead(final String name,
-      final Universe universe, final SourceSection source) {
-    return createGlobalRead(universe.symbolFor(name), universe, source);
+      final ObjectMemory memory, final SourceSection source) {
+    return createGlobalRead(memory.symbolFor(name), source);
   }
-  public static GlobalNode createGlobalRead(final SSymbol name,
-      final Universe universe, final SourceSection source) {
+  public static GlobalNode createGlobalRead(final SSymbol name, final SourceSection source) {
     return new UninitializedGlobalReadNode(name, source);
   }
 

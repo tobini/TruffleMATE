@@ -23,6 +23,7 @@ package som.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -34,7 +35,6 @@ import som.vm.Universe;
 
 @RunWith(Parameterized.class)
 public class SomTests {
-
   @Parameters
   public static Iterable<Object[]> data() {
     return Arrays.asList(new Object[][] {
@@ -74,19 +74,19 @@ public class SomTests {
   }
 
   @Test
-  public void testSomeTest() {
-    u.setAvoidExit(true);
-    String[] args = this.getArguments();
-
-    u.interpret(args);
-
-    assertEquals(0, u.lastExitCode());
+  public void testSomeTest() throws IOException {
+    Universe vm = Universe.getInitializedVM(getArguments());
+    vm.setAvoidExit(true);
+    vm.execute();
+    assertEquals(0, vm.lastExitCode());
   }
   
   protected String[] getArguments(){
-    String[] arg = {"-cp", "Smalltalk:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:TestSuite/FileSystem", "TestSuite/TestHarness.som", testName};
+    String[] arg = {
+        "-cp", 
+        "Smalltalk:TestSuite:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:TestSuite/FileSystem", 
+        "TestHarness", 
+        testName};
     return arg;
   }
-
-  protected static Universe u = Universe.current();
 }

@@ -50,7 +50,7 @@ public class StringPrims {
   @GenerateNodeFactory
   public abstract static class AsSymbolPrim extends UnaryExpressionNode {
     private final Universe universe;
-    public AsSymbolPrim() { this.universe = Universe.current(); }
+    public AsSymbolPrim() { this.universe = Universe.getCurrent(); }
 
     @Specialization
     public final SAbstractObject doString(final String receiver) {

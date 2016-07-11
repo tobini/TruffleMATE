@@ -6,8 +6,6 @@ import java.util.List;
 import org.junit.runners.Parameterized.Parameters;
 
 import som.tests.SomTests;
-import som.vm.MateUniverse;
-import som.vm.Universe;
 
 public class MateSOMTests extends SomTests {
 
@@ -26,14 +24,13 @@ public class MateSOMTests extends SomTests {
   
   @Override
   protected String[] getArguments(){
-    String[] args = {"-activateMate", "-cp", "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:Smalltalk/FileSystem/Streams:Smalltalk/FileSystem/Directories:Smalltalk/Collections/Streams::Smalltalk/Languages:TestSuite/FileSystem", "TestSuite/TestHarness.som", testName};
+    String[] args = {
+        "--mate", 
+        "-activateMate", 
+        "-cp", 
+        "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:Smalltalk/FileSystem/Streams:Smalltalk/FileSystem/Directories:Smalltalk/Collections/Streams::Smalltalk/Languages::TestSuite:TestSuite/FileSystem", 
+        "TestHarness", 
+        testName};
     return args;
-  }
-  
-  static{
-    if (!(Universe.getCurrent() instanceof MateUniverse)){
-      Universe.setCurrent(new MateUniverse());
-    }
-    SomTests.u = Universe.current();
   }
 }

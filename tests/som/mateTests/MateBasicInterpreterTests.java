@@ -25,8 +25,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import som.tests.BasicInterpreterTests;
-import som.vm.MateUniverse;
-import som.vm.Universe;
 
 @RunWith(Parameterized.class)
 public class MateBasicInterpreterTests extends BasicInterpreterTests{
@@ -35,17 +33,12 @@ public class MateBasicInterpreterTests extends BasicInterpreterTests{
       Object expectedResult, Class<?> resultType) {
     super(testClass, testSelector, expectedResult, resultType);
   }
-
   @Override
-  protected String getClasspath(){
-    return "Smalltalk:TestSuite/BasicInterpreterTests:Smalltalk/Mate:Smalltalk/Mate/MOP:";
-  }
-  
-  static{
-    if (!(Universe.getCurrent() instanceof MateUniverse)){
-      Universe.setCurrent(new MateUniverse());
-    }
-    MateBasicInterpreterTests.u = Universe.current();
-    Universe.current().activatedMate();
+  protected String[] getVMArguments() {
+    return new String[] {
+        "--mate",
+        "-activateMate",
+        "-cp",
+        "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:TestSuite/BasicInterpreterTests"};
   }
 }

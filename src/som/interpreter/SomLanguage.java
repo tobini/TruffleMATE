@@ -2,8 +2,8 @@ package som.interpreter;
 
 import java.io.IOException;
 
-import som.vm.MateUniverse;
 import som.vm.NotYetImplementedException;
+import som.vm.Universe;
 import tools.dym.Tags.ArrayRead;
 import tools.dym.Tags.ArrayWrite;
 import tools.dym.Tags.BasicPrimitiveOperation;
@@ -67,17 +67,31 @@ import com.oracle.truffle.api.source.Source;
   StringAccess.class, OpClosureApplication.class, OpArithmetic.class,
   OpComparison.class, OpLength.class
 })
-public class SomLanguage extends TruffleLanguage<MateUniverse> {
+public class SomLanguage extends TruffleLanguage<Universe> {
 
   public static final String MIME_TYPE = "application/x-mate-som";
+  public static final String CMD_ARGS  = "command-line-arguments";
+  public static final String FILE_EXTENSION = "som";
+  public static final String DOT_FILE_EXTENSION = "." + FILE_EXTENSION;
 
   public static final SomLanguage INSTANCE = new SomLanguage();
+  //public static final Source START = getSyntheticSource("", "START");
 
-  @Override
-  protected MateUniverse createContext(final Env env) {
-    throw new NotYetImplementedException();
+  public static Source getSyntheticSource(final String text, final String name) {
+    return Source.newBuilder(text).internal().name(name).mimeType(SomLanguage.MIME_TYPE).build();
   }
-
+  
+  @Override
+  protected Universe createContext(final Env env) {
+    Universe vm;
+    try {
+      vm = new Universe((String[]) env.getConfig().get(CMD_ARGS));
+    } catch (IOException e) {
+      throw new RuntimeException("Failed accessing kernel or platform code of SOMns.", e);
+    }
+    return vm;
+  }
+  
   @Override
   protected CallTarget parse(final Source code, final Node context,
       final String... argumentNames) throws IOException {
@@ -85,14 +99,14 @@ public class SomLanguage extends TruffleLanguage<MateUniverse> {
   }
 
   @Override
-  protected Object findExportedSymbol(final MateUniverse context,
+  protected Object findExportedSymbol(final Universe context,
       final String globalName, final boolean onlyExplicit) {
     throw new NotYetImplementedException();
   }
 
   @Override
-  protected Object getLanguageGlobal(final MateUniverse context) {
-    throw new NotYetImplementedException();
+  protected Object getLanguageGlobal(final Universe context) {
+    return null;
   }
 
   @Override

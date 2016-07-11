@@ -6,7 +6,7 @@ import som.matenodes.MateAbstractSemanticNodesFactory.MateObjectSemanticCheckNod
 import som.matenodes.MateAbstractSemanticNodesFactory.MateSemanticCheckNodeGen;
 import som.matenodes.MateAbstractSemanticNodesFactory.MateSemanticsBaselevelNodeGen;
 import som.matenodes.MateAbstractSemanticNodesFactory.MateSemanticsMetalevelNodeGen;
-import som.vm.MateUniverse;
+import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vm.constants.ReflectiveOp;
@@ -184,11 +184,11 @@ public abstract class MateAbstractSemanticNodes {
     }
     
     public static Assumption getMateDeactivatedAssumption() {
-      return MateUniverse.current().getMateDeactivatedAssumption();
+      return Universe.getCurrent().getMateDeactivatedAssumption();
     }
     
     public static Assumption getMateActivatedAssumption() {
-      return MateUniverse.current().getMateActivatedAssumption();
+      return Universe.getCurrent().getMateActivatedAssumption();
     }
     
     @Override

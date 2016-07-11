@@ -24,7 +24,6 @@ package som.interpreter.nodes;
 import som.interpreter.SArguments;
 import som.interpreter.TruffleCompiler;
 import som.vm.Universe;
-import som.vm.Universe.Association;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vmobjects.SAbstractObject;
@@ -74,9 +73,9 @@ public abstract class GlobalNode extends ExpressionNode {
       }
 
       // Get the global from the universe
-      Association assoc = universe.getGlobalsAssociation(globalName);
-      if (assoc != null) {
-        return replace(new CachedGlobalReadNode(globalName, assoc,
+      DynamicObject global = universe.getGlobal(globalName);
+      if (global != null) {
+        return replace(new CachedGlobalReadNode(globalName, global,
             getSourceSection())).executeGeneric(frame);
       } else {
         return executeUnknownGlobal(frame);
@@ -88,7 +87,7 @@ public abstract class GlobalNode extends ExpressionNode {
 
     public UninitializedGlobalReadNode(final SSymbol globalName,
         final SourceSection source) {
-      super(globalName, Universe.current(), source);
+      super(globalName, Universe.getCurrent(), source);
     }
 
     @Override
@@ -107,7 +106,7 @@ public abstract class GlobalNode extends ExpressionNode {
   public static final class UninitializedGlobalReadWithoutErrorNode extends AbstractUninitializedGlobalReadNode {
     public UninitializedGlobalReadWithoutErrorNode(final SSymbol globalName,
         final SourceSection source) {
-      super(globalName, Universe.current(), source);
+      super(globalName, Universe.getCurrent(), source);
     }
 
     @Override
@@ -117,17 +116,17 @@ public abstract class GlobalNode extends ExpressionNode {
   }
 
   private static final class CachedGlobalReadNode extends GlobalNode {
-    private final Association assoc;
+    private final DynamicObject global;
 
     private CachedGlobalReadNode(final SSymbol globalName,
-        final Association assoc, final SourceSection source) {
+        final DynamicObject global, final SourceSection source) {
       super(globalName, source);
-      this.assoc = assoc;
+      this.global = global;
     }
 
     @Override
     public Object executeGeneric(final VirtualFrame frame) {
-      return assoc.getValue();
+      return global;
     }
   }
 
