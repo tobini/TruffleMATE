@@ -88,6 +88,10 @@ public abstract class ExpressionNode extends SOMNode {
   public String executeString(final VirtualFrame frame) throws UnexpectedResultException {
     return TypesGen.expectString(executeGeneric(frame));
   }
+  
+  public Character executeCharacter(final VirtualFrame frame) throws UnexpectedResultException {
+    return TypesGen.expectCharacter(executeGeneric(frame));
+  }
 
   public double executeDouble(final VirtualFrame frame) throws UnexpectedResultException {
     return TypesGen.expectDouble(executeGeneric(frame));

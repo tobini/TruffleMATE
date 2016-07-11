@@ -36,7 +36,9 @@ import static som.vm.constants.Classes.nilClass;
 import static som.vm.constants.Classes.objectClass;
 import static som.vm.constants.Classes.primitiveClass;
 import static som.vm.constants.Classes.stringClass;
+import static som.vm.constants.Classes.characterClass;
 import static som.vm.constants.Classes.symbolClass;
+import static som.vm.constants.MateClasses.contextClass;
 
 import java.io.File;
 import java.io.IOException;
@@ -127,7 +129,7 @@ public class Universe extends ExecutionContext {
     this.alreadyInitialized = false;
     this.lastExitCode = 0;
 
-    this.blockClasses = new DynamicObject[4];
+    this.blockClasses = new DynamicObject[5];
   }
 
   public TruffleRuntime getTruffleRuntime() {
@@ -337,6 +339,7 @@ public class Universe extends ExecutionContext {
     loadSystemClass(arrayClass);
     loadSystemClass(methodClass);
     loadSystemClass(stringClass);
+    loadSystemClass(characterClass);
     loadSystemClass(symbolClass);
     loadSystemClass(integerClass);
     loadSystemClass(primitiveClass);
@@ -369,6 +372,7 @@ public class Universe extends ExecutionContext {
     loadBlockClass(1);
     loadBlockClass(2);
     loadBlockClass(3);
+    loadBlockClass(4);
 
     if (Globals.trueObject != trueObject) {
       errorExit("Initialization went wrong for class Globals");
@@ -377,6 +381,9 @@ public class Universe extends ExecutionContext {
     if (null == blockClasses[1]) {
       errorExit("Initialization went wrong for class Blocks");
     }
+    
+    loadSystemClass(contextClass);
+    
     objectSystemInitialized = true;
   }
 

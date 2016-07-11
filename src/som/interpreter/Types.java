@@ -43,8 +43,9 @@ import com.oracle.truffle.api.object.DynamicObject;
 @TypeSystem({   boolean.class,
                    long.class,
              BigInteger.class,
-                 String.class,
                  double.class,
+                   char.class,
+                 String.class,
                  SBlock.class,
                 SSymbol.class,
                  SArray.class,
@@ -71,6 +72,8 @@ public class Types {
       return Classes.integerClass;
     } else if (obj instanceof String) {
       return Classes.stringClass;
+    } else if (obj instanceof Character) {
+      return Classes.characterClass;  
     } else if (obj instanceof Double) {
       return Classes.doubleClass;
     } else if (obj instanceof FrameInstance) {

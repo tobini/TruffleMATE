@@ -16,9 +16,12 @@ public class Classes {
   public static final DynamicObject  symbolClass;
   public static final DynamicObject  primitiveClass;
   public static final DynamicObject  stringClass;
+  public static final DynamicObject  characterClass;
   public static final DynamicObject  doubleClass;
 
   public static final DynamicObject  booleanClass;
+  
+  public static final DynamicObject contextClass;
   
   // These classes can be statically preinitialized.
   static {
@@ -29,6 +32,7 @@ public class Classes {
     nilClass        = Universe.newSystemClass(objectClass, "Nil");
     classClass      = Universe.newSystemClass(objectClass, "Class");
     arrayClass      = Universe.newSystemClass(objectClass, "Array");
+    characterClass  = Universe.newSystemClass(objectClass, "Character");
     stringClass     = Universe.newSystemClass(objectClass, "String");
     symbolClass     = Universe.newSystemClass(stringClass, "Symbol");
     methodClass     = Universe.newSystemClass(objectClass, "Method");
@@ -36,5 +40,6 @@ public class Classes {
     primitiveClass  = Universe.newSystemClass(objectClass, "Primitive");
     doubleClass     = Universe.newSystemClass(objectClass, "Double");
     booleanClass    = Universe.newSystemClass(objectClass, "Boolean");
+    contextClass    = Universe.newSystemClass(objectClass, "Context");
   }
 }
