@@ -31,6 +31,7 @@ import som.primitives.BlockPrimsFactory.RestartPrimFactory;
 import som.primitives.BlockPrimsFactory.ValueMorePrimFactory;
 import som.primitives.BlockPrimsFactory.ValueNonePrimFactory;
 import som.primitives.BlockPrimsFactory.ValueOnePrimFactory;
+import som.primitives.BlockPrimsFactory.ValueThreePrimFactory;
 import som.primitives.BlockPrimsFactory.ValueTwoPrimFactory;
 
 public final class BlockPrimitives extends Primitives {
@@ -50,7 +51,9 @@ public final class BlockPrimitives extends Primitives {
       } else if (holder == universe.getBlockClass(3)) {
         installInstancePrimitive("value:with:",      ValueTwoPrimFactory.getInstance());
       } else if (holder == universe.getBlockClass(4)) {
-        installInstancePrimitive("value:with:with:", ValueMorePrimFactory.getInstance());
+        installInstancePrimitive("value:with:with:", ValueThreePrimFactory.getInstance());
+      } else if (holder == universe.getBlockClass(5)) {
+        installInstancePrimitive("value:with:with:with:", ValueMorePrimFactory.getInstance());
       }
     }
   }

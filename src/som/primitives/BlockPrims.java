@@ -176,6 +176,51 @@ public abstract class BlockPrims {
       }
     }
   }
+  
+  @GenerateNodeFactory
+  public abstract static class ValueThreePrim extends QuaternaryExpressionNode
+      implements ValuePrimitiveNode {
+    @Child private AbstractDispatchNode dispatchNode;
+
+    public ValueThreePrim() {
+      super(null);
+      dispatchNode = new UninitializedValuePrimDispatchNode();
+    }
+
+    @Specialization
+    public final Object doSBlock(final VirtualFrame frame,
+        final SBlock receiver, final Object arg1, final Object arg2, final Object arg3) {
+      return dispatchNode.executeDispatch(frame, SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), new Object[] {receiver, arg1, arg2, arg3});
+    }
+
+    @Override
+    public final void adoptNewDispatchListHead(final AbstractDispatchNode node) {
+      dispatchNode = insert(node);
+    }
+
+    @Override
+    public NodeCost getCost() {
+      int dispatchChain = dispatchNode.lengthOfDispatchChain();
+      if (dispatchChain == 0) {
+        return NodeCost.UNINITIALIZED;
+      } else if (dispatchChain == 1) {
+        return NodeCost.MONOMORPHIC;
+      } else if (dispatchChain <= AbstractDispatchNode.INLINE_CACHE_SIZE) {
+        return NodeCost.POLYMORPHIC;
+      } else {
+        return NodeCost.MEGAMORPHIC;
+      }
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == OpClosureApplication.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
+  }
 
   @GenerateNodeFactory
   public abstract static class ValueMorePrim extends QuaternaryExpressionNode {

@@ -28,6 +28,7 @@ import som.interpreter.SArguments;
 import som.primitives.BlockPrimsFactory.ValueMorePrimFactory;
 import som.primitives.BlockPrimsFactory.ValueNonePrimFactory;
 import som.primitives.BlockPrimsFactory.ValueOnePrimFactory;
+import som.primitives.BlockPrimsFactory.ValueThreePrimFactory;
 import som.primitives.BlockPrimsFactory.ValueTwoPrimFactory;
 import som.primitives.Primitives;
 import som.vm.Universe;
@@ -76,6 +77,8 @@ public final class SBlock extends SAbstractObject {
       case 3: return Primitives.constructPrimitive(sig,
           ValueTwoPrimFactory.getInstance(), universe, rcvrClass);
       case 4: return Primitives.constructPrimitive(sig,
+          ValueThreePrimFactory.getInstance(), universe, rcvrClass);
+      case 5: return Primitives.constructPrimitive(sig,
           ValueMorePrimFactory.getInstance(), universe, rcvrClass);
       default:
         throw new RuntimeException("Should not reach here. SOM only has blocks with up to 2 arguments.");

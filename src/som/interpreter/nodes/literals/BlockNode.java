@@ -39,6 +39,7 @@ public class BlockNode extends LiteralNode {
       case 1: blockClass = Universe.current().getBlockClass(1); break;
       case 2: blockClass = Universe.current().getBlockClass(2); break;
       case 3: blockClass = Universe.current().getBlockClass(3); break;
+      case 4: blockClass = Universe.current().getBlockClass(4); break;
       default:
         throw new RuntimeException("We do currently not have support for more than 3 arguments to a block.");
     }
