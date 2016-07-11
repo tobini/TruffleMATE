@@ -49,11 +49,20 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
   @Specialization(guards = "isSameBlockLong(block)")
   public final long doIntToByDo(final VirtualFrame frame, final long receiver, final long limit, final long step, final SBlock block) {
     try {
-      if (receiver <= limit) {
-        valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
-      }
-      for (long i = receiver + 1; i <= limit; i += step) {
-        valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+      if (step > 0){
+        if (receiver <= limit) {
+          valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
+        }
+        for (long i = receiver + step; i <= limit; i += step) {
+          valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+        }
+      } else {
+        if (receiver >= limit) {
+          valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
+        }
+        for (long i = receiver + step; i >= limit; i += step) {
+          valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+        }
       }
     } finally {
       if (CompilerDirectives.inInterpreter()) {
@@ -69,7 +78,7 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
       if (receiver <= limit) {
         valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
       }
-      for (long i = receiver + 1; i <= limit; i += step) {
+      for (long i = receiver + step; i <= limit; i += step) {
         valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
       }
     } finally {
