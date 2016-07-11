@@ -25,7 +25,9 @@
 
 package som.primitives;
 
+import som.primitives.StringPrimsFactory.AsNumberStringPrimFactory;
 import som.primitives.StringPrimsFactory.AsSymbolPrimFactory;
+import som.primitives.StringPrimsFactory.AtStringPrimFactory;
 import som.primitives.StringPrimsFactory.ConcatPrimFactory;
 import som.primitives.StringPrimsFactory.SubstringPrimFactory;
 
@@ -34,11 +36,13 @@ public final class StringPrimitives extends Primitives {
 
   @Override
   public void installPrimitives() {
-    installInstancePrimitive("concatenate:", ConcatPrimFactory.getInstance());
-    installInstancePrimitive("asSymbol",     AsSymbolPrimFactory.getInstance());
-    installInstancePrimitive("length",       LengthPrimFactory.getInstance());
-    installInstancePrimitive("=",            EqualsPrimFactory.getInstance());
+    installInstancePrimitive("concatenate:",          ConcatPrimFactory.getInstance());
+    installInstancePrimitive("asSymbol",              AsSymbolPrimFactory.getInstance());
+    installInstancePrimitive("length",                LengthPrimFactory.getInstance());
+    installInstancePrimitive("=",                     EqualsPrimFactory.getInstance());
     installInstancePrimitive("primSubstringFrom:to:", SubstringPrimFactory.getInstance());
-    installInstancePrimitive("hashcode",     HashPrimFactory.getInstance());
+    installInstancePrimitive("hashcode",              HashPrimFactory.getInstance());
+    installInstancePrimitive("at:",                   AtStringPrimFactory.getInstance());
+    installInstancePrimitive("asNumber",              AsNumberStringPrimFactory.getInstance());
   }
 }

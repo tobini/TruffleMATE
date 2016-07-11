@@ -101,4 +101,52 @@ public class StringPrims {
       }
     }
   }
+  
+  @GenerateNodeFactory
+  public abstract static class AtStringPrim extends BinaryExpressionNode {
+    @Specialization
+    public final char doString(final String receiver, long index) {
+      if (index > receiver.length()){
+        Universe.errorExit("Accessing string:" + receiver + "out of range: " + String.valueOf(index));
+      }
+      return receiver.charAt((int)index - 1);
+    }
+    
+    @Specialization
+    public final char doSymbol(final SSymbol receiver, long index) {
+      return doString(receiver.getString(), index);
+    }
+
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == StringAccess.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
+  }
+  
+  @GenerateNodeFactory
+  public abstract static class AsNumberStringPrim extends UnaryExpressionNode {
+  
+    @Specialization
+    public final Number doString(final String receiver) {
+      try{
+        return Long.parseLong(receiver);
+      } catch (NumberFormatException e){
+        return Double.parseDouble(receiver);
+      }
+    }
+
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == StringAccess.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
+  }
+
 }
