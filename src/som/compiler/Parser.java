@@ -847,6 +847,10 @@ public class Parser {
       case Identifier: 
         expect(Identifier, null);
         return objectMemory.getGlobal(objectMemory.symbolFor(new String(text))); 
+      case OperatorSequence:
+      case Keyword:
+      case KeywordSequence:
+        return selector();
       default:
         throw new ParseError("Could not parse literal array value", NONE, this);
     }
