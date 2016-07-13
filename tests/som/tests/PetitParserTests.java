@@ -1,18 +1,17 @@
 package som.tests;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Arrays;
 
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import som.vm.Universe;
-
 @RunWith(Parameterized.class)
-public class PetitParserTests {
+public class PetitParserTests extends SomTests {
+
+  public PetitParserTests(String testName) {
+    super(testName);
+  }
 
   @Parameters
   public static Iterable<Object[]> data() {
@@ -33,26 +32,13 @@ public class PetitParserTests {
       });
   }
 
-  protected String testName;
-
-  public PetitParserTests(final String testName) {
-    this.testName = testName;
-  }
-
-  @Test
-  public void testSomeTest() {
-    u.setAvoidExit(true);
-    String[] args = this.getArguments();
-
-    u.interpret(args);
-
-    assertEquals(0, u.lastExitCode());
-  }
-  
   protected String[] getArguments(){
-    String[] arg = {"-cp", "Smalltalk:Smalltalk/PetitParser:Smalltalk/Collections/Streams:TestSuite/PetitParser", "TestSuite/TestHarness.som", testName};
+    String[] arg = {
+        "--mate",
+        "-cp", 
+        "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/PetitParser:Smalltalk/Collections/Streams:TestSuite:TestSuite/PetitParser", 
+        "TestHarness", 
+        testName};
     return arg;
   }
-
-  protected static Universe u = Universe.current();
 }
