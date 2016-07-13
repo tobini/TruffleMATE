@@ -153,6 +153,8 @@ public final class Lexer {
 
     if (currentChar() == '\'') {
       lexString();
+    } else if (currentChar() == '$') {
+      lexCharacter();
     } else if (currentChar() == '[') {
       match(Symbol.NewBlock);
     } else if (currentChar() == ']') {
@@ -253,9 +255,13 @@ public final class Lexer {
       state.bufp++;
       lexEscapeChar();
     } else {
-      state.text.append(currentChar());
-      state.bufp++;
+      lexChar(); 
     }
+  }
+  
+  private void lexChar() {
+    state.text.append(currentChar());
+    state.bufp++;
   }
 
   private void lexString() {
@@ -273,6 +279,13 @@ public final class Lexer {
 
     state.bufp++;
   }
+  
+  private void lexCharacter() {
+    state.set(Symbol.STChar);
+    state.bufp++;
+    lexChar();
+  }
+
 
   private void lexOperator() {
     if (isOperator(bufchar(state.bufp + 1))) {

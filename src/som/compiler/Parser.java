@@ -56,6 +56,7 @@ import static som.compiler.Symbol.Plus;
 import static som.compiler.Symbol.Pound;
 import static som.compiler.Symbol.Primitive;
 import static som.compiler.Symbol.STString;
+import static som.compiler.Symbol.STChar;
 import static som.compiler.Symbol.Separator;
 import static som.compiler.Symbol.Star;
 import static som.interpreter.SNodeFactory.createGlobalRead;
@@ -77,6 +78,7 @@ import som.interpreter.nodes.literals.ArrayLiteralNode;
 import som.interpreter.nodes.literals.BigIntegerLiteralNode;
 import som.interpreter.nodes.literals.BlockNode;
 import som.interpreter.nodes.literals.BlockNode.BlockNodeWithContext;
+import som.interpreter.nodes.literals.CharLiteralNode;
 import som.interpreter.nodes.literals.DoubleLiteralNode;
 import som.interpreter.nodes.literals.IntegerLiteralNode;
 import som.interpreter.nodes.literals.LiteralNode;
@@ -749,11 +751,13 @@ public class Parser {
       case Pound:
         try{peekForNextSymbolFromLexer();} catch (IllegalStateException e){/*Come from a trace that already peeked*/}
         if (nextSym == NewTerm){
+          expect(Pound, null);
           return new ArrayLiteralNode(this.literalArray(), getSource(coord));
         } else {
           return new SymbolLiteralNode(literalSymbol(), getSource(coord));
         }
       case STString:  return new StringLiteralNode(literalString(), getSource(coord));
+      case STChar:    return new CharLiteralNode(literalChar(), getSource(coord));
       default:   
         boolean isNegative = isNegativeNumber();
         if (sym == Integer) {
@@ -820,7 +824,6 @@ public class Parser {
   
   private SArray literalArray() throws ParseError {
     List<Object> literals = new ArrayList<Object>();
-    expect(Pound, null);
     expect(NewTerm, null);
     while (sym != EndTerm){
       literals.add(this.getObjectForCurrentLiteral());
@@ -831,15 +834,20 @@ public class Parser {
   
   private Object getObjectForCurrentLiteral() throws ParseError {
     switch (sym) {
+      case NewTerm:
+        return this.literalArray();
       case Pound:
         try{this.peekForNextSymbolFromLexer();} catch (IllegalStateException e){/*Come from a trace that already peeked*/}
         if (nextSym == NewTerm){
+          expect(Pound, null);
           return this.literalArray();
         } else {
           return literalSymbol();
         }
       case STString: 
         return literalString();
+      case STChar: 
+        return literalChar();  
       case Integer: 
         return literalInteger(isNegativeNumber());
       case Double: 
@@ -858,6 +866,12 @@ public class Parser {
 
   private String literalString() throws ParseError {
     return string();
+  }
+  
+  private Character literalChar() throws ParseError {
+    char value = text.charAt(0);
+    expect(STChar, null);
+    return value;
   }
 
   private SSymbol selector() throws ParseError {
