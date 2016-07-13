@@ -27,15 +27,21 @@ package som.primitives;
 
 import som.primitives.CharacterPrimsFactory.AsIntegerCharPrimFactory;
 import som.primitives.CharacterPrimsFactory.NewCharPrimFactory;
+import som.primitives.CharacterPrimsFactory.asUppercaseCharPrimFactory;
+import som.primitives.CharacterPrimsFactory.isAlphaNumericCharPrimFactory;
 import som.primitives.CharacterPrimsFactory.isDigitCharPrimFactory;
+import som.primitives.CharacterPrimsFactory.isLetterCharPrimFactory;
 
 public final class CharacterPrimitives extends Primitives {
   public CharacterPrimitives(final boolean displayWarning) { super(displayWarning); }
 
   @Override
   public void installPrimitives() {
-    installInstancePrimitive("asInteger",  AsIntegerCharPrimFactory.getInstance());
-    installInstancePrimitive("isDigit",    isDigitCharPrimFactory.getInstance());
-    installClassPrimitive("new:",          NewCharPrimFactory.getInstance());
+    installInstancePrimitive("asInteger",      AsIntegerCharPrimFactory.getInstance());
+    installInstancePrimitive("isDigit",        isDigitCharPrimFactory.getInstance());
+    installInstancePrimitive("isLetter",       isLetterCharPrimFactory.getInstance());
+    installInstancePrimitive("isAlphaNumeric", isAlphaNumericCharPrimFactory.getInstance());
+    installInstancePrimitive("asUppercase",    asUppercaseCharPrimFactory.getInstance());
+    installClassPrimitive("new:",              NewCharPrimFactory.getInstance());
   }
 }

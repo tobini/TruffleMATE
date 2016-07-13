@@ -42,6 +42,11 @@ public abstract class EqualsEqualsPrim extends BinaryExpressionNode {
   public final boolean doString(final String left, final String right) {
     return left == right;
   }
+  
+  @Specialization
+  public final boolean doString(final String receiver, final char argument) {
+    return false;
+  }
 
   @Specialization
   public final boolean doDouble(final double left, final double right) {
@@ -116,5 +121,10 @@ public abstract class EqualsEqualsPrim extends BinaryExpressionNode {
   @Specialization
   public final boolean doCharacter(final char receiver, final char argument) {
     return Character.compare(receiver , argument) == 0;
+  }
+  
+  @Specialization
+  public final boolean doCharacter(final char receiver, final String argument) {
+    return false;
   }
 }

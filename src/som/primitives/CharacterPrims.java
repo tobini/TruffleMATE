@@ -60,4 +60,55 @@ public class CharacterPrims {
       }
     }
   }
+  
+  @GenerateNodeFactory
+  public abstract static class isLetterCharPrim extends UnaryExpressionNode {
+    @Specialization
+    public final boolean doCharacter(final char subject) {
+      return Character.isLetter(subject);
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == StringAccess.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
+  }
+  
+  @GenerateNodeFactory
+  public abstract static class isAlphaNumericCharPrim extends UnaryExpressionNode {
+    @Specialization
+    public final boolean doCharacter(final char subject) {
+      return Character.isLetterOrDigit(subject);
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == StringAccess.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
+  }
+  
+  @GenerateNodeFactory
+  public abstract static class asUppercaseCharPrim extends UnaryExpressionNode {
+    @Specialization
+    public final char doCharacter(final char subject) {
+      return Character.toUpperCase(subject);
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == StringAccess.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
+  }
 }
