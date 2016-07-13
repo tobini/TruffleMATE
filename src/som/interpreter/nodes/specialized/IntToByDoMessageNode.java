@@ -52,21 +52,22 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
       if (step > 0){
         if (receiver <= limit) {
           valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
-        }
-        for (long i = receiver + step; i <= limit; i += step) {
-          valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+          for (long i = receiver + step; i <= limit; i += step) {
+            valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+          }
         }
       } else {
         if (receiver >= limit) {
           valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
-        }
-        for (long i = receiver + step; i >= limit; i += step) {
-          valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+          for (long i = receiver + step; i >= limit; i += step) {
+            valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+          }
         }
       }
     } finally {
-      if (CompilerDirectives.inInterpreter()) {
-        reportLoopCount(limit - receiver);
+      long count = (long) (Math.abs(limit) - Math.abs(receiver));
+      if (CompilerDirectives.inInterpreter() && count > 0) {
+        reportLoopCount(count);
       }
     }
     return receiver;
@@ -77,13 +78,14 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
     try {
       if (receiver <= limit) {
         valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
-      }
-      for (long i = receiver + step; i <= limit; i += step) {
-        valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+        for (long i = receiver + step; i <= limit; i += step) {
+          valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+        }
       }
     } finally {
-      if (CompilerDirectives.inInterpreter()) {
-        reportLoopCount((long) limit - receiver);
+      long count = (long) (Math.abs(limit) - Math.abs(receiver));
+      if (CompilerDirectives.inInterpreter() && count > 0) {
+        reportLoopCount(count);
       }
     }
     return receiver;
