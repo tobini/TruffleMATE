@@ -25,6 +25,7 @@
 
 package som.primitives;
 
+import som.primitives.arrays.AsStringArrayPrimFactory;
 import som.primitives.arrays.AtPrimFactory;
 import som.primitives.arrays.AtPutPrimFactory;
 import som.primitives.arrays.CopyPrimFactory;
@@ -45,7 +46,7 @@ public final class ArrayPrimitives extends Primitives {
     installInstancePrimitive("doIndexes:", DoIndexesPrimFactory.getInstance());
     installInstancePrimitive("do:",        DoPrimFactory.getInstance());
     installInstancePrimitive("putAll:",    PutAllNodeFactory.getInstance());
-
+    installInstancePrimitive("asString", AsStringArrayPrimFactory.getInstance());
     installClassPrimitive("new:", NewPrimFactory.getInstance());
   }
 }
