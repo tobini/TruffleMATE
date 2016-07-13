@@ -11,6 +11,7 @@ import static som.vm.constants.Classes.nilClass;
 import static som.vm.constants.Classes.objectClass;
 import static som.vm.constants.Classes.primitiveClass;
 import static som.vm.constants.Classes.stringClass;
+import static som.vm.constants.Classes.characterClass;
 import static som.vm.constants.Classes.symbolClass;
 import static som.vm.constants.Classes.trueClass;
 import static som.vm.constants.Classes.falseClass;
@@ -58,7 +59,7 @@ public class ObjectMemory {
     last = this;
     globals      = new HashMap<SSymbol, DynamicObject>();
     symbolTable  = new HashMap<>();
-    blockClasses = new DynamicObject[4];
+    blockClasses = new DynamicObject[5];
     classPath = path;
   }
   
@@ -78,6 +79,7 @@ public class ObjectMemory {
     loadClass(SClass.getName(arrayClass), arrayClass);
     loadClass(SClass.getName(methodClass), methodClass);
     loadClass(SClass.getName(stringClass), stringClass);
+    loadClass(SClass.getName(characterClass), characterClass);
     loadClass(SClass.getName(symbolClass), symbolClass);
     loadClass(SClass.getName(integerClass), integerClass);
     loadClass(SClass.getName(primitiveClass), primitiveClass);
@@ -106,6 +108,7 @@ public class ObjectMemory {
     loadBlockClass(1);
     loadBlockClass(2);
     loadBlockClass(3);
+    loadBlockClass(4);
 
     if (Globals.trueObject != trueObject) {
       Universe.errorExit("Initialization went wrong for class Globals");
