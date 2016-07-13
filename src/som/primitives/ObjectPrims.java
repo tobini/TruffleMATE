@@ -125,4 +125,12 @@ public final class ObjectPrims {
       return receiver;
     }
   }
+  
+  @GenerateNodeFactory
+  public abstract static class shallowCopyPrim extends UnaryExpressionNode {
+    @Specialization
+    public final Object doSObject(final DynamicObject receiver) {
+      return receiver.copy(receiver.getShape());
+    }
+  }
 }
