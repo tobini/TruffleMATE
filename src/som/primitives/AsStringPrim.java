@@ -17,6 +17,11 @@ public abstract class AsStringPrim extends UnaryExpressionNode {
   public final String doSSymbol(final SSymbol receiver) {
     return receiver.getString();
   }
+  
+  @Specialization
+  public final String doCharacter(final char receiver) {
+    return Character.toString(receiver);
+  }
 
   @TruffleBoundary
   @Specialization

@@ -26,11 +26,15 @@
 package som.primitives;
 
 import som.primitives.CharacterPrimsFactory.AsIntegerCharPrimFactory;
+import som.primitives.CharacterPrimsFactory.AsLowercaseCharPrimFactory;
+import som.primitives.CharacterPrimsFactory.AsUppercaseCharPrimFactory;
+import som.primitives.CharacterPrimsFactory.CompareCharsPrimFactory;
+import som.primitives.CharacterPrimsFactory.IsAlphaNumericCharPrimFactory;
+import som.primitives.CharacterPrimsFactory.IsDigitCharPrimFactory;
+import som.primitives.CharacterPrimsFactory.IsLetterCharPrimFactory;
+import som.primitives.CharacterPrimsFactory.IsLowercaseCharPrimFactory;
+import som.primitives.CharacterPrimsFactory.IsUppercaseCharPrimFactory;
 import som.primitives.CharacterPrimsFactory.NewCharPrimFactory;
-import som.primitives.CharacterPrimsFactory.asUppercaseCharPrimFactory;
-import som.primitives.CharacterPrimsFactory.isAlphaNumericCharPrimFactory;
-import som.primitives.CharacterPrimsFactory.isDigitCharPrimFactory;
-import som.primitives.CharacterPrimsFactory.isLetterCharPrimFactory;
 
 public final class CharacterPrimitives extends Primitives {
   public CharacterPrimitives(final boolean displayWarning) { super(displayWarning); }
@@ -38,10 +42,15 @@ public final class CharacterPrimitives extends Primitives {
   @Override
   public void installPrimitives() {
     installInstancePrimitive("asInteger",      AsIntegerCharPrimFactory.getInstance());
-    installInstancePrimitive("isDigit",        isDigitCharPrimFactory.getInstance());
-    installInstancePrimitive("isLetter",       isLetterCharPrimFactory.getInstance());
-    installInstancePrimitive("isAlphaNumeric", isAlphaNumericCharPrimFactory.getInstance());
-    installInstancePrimitive("asUppercase",    asUppercaseCharPrimFactory.getInstance());
+    installInstancePrimitive("asString",       AsStringPrimFactory.getInstance());
+    installInstancePrimitive("isDigit",        IsDigitCharPrimFactory.getInstance());
+    installInstancePrimitive("isLetter",       IsLetterCharPrimFactory.getInstance());
+    installInstancePrimitive("isAlphaNumeric", IsAlphaNumericCharPrimFactory.getInstance());
+    installInstancePrimitive("asUppercase",    AsUppercaseCharPrimFactory.getInstance());
+    installInstancePrimitive("asLowercase",    AsLowercaseCharPrimFactory.getInstance());
+    installInstancePrimitive("isUppercase",    IsUppercaseCharPrimFactory.getInstance());
+    installInstancePrimitive("isLowercase",    IsLowercaseCharPrimFactory.getInstance());
+    installInstancePrimitive("compareWith:",      CompareCharsPrimFactory.getInstance());
     installClassPrimitive("new:",              NewCharPrimFactory.getInstance());
   }
 }

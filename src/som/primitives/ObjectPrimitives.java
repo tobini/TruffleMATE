@@ -32,8 +32,8 @@ import som.primitives.ObjectPrimsFactory.HaltPrimFactory;
 import som.primitives.ObjectPrimsFactory.InstVarAtPrimFactory;
 import som.primitives.ObjectPrimsFactory.InstVarAtPutPrimFactory;
 import som.primitives.ObjectPrimsFactory.InstVarNamedPrimFactory;
+import som.primitives.ObjectPrimsFactory.ShallowCopyPrimFactory;
 import som.primitives.ObjectPrimsFactory.installEnvironmentPrimFactory;
-import som.primitives.ObjectPrimsFactory.shallowCopyPrimFactory;
 import som.primitives.reflection.PerformInSuperclassPrimFactory;
 import som.primitives.reflection.PerformPrimFactory;
 import som.primitives.reflection.PerformWithArgumentsInSuperclassPrimFactory;
@@ -58,7 +58,8 @@ public final class ObjectPrimitives extends Primitives {
     installInstancePrimitive("instVarNamed:",          InstVarNamedPrimFactory.getInstance());
     installInstancePrimitive("halt",                   HaltPrimFactory.getInstance());
     installInstancePrimitive("class",                  ClassPrimFactory.getInstance());
-    installInstancePrimitive("shallowCopy",            shallowCopyPrimFactory.getInstance());
+    installInstancePrimitive("shallowCopy",            ShallowCopyPrimFactory.getInstance());
+    installInstancePrimitive("identityHash",           HashPrimFactory.getInstance());
     if (Universe.getCurrent().vmReflectionEnabled())
       installInstancePrimitive("installEnvironment:", installEnvironmentPrimFactory.getInstance());
       installInstancePrimitive("changeShape:", MateChangeShapePrimFactory.getInstance());
