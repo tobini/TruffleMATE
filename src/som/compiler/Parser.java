@@ -853,8 +853,7 @@ public class Parser {
       case Double: 
         return literalDouble(isNegativeNumber());
       case Identifier: 
-        expect(Identifier, null);
-        return objectMemory.getGlobal(objectMemory.symbolFor(new String(text))); 
+        return selector();
       case OperatorSequence:
       case Keyword:
       case KeywordSequence:
