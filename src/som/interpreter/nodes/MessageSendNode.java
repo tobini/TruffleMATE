@@ -48,7 +48,6 @@ import som.primitives.arithmetic.ModuloPrimFactory;
 import som.primitives.arithmetic.MultiplicationPrimFactory;
 import som.primitives.arithmetic.RemainderPrimFactory;
 import som.primitives.arithmetic.SubtractionPrimFactory;
-import som.primitives.arrays.AsStringArrayPrimFactory;
 import som.primitives.arrays.AtPrimFactory;
 import som.primitives.arrays.AtPutPrimFactory;
 import som.primitives.arrays.DoIndexesPrimFactory;
@@ -210,12 +209,6 @@ public final class MessageSendNode {
                 argumentNodes[0], LengthPrimFactory.create(null)));
           }
           break;
-        case "asString":
-          if (receiver instanceof SArray) {
-            return replace(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
-                argumentNodes[0], AsStringArrayPrimFactory.create(null)));
-          }
-          break;  
         case "value":
           if (receiver instanceof SBlock || receiver instanceof Boolean) {
             return replace(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
