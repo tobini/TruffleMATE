@@ -91,6 +91,7 @@ import som.interpreter.nodes.specialized.IfTrueIfFalseInlinedLiteralsNode;
 import som.interpreter.nodes.specialized.IntToDoInlinedLiteralsNodeGen;
 import som.interpreter.nodes.specialized.whileloops.WhileInlinedLiteralsNode;
 import som.vm.ObjectMemory;
+import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SClass;
 import som.vmobjects.SObject;
@@ -853,6 +854,10 @@ public class Parser {
       case Double: 
         return literalDouble(isNegativeNumber());
       case Identifier: 
+        if (text.equals("nil")) {
+          selector(); //Consume the text from the parser state
+          return Nil.nilObject;
+        }
         return selector();
       case OperatorSequence:
       case Keyword:
