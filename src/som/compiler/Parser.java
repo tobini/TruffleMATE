@@ -91,6 +91,7 @@ import som.interpreter.nodes.specialized.IfTrueIfFalseInlinedLiteralsNode;
 import som.interpreter.nodes.specialized.IntToDoInlinedLiteralsNodeGen;
 import som.interpreter.nodes.specialized.whileloops.WhileInlinedLiteralsNode;
 import som.vm.ObjectMemory;
+import som.vm.Universe;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SClass;
@@ -857,6 +858,12 @@ public class Parser {
         if (text.equals("nil")) {
           selector(); //Consume the text from the parser state
           return Nil.nilObject;
+        } else if (text.equals("true")){
+          selector(); //Consume the text from the parser state
+          return Universe.getCurrent().getTrueObject();
+        } else if (text.equals("false")){
+          selector(); //Consume the text from the parser state
+          return Universe.getCurrent().getFalseObject();
         }
         return selector();
       case OperatorSequence:
