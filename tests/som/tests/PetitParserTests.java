@@ -28,7 +28,10 @@ public class PetitParserTests extends SomTests {
         {"PPParserTest"            },
         {"PPPredicateTest"         },
         {"PPScriptingTest"         },
-        {"PPTokenTest"             }
+        {"PPTokenTest"             },
+        {"PPSmalltalkClassesTest"  },
+        {"PPSmalltalkGrammarTest"  },
+        {"PPSmalltalkParserTest"   }
       });
   }
 
@@ -36,7 +39,8 @@ public class PetitParserTests extends SomTests {
     String[] arg = {
         "--mate",
         "-cp", 
-        "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/PetitParser:Smalltalk/Collections/Streams:TestSuite:TestSuite/PetitParser", 
+        "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/PetitParser::Smalltalk/PetitParser/PetitSmalltalk:"
+        + "Smalltalk/Collections/Streams:TestSuite:TestSuite/PetitParser:TestSuite/PetitParser/PetitSmalltalk", 
         "TestHarness", 
         testName};
     return arg;
