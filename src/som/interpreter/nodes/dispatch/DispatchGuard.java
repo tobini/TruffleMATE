@@ -22,6 +22,10 @@ public abstract class DispatchGuard {
     if (obj instanceof DynamicObject) {
       return new CheckSObject(((DynamicObject) obj).getShape());
     }
+    
+    if (obj instanceof SBlock) {
+      return new CheckSBlock(((SBlock) obj).getSOMClass());
+    }
 
     return new CheckClass(obj.getClass());
   }
@@ -86,6 +90,21 @@ public abstract class DispatchGuard {
     }
     return obj instanceof DynamicObject &&
         ((DynamicObject) obj).getShape() == expected;
+    }
+  }
+  
+  private static final class CheckSBlock extends DispatchGuard {
+    private final DynamicObject expected;
+
+    public CheckSBlock(final DynamicObject blockClass) {
+      this.expected = blockClass;
+    }
+
+  @Override
+  public boolean entryMatches(final Object obj) throws InvalidAssumptionException {
+    
+    return obj instanceof SBlock &&
+        ((SBlock) obj).getSOMClass() == expected;
     }
   }
 }
