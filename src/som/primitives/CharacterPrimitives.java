@@ -25,6 +25,7 @@
 
 package som.primitives;
 
+import som.primitives.CharacterPrimsFactory.AsDigitCharPrimFactory;
 import som.primitives.CharacterPrimsFactory.AsIntegerCharPrimFactory;
 import som.primitives.CharacterPrimsFactory.AsLowercaseCharPrimFactory;
 import som.primitives.CharacterPrimsFactory.AsUppercaseCharPrimFactory;
@@ -43,6 +44,7 @@ public final class CharacterPrimitives extends Primitives {
   public void installPrimitives() {
     installInstancePrimitive("asInteger",      AsIntegerCharPrimFactory.getInstance());
     installInstancePrimitive("asString",       AsStringPrimFactory.getInstance());
+    installInstancePrimitive("asDigitBase:",   AsDigitCharPrimFactory.getInstance());
     installInstancePrimitive("isDigit",        IsDigitCharPrimFactory.getInstance());
     installInstancePrimitive("isLetter",       IsLetterCharPrimFactory.getInstance());
     installInstancePrimitive("isAlphaNumeric", IsAlphaNumericCharPrimFactory.getInstance());
@@ -50,7 +52,7 @@ public final class CharacterPrimitives extends Primitives {
     installInstancePrimitive("asLowercase",    AsLowercaseCharPrimFactory.getInstance());
     installInstancePrimitive("isUppercase",    IsUppercaseCharPrimFactory.getInstance());
     installInstancePrimitive("isLowercase",    IsLowercaseCharPrimFactory.getInstance());
-    installInstancePrimitive("compareWith:",      CompareCharsPrimFactory.getInstance());
+    installInstancePrimitive("compareWith:",   CompareCharsPrimFactory.getInstance());
     installClassPrimitive("new:",              NewCharPrimFactory.getInstance());
   }
 }

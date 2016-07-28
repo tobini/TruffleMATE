@@ -62,6 +62,23 @@ public class CharacterPrims {
   }
   
   @GenerateNodeFactory
+  public abstract static class AsDigitCharPrim extends BinaryExpressionNode {
+    @Specialization
+    public final long doCharacter(final char subject, final long radix) {
+      return Character.digit(subject, (int)radix);
+    }
+    
+    @Override
+    protected boolean isTaggedWith(final Class<?> tag) {
+      if (tag == StringAccess.class) {
+        return true;
+      } else {
+        return super.isTaggedWith(tag);
+      }
+    }
+  }
+  
+  @GenerateNodeFactory
   public abstract static class IsLetterCharPrim extends UnaryExpressionNode {
     @Specialization
     public final boolean doCharacter(final char subject) {

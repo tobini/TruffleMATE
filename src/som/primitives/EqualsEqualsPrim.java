@@ -124,6 +124,11 @@ public abstract class EqualsEqualsPrim extends BinaryExpressionNode {
   }
   
   @Specialization
+  public final boolean doCharacter(final char receiver, final DynamicObject argument) {
+    return false;
+  }
+  
+  @Specialization
   public final boolean doCharacter(final char receiver, final String argument) {
     return false;
   }
