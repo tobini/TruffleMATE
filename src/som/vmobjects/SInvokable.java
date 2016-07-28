@@ -89,7 +89,7 @@ public class SInvokable {
   }  
   
   public static void setHolder(final DynamicObject invokable, final DynamicObject value) {
-    if (SMethod.isSMethod(value)){
+    if (SMethod.isSMethod(invokable)){
       SMethod.setHolder(invokable, value);
     } else {
       InvokableLayoutImpl.INSTANCE.setHolderUnsafe(invokable, value);
