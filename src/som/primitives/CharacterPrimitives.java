@@ -44,7 +44,7 @@ public final class CharacterPrimitives extends Primitives {
   public void installPrimitives() {
     installInstancePrimitive("asInteger",      AsIntegerCharPrimFactory.getInstance());
     installInstancePrimitive("asString",       AsStringPrimFactory.getInstance());
-    installInstancePrimitive("asDigitBase:",   AsDigitCharPrimFactory.getInstance());
+    installInstancePrimitive("asDigit",        AsDigitCharPrimFactory.getInstance());
     installInstancePrimitive("isDigit",        IsDigitCharPrimFactory.getInstance());
     installInstancePrimitive("isLetter",       IsLetterCharPrimFactory.getInstance());
     installInstancePrimitive("isAlphaNumeric", IsAlphaNumericCharPrimFactory.getInstance());

@@ -62,10 +62,10 @@ public class CharacterPrims {
   }
   
   @GenerateNodeFactory
-  public abstract static class AsDigitCharPrim extends BinaryExpressionNode {
+  public abstract static class AsDigitCharPrim extends UnaryExpressionNode {
     @Specialization
-    public final long doCharacter(final char subject, final long radix) {
-      return Character.digit(subject, (int)radix);
+    public final long doCharacter(final char subject) {
+      return Character.getNumericValue(subject);
     }
     
     @Override
