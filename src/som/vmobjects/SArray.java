@@ -38,6 +38,10 @@ public final class SArray extends SAbstractObject {
   public static SArray create(final byte[] values) {
     return new SArray(values);
   }
+  
+  public static SArray create(final char[] values) {
+    return new SArray(values);
+  }
 
   public static SArray create(final int length) {
     return new SArray(length);
@@ -85,6 +89,11 @@ public final class SArray extends SAbstractObject {
     return (byte[]) storage;
   }
   
+  public char[] getCharStorage(final ValueProfile storageType) {
+    assert type == ArrayType.CHAR;
+    return (char[]) storage;
+  }
+  
   public Object[] toJavaArray(){
     if (ArrayType.isEmptyType(this)){
       this.transitionToObjectWithAll((int)this.storage, Nil.nilObject);
@@ -129,6 +138,11 @@ public final class SArray extends SAbstractObject {
   
   private SArray(final byte[] val) {
     type = ArrayType.BYTE;
+    storage = val;
+  }
+  
+  private SArray(final char[] val) {
+    type = ArrayType.CHAR;
     storage = val;
   }
 
@@ -215,7 +229,7 @@ public final class SArray extends SAbstractObject {
   }
 
   public enum ArrayType {
-    EMPTY, PARTIAL_EMPTY, LONG, DOUBLE, BOOLEAN, BYTE, OBJECT;
+    EMPTY, PARTIAL_EMPTY, LONG, DOUBLE, BOOLEAN, BYTE, CHAR, OBJECT;
 
     public final static boolean isEmptyType(final SArray receiver) {
       return receiver.getType() == ArrayType.EMPTY;
@@ -243,6 +257,10 @@ public final class SArray extends SAbstractObject {
     
     public final static boolean isByteType(final SArray receiver) {
       return receiver.getType() == BYTE;
+    }
+    
+    public final static boolean isCharType(final SArray receiver) {
+      return receiver.getType() == CHAR;
     }
   }
 
