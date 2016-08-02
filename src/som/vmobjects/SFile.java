@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class SFile {
   private final File file;
@@ -56,7 +57,12 @@ public class SFile {
   }
 
   public void setPosition(long position) {
-    this.position = position;
+    try {
+      this.getInputStream().getChannel().position(position - 1);
+      this.position = position;
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
   
   public File getFile() {
