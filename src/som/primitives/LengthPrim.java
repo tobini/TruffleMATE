@@ -53,6 +53,11 @@ public abstract class LengthPrim extends UnaryExpressionNode {
     return receiver.getByteStorage(storageType).length;
   }
   
+  @Specialization(guards = "isCharType(receiver)")
+  public final long doCharSArray(final SArray receiver) {
+    return receiver.getCharStorage(storageType).length;
+  }
+  
   public abstract long executeEvaluated(SArray receiver);
 
   @Specialization

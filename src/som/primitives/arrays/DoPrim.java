@@ -163,6 +163,46 @@ public abstract class DoPrim extends BinaryExpressionNode
     return arr;
   }
 
+  @Specialization(guards = "isByteType(arr)")
+  public final SArray doByteArray(final VirtualFrame frame,
+      final SArray arr, final SBlock block) {
+    byte[] storage = arr.getByteStorage(storageType);
+    int length = storage.length;
+    try {
+      if (SArray.FIRST_IDX < length) {
+        execBlock(frame, block, (long)storage[SArray.FIRST_IDX]);
+      }
+      for (long i = SArray.FIRST_IDX + 1; i < length; i++) {
+        execBlock(frame, block, (long)storage[(int) i]);
+      }
+    } finally {
+      if (CompilerDirectives.inInterpreter()) {
+        reportLoopCount(length);
+      }
+    }
+    return arr;
+  }
+  
+  @Specialization(guards = "isCharType(arr)")
+  public final SArray doCharArray(final VirtualFrame frame,
+      final SArray arr, final SBlock block) {
+    char[] storage = arr.getCharStorage(storageType);
+    int length = storage.length;
+    try {
+      if (SArray.FIRST_IDX < length) {
+        execBlock(frame, block, storage[SArray.FIRST_IDX]);
+      }
+      for (long i = SArray.FIRST_IDX + 1; i < length; i++) {
+        execBlock(frame, block, storage[(int) i]);
+      }
+    } finally {
+      if (CompilerDirectives.inInterpreter()) {
+        reportLoopCount(length);
+      }
+    }
+    return arr;
+  }
+
   protected final void reportLoopCount(final long count) {
     if (count == 0) {
       return;

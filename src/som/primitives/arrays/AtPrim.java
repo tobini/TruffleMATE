@@ -55,6 +55,11 @@ public abstract class AtPrim extends BinaryExpressionNode {
     return receiver.getBooleanStorage(storageType)[(int) idx - 1];
   }
   
+  @Specialization(guards = "isCharType(receiver)")
+  public final char doCharSArray(final SArray receiver, final long idx) {
+    return receiver.getCharStorage(storageType)[(int) idx - 1];
+  }
+  
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     if (tag == BasicPrimitiveOperation.class) {
