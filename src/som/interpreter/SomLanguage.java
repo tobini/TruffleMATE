@@ -40,14 +40,18 @@ import tools.highlight.Tags.LocalVariableTag;
 import tools.highlight.Tags.StatementSeparatorTag;
 
 import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.MaterializedFrame;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.impl.FindContextNode;
 import com.oracle.truffle.api.instrumentation.ProvidedTags;
 import com.oracle.truffle.api.instrumentation.StandardTags.CallTag;
 import com.oracle.truffle.api.instrumentation.StandardTags.RootTag;
 import com.oracle.truffle.api.instrumentation.StandardTags.StatementTag;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
 
 @TruffleLanguage.Registration(name = "TruffleMate", version = "0.1.0", mimeType = SomLanguage.MIME_TYPE)
@@ -75,7 +79,7 @@ public class SomLanguage extends TruffleLanguage<Universe> {
   public static final String DOT_FILE_EXTENSION = "." + FILE_EXTENSION;
 
   public static final SomLanguage INSTANCE = new SomLanguage();
-  //public static final Source START = getSyntheticSource("", "START");
+  public static final Source START = getSyntheticSource("", "START");
 
   public static Source getSyntheticSource(final String text, final String name) {
     return Source.newBuilder(text).internal().name(name).mimeType(SomLanguage.MIME_TYPE).build();
@@ -92,10 +96,45 @@ public class SomLanguage extends TruffleLanguage<Universe> {
     return vm;
   }
   
+  @SuppressWarnings("unchecked")
+  public FindContextNode<Universe> createNewFindContextNode() {
+    return (FindContextNode<Universe>) super.createFindContextNode();
+  }
+  
+  private static class StartInterpretation extends RootNode {
+
+    private final FindContextNode<Universe> contextNode;
+
+    @SuppressWarnings("unchecked")
+    protected StartInterpretation(final Node findContextNode) {
+      super(SomLanguage.class, null, null);
+      contextNode = (FindContextNode<Universe>) findContextNode;
+    }
+
+    @Override
+    public Object execute(final VirtualFrame frame) {
+      Universe vm = contextNode.executeFindContext();
+      return vm.execute();
+      //return Nil.nilObject;
+    }
+  }
+  
+  private CallTarget createStartCallTarget() {
+    return Truffle.getRuntime().createCallTarget(new StartInterpretation(createFindContextNode()));
+  }
+  
   @Override
   protected CallTarget parse(final Source code, final Node context,
       final String... argumentNames) throws IOException {
-    throw new NotYetImplementedException();
+    if (code == START || (code.getLength() == 0 && code.getName().equals("START"))) {
+      return createStartCallTarget();
+    }
+
+    /*Universe vm = createNewFindContextNode().executeFindContext();
+    MixinDefinition moduleDef = vm.loadModule(code);
+    ParseResult result = new ParseResult(moduleDef.instantiateModuleClass());
+    return Truffle.getRuntime().createCallTarget(result);*/
+    return Truffle.getRuntime().createCallTarget(null);
   }
 
   @Override
