@@ -93,7 +93,19 @@ public class Universe extends ExecutionContext {
       activatedMate();
     }
   }
+  
+  public static Universe getInitializedVM(String[] arguments) throws IOException {
+    Builder builder = PolyglotEngine.newBuilder();
+    builder.config(SomLanguage.MIME_TYPE, SomLanguage.CMD_ARGS, arguments);
+    PolyglotEngine engine = builder.build();
 
+    engine.getInstruments().values().forEach(i -> i.setEnabled(false));
+
+    // Trigger initialization
+    assert null == engine.getLanguages().get(SomLanguage.MIME_TYPE).getGlobalObject();
+    return Universe.getCurrent();
+  }
+  
   public static void main(final String[] args) {
     Builder builder = PolyglotEngine.newBuilder();
     builder.config(SomLanguage.MIME_TYPE, SomLanguage.CMD_ARGS, args);
@@ -144,8 +156,8 @@ public class Universe extends ExecutionContext {
         assert structuralProbes != null : "Initialization of DynamicMetrics tool incomplete";
       }*/
 
-      engine.eval(null);
-      //engine.eval(SomLanguage.START);
+      //engine.eval(null);
+      engine.eval(SomLanguage.START);
       engine.dispose();
     } catch (IOException e) {
       throw new RuntimeException("This should never happen", e);
@@ -408,18 +420,6 @@ public class Universe extends ExecutionContext {
       webDebugger.reportSuspendedEvent(e);
     }
   };
-  
-  public static Universe getInitializedVM(String[] arguments) throws IOException {
-    Builder builder = PolyglotEngine.newBuilder();
-    builder.config(SomLanguage.MIME_TYPE, SomLanguage.CMD_ARGS, arguments);
-    PolyglotEngine engine = builder.build();
-
-    engine.getInstruments().values().forEach(i -> i.setEnabled(false));
-
-    // Trigger initialization
-    assert null == engine.getLanguages().get(SomLanguage.MIME_TYPE).getGlobalObject();
-    return Universe.getCurrent();
-  }
   
   private final TruffleRuntime                  truffleRuntime;
   // TODO: this is not how it is supposed to be... it is just a hack to cope
