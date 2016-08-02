@@ -109,7 +109,7 @@ public class ObjectMemory {
     loadBlockClass(2);
     loadBlockClass(3);
     loadBlockClass(4);
-
+    
     if (Globals.trueObject != trueObject) {
       Universe.errorExit("Initialization went wrong for class Globals");
     }
@@ -118,6 +118,8 @@ public class ObjectMemory {
       Universe.errorExit("Initialization went wrong for class Blocks");
     }
     
+    loadClass(SClass.getName(contextClass), contextClass);
+
     if (Universe.getCurrent().vmReflectionEnabled()){
       //Setup the fields that were not possible to setup before to avoid cyclic initialization dependencies
       SReflectiveObject.setEnvironment(Nil.nilObject, Nil.nilObject);
@@ -127,7 +129,6 @@ public class ObjectMemory {
       loadClass(SClass.getName(operationalSemanticsMO), operationalSemanticsMO);
       loadClass(SClass.getName(messageMO), messageMO);
       loadClass(SClass.getName(shapeClass), shapeClass);
-      loadClass(SClass.getName(contextClass), contextClass);
       
       AbstractMessageSendNode.specializationFactory = new MateMessageSpecializationsFactory();
     }
