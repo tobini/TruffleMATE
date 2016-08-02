@@ -84,17 +84,29 @@ public abstract class FilePluginPrims {
     
     private final ValueProfile storageType = ValueProfile.createClassProfile();
     
-    @Specialization(guards = "isEmptyType(collection)")
-    public long doEmpty(DynamicObject receiver, SFile file, SArray collection, long startingAt, long count) {
-      collection.transitionTo(ArrayType.BYTE, new byte[(int) count]);
-      return this.doGeneric(receiver, file, collection, startingAt, count);
+    @Specialization(guards = {"isByteType(collection)"})
+    public long doEmptyBytes(DynamicObject receiver, SFile file, SArray collection, long startingAt, long count) {
+      if (ArrayType.isEmptyType(collection)){
+        collection.transitionTo(ArrayType.BYTE, new byte[(int) count]);
+      }
+      byte[] buffer = collection.getByteStorage(storageType);
+      return read(file, buffer, (int)startingAt - 1, (int)count);
     }
     
-    @Specialization
-    public long doGeneric(DynamicObject receiver, SFile file, SArray collection, long startingAt, long count) {
+    @Specialization(guards = {"!isByteType(collection)"})
+    public long doEmpty(DynamicObject receiver, SFile file, SArray collection, long startingAt, long count) {
+      byte[] buffer = new byte[(int) count];
+      long countRead = read(file, buffer, (int)startingAt - 1, (int)count);
+      /*TODO: Workaround this so in case the read is in a subpart of the array we do not lose the rest*/
+      collection.transitionTo(ArrayType.CHAR, (new String(buffer)).toCharArray());
+      return countRead;
+    }
+    
+    private static long read(SFile file, byte[] buffer, int start, int count){
       try {
-        return (long) file.getInputStream().read(collection.getByteStorage(storageType), (int)startingAt - 1, (int)count);
+        return (long) file.getInputStream().read(buffer, start, (int)count);
       } catch (IOException e) {
+        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       return 0;
