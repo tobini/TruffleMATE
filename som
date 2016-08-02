@@ -198,12 +198,14 @@ if args.threads:
     flags += ['-Dsom.threads=%s' % args.threads ]
 if args.java_interpreter:
     flags += ['-Xint']
-if args.mate:
-    flags += ['--mate']
-if args.mateActivated:
-    flags += ['-activateMate']
 
-all_args = JAVA_ARGS + flags + TWEAK_INLINING + SOM_ARGS + unknown + args.args
+mate_args = []
+if args.mate:
+    mate_args += ['--mate']
+if args.mateActivated:
+    mate_args += ['-activateMate']
+
+all_args = JAVA_ARGS + flags + TWEAK_INLINING + SOM_ARGS + mate_args + unknown + args.args
 
 if args.verbose:
     print "CMD: " + java_bin + ' ' + ' '.join(all_args)
