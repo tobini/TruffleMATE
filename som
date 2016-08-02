@@ -70,6 +70,8 @@ parser.add_argument('--no-graph-pe', help='disable Graph PE',
 
 parser.add_argument('--mate', help='run som with mate nodes',
                     dest='mate', action='store_true', default=False)
+parser.add_argument('-activateMate', help='enable mate nodes',
+                    dest='mateActivated', action='store_true', default=False)
 
 
 parser.add_argument('-vv', '--verbose', action='store_true', default=False,
@@ -114,15 +116,10 @@ else:
       	print "No compatible JDK build found, is this script outdated?"
       	sys.exit(1)
 
-if args.mate:
-  mainClass = "som.vm.MateUniverse"
-else:
-  mainClass = "som.vm.Universe"
-
 SOM_ARGS = ['-Xbootclasspath/a:'
              + BASE_DIR + '/build/classes:'
              + BASE_DIR + '/libs/truffle/mxbuild/dists/truffle-api.jar',
-            mainClass]
+            "som.vm.Universe"]
 
 # == Hotspot -XX:CompileCommand=print,*::callRoot
 # Splitting
@@ -201,6 +198,10 @@ if args.threads:
     flags += ['-Dsom.threads=%s' % args.threads ]
 if args.java_interpreter:
     flags += ['-Xint']
+if args.mate:
+    flags += ['--mate']
+if args.mateActivated:
+    flags += ['-activateMate']
 
 all_args = JAVA_ARGS + flags + TWEAK_INLINING + SOM_ARGS + unknown + args.args
 
