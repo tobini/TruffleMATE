@@ -56,7 +56,6 @@ public abstract class FilePluginPrims {
   public abstract static class SetPositionFilePrim extends TernaryExpressionNode {
     @Specialization
     public long doGeneric(DynamicObject receiver, SFile file, long position) {
-      //Todo: move the stream accordingly
       file.setPosition(position);
       return position;
     }
