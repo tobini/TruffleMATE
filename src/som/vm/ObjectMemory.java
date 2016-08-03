@@ -207,8 +207,8 @@ public class ObjectMemory {
         setGlobal(name, result);
         if (loadPrimitives) loadPrimitives(result, systemClass != null);
         if (Universe.getCurrent().vmReflectionEnabled()){
-          //MateUniverse.current().mateify(result);
-          //MateUniverse.current().mateify(SObject.getSOMClass(result));
+          Universe.getCurrent().mateify(result);
+          Universe.getCurrent().mateify(SObject.getSOMClass(result));
         }
         if (Universe.getCurrent().printAST()) {
           Disassembler.dump(SObject.getSOMClass(result));
