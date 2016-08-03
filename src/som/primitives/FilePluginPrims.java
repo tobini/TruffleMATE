@@ -13,6 +13,7 @@ import som.vmobjects.SArray;
 import som.vmobjects.SFile;
 import som.vmobjects.SArray.ArrayType;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -55,6 +56,7 @@ public abstract class FilePluginPrims {
   @GenerateNodeFactory
   public abstract static class SetPositionFilePrim extends TernaryExpressionNode {
     @Specialization
+    @TruffleBoundary
     public long doGeneric(DynamicObject receiver, SFile file, long position) {
       file.setPosition(position);
       return position;
@@ -92,6 +94,7 @@ public abstract class FilePluginPrims {
       return read(file, buffer, (int)startingAt - 1, (int)count);
     }
     
+    @TruffleBoundary
     @Specialization(guards = {"!isByteType(collection)"})
     public long doEmpty(DynamicObject receiver, SFile file, SArray collection, long startingAt, long count) {
       byte[] buffer = new byte[(int) count];
@@ -101,6 +104,7 @@ public abstract class FilePluginPrims {
       return countRead;
     }
     
+    @TruffleBoundary
     private static long read(SFile file, byte[] buffer, int start, int count){
       try {
         return (long) file.getInputStream().read(buffer, start, (int)count);
@@ -115,6 +119,7 @@ public abstract class FilePluginPrims {
   @GenerateNodeFactory
   public abstract static class AtEndFilePrim extends BinaryExpressionNode {
     @Specialization
+    @TruffleBoundary
     public boolean doGeneric(DynamicObject receiver, SFile file) {
       try {
         return file.getInputStream().available() == 0;
