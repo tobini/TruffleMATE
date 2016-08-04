@@ -58,7 +58,7 @@ public class SFile {
 
   public void setPosition(long position) {
     try {
-      this.getInputStream().getChannel().position(position - 1);
+      this.getInputStream().getChannel().position(position);
       this.position = position;
     } catch (IOException e) {
       e.printStackTrace();
