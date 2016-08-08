@@ -446,7 +446,8 @@ public final class Lexer {
     if (!state.buf.startsWith(text, state.bufp)) {
       return false;
     }
-    return !isIdentifierChar(bufchar(state.bufp + text.length()));
+    char next = bufchar(state.bufp + text.length());
+    return !(isIdentifierChar(next) || next == ':');
   }
 
 }
