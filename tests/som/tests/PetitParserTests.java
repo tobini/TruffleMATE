@@ -40,7 +40,7 @@ public class PetitParserTests extends SomTests {
         "--mate",
         "-cp", 
         "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/Collections/Streams:"
-        + "Smalltalk/PetitParser:Smalltalk/PetitParser/PetitSmalltalk:Smalltalk/AST-Core/Parser:"
+        + "Smalltalk/PetitParser:Smalltalk/PetitParser/PetitSmalltalk:Smalltalk/AST-Core:Smalltalk/AST-Core/Parser:"
         + "TestSuite:TestSuite/PetitParser:TestSuite/PetitParser/PetitSmalltalk", 
         "TestHarness", 
         testName};
