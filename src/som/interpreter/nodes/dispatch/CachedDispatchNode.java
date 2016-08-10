@@ -1,8 +1,12 @@
 package som.interpreter.nodes.dispatch;
 
+import som.VmSettings;
+import som.instrumentation.InstrumentableDirectCallNode;
 import som.interpreter.SArguments;
 import som.interpreter.nodes.dispatch.AbstractDispatchNode.AbstractCachedDispatchNode;
+import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
+
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -18,6 +22,11 @@ public final class CachedDispatchNode extends AbstractCachedDispatchNode {
       final CallTarget callTarget, final AbstractDispatchNode nextInCache) {
     super(callTarget, nextInCache);
     this.guard = guard;
+    if (VmSettings.DYNAMIC_METRICS) {
+      this.cachedMethod = insert(new InstrumentableDirectCallNode(cachedMethod,
+          nextInCache.getSourceSection()));
+      Universe.insertInstrumentationWrapper(cachedMethod);
+    }
   }
 
   @Override
