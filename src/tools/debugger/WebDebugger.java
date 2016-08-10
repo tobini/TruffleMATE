@@ -274,7 +274,7 @@ public class WebDebugger extends TruffleInstrument {
     SourceSection rootSource = rct.getRootNode().getSourceSection();
     String methodName;
     if (rootSource != null) {
-      methodName = rootSource.getIdentifier();
+      methodName = rootSource.getShortDescription();
     } else {
       methodName = rct.toString();
     }

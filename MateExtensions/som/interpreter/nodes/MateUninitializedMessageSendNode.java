@@ -66,7 +66,7 @@ public class MateUninitializedMessageSendNode extends
   protected GenericMessageSendNode makeGenericSend() {
     GenericMessageSendNode send = new MateGenericMessageSendNode(selector,
         argumentNodes,
-        new UninitializedDispatchNode(selector),
+        new UninitializedDispatchNode(this.sourceSection, selector),
         getSourceSection());
     return replace(send);
   }

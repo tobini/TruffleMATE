@@ -155,7 +155,7 @@ public final class JsonWriter {
     builder.add("sourceText", s.getCode());
     builder.add("mimeType", s.getMimeType());
     builder.add("name", s.getName());
-    builder.add("shortName", s.getShortName());
+    builder.add("shortName", s.getName());
     return builder;
   }
 
@@ -173,7 +173,6 @@ public final class JsonWriter {
     builder.add("id", id);
     builder.add("firstIndex", ss.getCharIndex());
     builder.add("length", ss.getCharLength());
-    builder.add("identifier", ss.getIdentifier());
     builder.add("line", ss.getStartLine());
     builder.add("column", ss.getStartColumn());
     builder.add("description", ss.getShortDescription());
