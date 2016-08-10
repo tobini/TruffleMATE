@@ -260,7 +260,7 @@ public class Parser {
 
         ExpressionNode methodBody = method(mgenc);
         DynamicObject method = mgenc.assemble(methodBody, lastMethodsSourceSection);
-        cgenc.addClassMethod(mgenc.assemble(methodBody, lastMethodsSourceSection));
+        cgenc.addClassMethod(method);
         if (structuralProbe != null){
           structuralProbe.recordNewMethod(method);
         }
@@ -301,7 +301,7 @@ public class Parser {
       SourceCoordinate coord = tag == null ? null : getCoordinate();
       getSymbolFromLexer();
       if (tag != null) {
-        //VM.reportSyntaxElement(tag, getSource(coord));
+        Universe.reportSyntaxElement(tag, getSource(coord));
       }
       return true;
     }
