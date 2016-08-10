@@ -37,4 +37,12 @@ public abstract class DoublePrims  {
       return Double.POSITIVE_INFINITY;
     }
   }
+  
+  @GenerateNodeFactory
+  public abstract static class FloorPrim extends UnaryExpressionNode {
+    @Specialization
+    public final long doDouble(final double receiver) {
+      return (long) Math.floor(receiver);
+    }
+  }
 }
