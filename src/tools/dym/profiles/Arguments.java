@@ -2,13 +2,12 @@ package tools.dym.profiles;
 
 import java.util.Arrays;
 
+import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.utilities.JSONHelper;
 import com.oracle.truffle.api.utilities.JSONHelper.JSONArrayBuilder;
 import com.oracle.truffle.api.utilities.JSONHelper.JSONObjectBuilder;
 
 import som.interpreter.Types;
-import som.interpreter.objectstorage.ClassFactory;
-
 
 public final class Arguments {
 
@@ -16,7 +15,7 @@ public final class Arguments {
 
   // TODO: do we need this, or is the first sufficient?
   //       this makes it language specific...
-  private final ClassFactory[]   argSomTypes;
+  private final Shape[]   argSomTypes;
 
   Arguments(final Object[] arguments) {
     this.argJavaTypes = getJavaTypes(arguments);
@@ -29,10 +28,10 @@ public final class Arguments {
         toArray(Class[]::new);  // remove the <?> because of checkstyle issue
   }
 
-  private static ClassFactory[] getSomTypes(final Object[] args) {
+  private static Shape[] getSomTypes(final Object[] args) {
     return Arrays.stream(args).
-        map(e -> Types.getClassOf(e).getInstanceFactory()).
-        toArray(ClassFactory[]::new);
+        map(e -> Types.getClassOf(e).getShape()).
+        toArray(Shape[]::new);
   }
 
   @Override
@@ -51,11 +50,11 @@ public final class Arguments {
   }
 
   public boolean argTypeIs(final int idx, final String name) {
-    return argSomTypes[idx].getClassName().getString().equals(name);
+    return argSomTypes[idx].getObjectType().toString().equals(name);
   }
 
   public String getArgType(final int idx) {
-    return argSomTypes[idx].getClassName().getString();
+    return argSomTypes[idx].getObjectType().toString();
   }
 
   @Override
@@ -78,8 +77,8 @@ public final class Arguments {
     result.add("javaTypes", javaTypes);
 
     JSONArrayBuilder somTypes = JSONHelper.array();
-    for (ClassFactory c : argSomTypes) {
-      somTypes.add(c.getClassName().getString());
+    for (Shape c : argSomTypes) {
+      somTypes.add(c.getObjectType().toString());
     }
     result.add("somTypes", somTypes);
     return result;
@@ -88,11 +87,11 @@ public final class Arguments {
   @Override
   public String toString() {
     String result = "";
-    for (ClassFactory c : argSomTypes) {
+    for (Shape c : argSomTypes) {
       if (result.equals("")) {
-        result = c.getClassName().getString();
+        result = c.getObjectType().toString();
       } else {
-        result += ", " + c.getClassName().getString();
+        result += ", " + c.getObjectType().toString();
       }
     }
     return result;

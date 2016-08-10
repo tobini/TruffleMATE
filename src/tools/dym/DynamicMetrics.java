@@ -43,7 +43,6 @@ import tools.dym.Tags.NewArray;
 import tools.dym.Tags.NewObject;
 import tools.dym.Tags.OpClosureApplication;
 import tools.dym.Tags.VirtualInvoke;
-import tools.dym.Tags.VirtualInvokeReceiver;
 import tools.dym.nodes.AllocationProfilingNode;
 import tools.dym.nodes.ArrayAllocationProfilingNode;
 import tools.dym.nodes.CallTargetNode;
@@ -56,7 +55,6 @@ import tools.dym.nodes.LateClosureTargetNode;
 import tools.dym.nodes.LoopIterationReportNode;
 import tools.dym.nodes.LoopProfilingNode;
 import tools.dym.nodes.ReadProfilingNode;
-import tools.dym.nodes.ReportReceiverNode;
 import tools.dym.profiles.AllocationProfile;
 import tools.dym.profiles.ArrayCreationProfile;
 import tools.dym.profiles.BranchProfile;
@@ -245,7 +243,8 @@ public class DynamicMetrics extends TruffleInstrument {
     });
   }*/
 
-  private void addReceiverInstrumentation(final Instrumenter instrumenter,
+  //Probably not neccesary because receivers are already tracked by Callsites
+  /*private void addReceiverInstrumentation(final Instrumenter instrumenter,
       final ExecutionEventNodeFactory virtInvokeFactory) {
     Builder filters = SourceSectionFilter.newBuilder();
     filters.tagIs(VirtualInvokeReceiver.class);
@@ -258,7 +257,7 @@ public class DynamicMetrics extends TruffleInstrument {
       CallsiteProfile profile = p.getProfile();
       return new ReportReceiverNode(profile);
     });
-  }
+  }*/
 
   private void addCalltargetInstrumentation(final Instrumenter instrumenter,
       final ExecutionEventNodeFactory virtInvokeFactory) {
@@ -314,7 +313,8 @@ public class DynamicMetrics extends TruffleInstrument {
         instrumenter, methodCallsiteProfiles,
         new Class<?>[] {VirtualInvoke.class}, NO_TAGS,
         CallsiteProfile::new, CountingNode<CallsiteProfile>::new);
-    addReceiverInstrumentation(instrumenter, virtInvokeFactory);
+    //The receiver isn't already tracked inside the callTarget???
+    //addReceiverInstrumentation(instrumenter, virtInvokeFactory);
     addCalltargetInstrumentation(instrumenter, virtInvokeFactory);
 
     ExecutionEventNodeFactory closureApplicationFactory = addInstrumentation(

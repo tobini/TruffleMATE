@@ -1,15 +1,14 @@
 package tools.dym.profiles;
 
+import som.vmobjects.SClass;
+import tools.dym.profiles.AllocationProfileFactory.AllocProfileNodeGen;
+
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.object.DynamicObjectFactory;
 import com.oracle.truffle.api.source.SourceSection;
-
-import som.interpreter.objectstorage.ClassFactory;
-import som.vmobjects.SObject.SImmutableObject;
-import som.vmobjects.SObject.SMutableObject;
-import som.vmobjects.SObjectWithClass.SObjectWithoutFields;
-import tools.dym.profiles.AllocationProfileFactory.AllocProfileNodeGen;
 
 
 public class AllocationProfile extends Counter {
@@ -35,7 +34,7 @@ public class AllocationProfile extends Counter {
 
   public abstract static class AllocProfileNode extends Node {
     protected int numFields = -1;
-    protected ClassFactory classFactory;
+    protected DynamicObjectFactory classFactory;
 
     public abstract void executeProfiling(Object obj);
 
@@ -44,36 +43,32 @@ public class AllocationProfile extends Counter {
     }
 
     public String getTypeName() {
-      return classFactory.getClassName().getString();
+      return classFactory.getShape().getObjectType().toString();
     }
 
-    protected ClassFactory create(final ClassFactory factory) {
+    protected DynamicObjectFactory create(final DynamicObjectFactory factory) {
       int n;
-      if (factory.getInstanceLayout() == null) {
+      if (factory.getShape() == null) {
         n = 0;
       } else {
-        n = factory.getInstanceLayout().getNumberOfFields();
+        n = factory.getShape().getPropertyCount();
       }
       if (numFields == -1) {
         numFields = n;
         classFactory = factory;
       } else {
         assert numFields == n;
-        assert classFactory.getClassName() == factory.getClassName();
       }
       return factory;
     }
 
-    @Specialization(guards = "obj.getFactory() == factory", limit = "1")
-    public void doObjectWOFields(final SObjectWithoutFields obj,
-        @Cached("create(obj.getFactory())") final ClassFactory factory) { }
-
-    @Specialization(guards = "obj.getFactory() == factory", limit = "1")
-    public void doSMutableObject(final SMutableObject obj,
-        @Cached("create(obj.getFactory())") final ClassFactory factory) { }
-
-    @Specialization(guards = "obj.getFactory() == factory", limit = "1")
-    public void doSImmutableObject(final SImmutableObject obj,
-        @Cached("create(obj.getFactory())") final ClassFactory factory) { }
+    @Specialization(guards = "getFactory(obj) == factory", limit = "1")
+    public void doDynamicObject(final DynamicObject obj,
+        @Cached("getFactory(obj)") final DynamicObjectFactory factory) { }
+    
+    @SuppressWarnings("unused")
+    protected static DynamicObjectFactory getFactory(final DynamicObject object){
+      return SClass.getFactory(object);
+    }
   }
 }

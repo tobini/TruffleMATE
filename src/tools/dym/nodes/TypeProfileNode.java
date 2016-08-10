@@ -5,16 +5,12 @@ import java.math.BigInteger;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.object.Shape;
 
 import som.interpreter.Types;
-import som.interpreter.objectstorage.ClassFactory;
-import som.vmobjects.SArray.SImmutableArray;
-import som.vmobjects.SArray.SMutableArray;
+import som.vmobjects.SArray;
 import som.vmobjects.SBlock;
-import som.vmobjects.SClass;
-import som.vmobjects.SObject.SImmutableObject;
-import som.vmobjects.SObject.SMutableObject;
-import som.vmobjects.SObjectWithClass.SObjectWithoutFields;
 import som.vmobjects.SSymbol;
 import tools.dym.profiles.CreateCounter;
 import tools.dym.profiles.ReadValueProfile.ProfileCounter;
@@ -30,13 +26,9 @@ public abstract class TypeProfileNode extends Node {
   public abstract void executeProfiling(Object obj);
 
   protected ProfileCounter create(final Object obj) {
-    return profile.createCounter(Types.getClassOf(obj).getInstanceFactory());
+      return profile.createCounter(Types.getClassOf(obj).getShape());
   }
-
-  protected ProfileCounter create(final Object obj, final ClassFactory factory) {
-    return profile.createCounter(factory);
-  }
-
+  
   @Specialization
   public void doLong(final long obj,
       @Cached("create(obj)") final ProfileCounter cnt) {
@@ -80,7 +72,7 @@ public abstract class TypeProfileNode extends Node {
   }
 
   // TODO: we should support different block classes here, but, well, this is
-  //       not really intersting for our metrics at the moment
+  //       not really interesting for our metrics at the moment
   @Specialization
   public void doSBlock(final SBlock obj,
       @Cached("create(obj)") final ProfileCounter cnt) {
@@ -88,43 +80,15 @@ public abstract class TypeProfileNode extends Node {
   }
 
   @Specialization
-  public void doSMutableArray(final SMutableArray obj,
+  public void doSArray(final SArray obj,
       @Cached("create(obj)") final ProfileCounter cnt) {
     cnt.inc();
   }
 
-  @Specialization
-  public void doSImmutableArray(final SImmutableArray obj,
-      @Cached("create(obj)") final ProfileCounter cnt) {
-    cnt.inc();
-  }
-
-  @Specialization(guards = "obj.getFactory() == factory", limit = "100")
-  public void doSMutableObject(final SMutableObject obj,
-      @Cached("obj.getFactory()") final ClassFactory factory,
-      @Cached("create(obj, obj.getFactory())") final ProfileCounter cnt) {
-    cnt.inc();
-  }
-
-  @Specialization(guards = "obj.getFactory() == factory", limit = "100")
-  public void doSImmutableObject(final SImmutableObject obj,
-      @Cached("obj.getFactory()") final ClassFactory factory,
-      @Cached("create(obj, obj.getFactory())") final ProfileCounter cnt) {
-    cnt.inc();
-  }
-
-  @Specialization(guards = "obj.getFactory() == factory", limit = "100")
-  public void doObjWithoutFields(final SObjectWithoutFields obj,
-      @Cached("obj.getFactory()") final ClassFactory factory,
-      @Cached("create(obj, obj.getFactory())") final ProfileCounter cnt) {
-    cnt.inc();
-  }
-
-  // TODO: remove the limit hack, and add a fallback
-  @Specialization(guards = "obj.getFactory() == factory", limit = "100")
-  public void doClass(final SClass obj,
-      @Cached("obj.getFactory()") final ClassFactory factory,
-      @Cached("create(obj, obj.getFactory())") final ProfileCounter cnt) {
+  @Specialization(guards = "obj.getShape() == shape", limit = "100")
+  public void doDynamicObject(final DynamicObject obj,
+      @Cached("obj.getShape()") final Shape shape,
+      @Cached("profile.createCounter(shape)") final ProfileCounter cnt) {
     cnt.inc();
   }
 }

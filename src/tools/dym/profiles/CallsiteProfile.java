@@ -6,20 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.SourceSection;
 
 import som.interpreter.Invokable;
-import som.interpreter.objectstorage.ClassFactory;
-import tools.dym.nodes.TypeProfileNode;
 import tools.dym.profiles.ReadValueProfile.ProfileCounter;
 
 
 public class CallsiteProfile extends Counter implements CreateCounter {
 
   private final Map<Invokable, Counter> callTargetMap;
-  private final Map<ClassFactory, Integer> receiverMap;
+  private final Map<Shape, Integer> receiverMap;
   private final List<ProfileCounter> counters;
-  private TypeProfileNode typeProfile;
+  //private TypeProfileNode typeProfile;
 
   public CallsiteProfile(final SourceSection source) {
     super(source);
@@ -29,15 +28,15 @@ public class CallsiteProfile extends Counter implements CreateCounter {
   }
 
   @Override
-  public ProfileCounter createCounter(final ClassFactory type) {
+  public ProfileCounter createCounter(final Shape type) {
     ProfileCounter counter = new ProfileCounter(type);
     counters.add(counter);
     return counter;
   }
 
-  public void setReceiverProfile(final TypeProfileNode rcvrProfile) {
+  /*public void setReceiverProfile(final TypeProfileNode rcvrProfile) {
     this.typeProfile = rcvrProfile;
-  }
+  }*/
 
   public Counter createCounter(final Invokable invokable) {
     Counter c = callTargetMap.get(invokable);
@@ -57,8 +56,8 @@ public class CallsiteProfile extends Counter implements CreateCounter {
     return result;
   }
 
-  public Map<ClassFactory, Integer> getReceivers() {
-    Map<ClassFactory, Integer> result = new HashMap<>(receiverMap);
+  public Map<Shape, Integer> getReceivers() {
+    Map<Shape, Integer> result = new HashMap<>(receiverMap);
     for (ProfileCounter c : counters) {
       Integer val = result.get(c.getType());
       if (val == null) {
