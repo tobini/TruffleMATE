@@ -34,6 +34,7 @@ import som.vm.ObjectMemory;
 import som.vm.Universe;
 import som.vmobjects.SClass;
 import som.vmobjects.SSymbol;
+import tools.language.StructuralProbe;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.object.DynamicObject;
@@ -42,21 +43,23 @@ import com.oracle.truffle.api.source.Source;
 public final class SourcecodeCompiler {
 
   @TruffleBoundary
-  public static DynamicObject compileClass(final String path, final String file,
-      final DynamicObject systemClass, final ObjectMemory memory)
+  public static DynamicObject compileClass(final String path, final String filename,
+      final DynamicObject systemClass, final ObjectMemory memory, final StructuralProbe structuralProbe)
       throws IOException {
-    String fname = path + File.separator + file + ".som";
-    FileReader stream = new FileReader(fname);
+    String fname = path + File.separator + filename + ".som";
+    File file = new File(fname);
+    Source source = Source.newBuilder(file.getCanonicalFile()).
+        name(file.getPath()).
+        build();
+    
+    Parser parser = new Parser(new FileReader(fname), new File(fname).length(), source, memory, structuralProbe);
 
-    Source source = Source.fromFileName(fname);
-    Parser parser = new Parser(stream, new File(fname).length(), source, memory);
-
-    DynamicObject result = compile(parser, systemClass, memory);
+    DynamicObject result = compile(parser, systemClass, memory, structuralProbe);
 
     SSymbol cname = SClass.getName(result);
     String cnameC = cname.getString();
 
-    if (file != cnameC) {
+    if (filename != cnameC) {
       throw new IllegalStateException("File name " + file
           + " does not match class name " + cnameC);
     }
@@ -66,15 +69,15 @@ public final class SourcecodeCompiler {
 
   @TruffleBoundary
   public static DynamicObject compileClass(final String stmt,
-      final DynamicObject systemClass, final ObjectMemory memory) {
-    Parser parser = new Parser(new StringReader(stmt), stmt.length(), null, memory);
+      final DynamicObject systemClass, final ObjectMemory memory, final StructuralProbe structuralProbe) {
+    Parser parser = new Parser(new StringReader(stmt), stmt.length(), null, memory, structuralProbe);
 
-    DynamicObject result = compile(parser, systemClass, memory);
+    DynamicObject result = compile(parser, systemClass, memory, structuralProbe);
     return result;
   }
 
   private static DynamicObject compile(final Parser parser,
-      final DynamicObject systemClass, final ObjectMemory memory) {
+      final DynamicObject systemClass, final ObjectMemory memory, final StructuralProbe structuralProbe) {
     ClassGenerationContext cgc = new ClassGenerationContext(memory);
 
     DynamicObject result = systemClass;
@@ -89,7 +92,9 @@ public final class SourcecodeCompiler {
     } else {
       cgc.assembleSystemClass(result);
     }
-
+    if (structuralProbe != null){
+      structuralProbe.recordNewClass(result);
+    }
     return result;
   }
 }

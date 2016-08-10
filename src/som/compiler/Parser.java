@@ -103,13 +103,13 @@ import tools.highlight.Tags.DelimiterOpeningTag;
 import tools.highlight.Tags.IdentifierTag;
 import tools.highlight.Tags.KeywordTag;
 import tools.highlight.Tags.StatementSeparatorTag;
+import tools.language.StructuralProbe;
 
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 public class Parser {
-
   protected final ObjectMemory      objectMemory;
   private final Lexer               lexer;
   private final Source              source;
@@ -119,7 +119,8 @@ public class Parser {
   private Symbol                    nextSym;
 
   private SourceSection             lastMethodsSourceSection;
-
+  private final StructuralProbe     structuralProbe;
+  
   private static final List<Symbol> singleOpSyms        = new ArrayList<Symbol>();
   private static final List<Symbol> binaryOpSyms        = new ArrayList<Symbol>();
   private static final List<Symbol> keywordSelectorSyms = new ArrayList<Symbol>();
@@ -142,8 +143,6 @@ public class Parser {
   public String toString() {
     return "Parser(" + source.getName() + ", " + this.getCoordinate().toString() + ")";
   }
-
-
 
   public static class ParseError extends Exception {
     private static final long serialVersionUID = 425390202979033628L;
@@ -214,7 +213,8 @@ public class Parser {
     }
   }
 
-  public Parser(final Reader reader, final long fileSize, final Source source, final ObjectMemory memory) {
+  public Parser(final Reader reader, final long fileSize, final Source source, 
+      final ObjectMemory memory, final StructuralProbe structuralProbe) {
     this.objectMemory = memory;
     this.source   = source;
 
@@ -222,6 +222,7 @@ public class Parser {
     lexer = new Lexer(reader, fileSize);
     nextSym = NONE;
     getSymbolFromLexer();
+    this.structuralProbe = structuralProbe;
   }
 
   private SourceCoordinate getCoordinate() {
@@ -243,8 +244,11 @@ public class Parser {
       MethodGenerationContext mgenc = new MethodGenerationContext(cgenc);
 
       ExpressionNode methodBody = method(mgenc);
-
-      cgenc.addInstanceMethod(mgenc.assemble(methodBody, lastMethodsSourceSection));
+      DynamicObject method = mgenc.assemble(methodBody, lastMethodsSourceSection);
+      cgenc.addInstanceMethod(method);
+      if (structuralProbe != null){
+        structuralProbe.recordNewMethod(method);
+      }
     }
 
     if (accept(Separator, StatementSeparatorTag.class)) {
@@ -255,7 +259,11 @@ public class Parser {
         MethodGenerationContext mgenc = new MethodGenerationContext(cgenc);
 
         ExpressionNode methodBody = method(mgenc);
+        DynamicObject method = mgenc.assemble(methodBody, lastMethodsSourceSection);
         cgenc.addClassMethod(mgenc.assemble(methodBody, lastMethodsSourceSection));
+        if (structuralProbe != null){
+          structuralProbe.recordNewMethod(method);
+        }
       }
     }
     expect(EndTerm, null);

@@ -36,6 +36,7 @@ import som.vmobjects.SClass;
 import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObject;
 import som.vmobjects.SSymbol;
+import tools.language.StructuralProbe;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -54,13 +55,15 @@ public class ObjectMemory {
   
   // Optimizations
   private final DynamicObject[] blockClasses;
+  private final StructuralProbe structuralProbe;
   
-  protected ObjectMemory(String[] path) {
+  protected ObjectMemory(final String[] path, final StructuralProbe probe) {
     last = this;
     globals      = new HashMap<SSymbol, DynamicObject>();
     symbolTable  = new HashMap<>();
     blockClasses = new DynamicObject[5];
     classPath = path;
+    structuralProbe = probe;
   }
   
   protected void initializeSystem() {
@@ -203,7 +206,7 @@ public class ObjectMemory {
       try {
         // Load the class from a file and return the loaded class
         result = som.compiler.SourcecodeCompiler.compileClass(cpEntry,
-            name.getString(), systemClass, this);
+            name.getString(), systemClass, this, structuralProbe);
         setGlobal(name, result);
         if (loadPrimitives) loadPrimitives(result, systemClass != null);
         if (Universe.getCurrent().vmReflectionEnabled()){
@@ -254,7 +257,7 @@ public class ObjectMemory {
   @TruffleBoundary
   public DynamicObject loadShellClass(final String stmt) throws IOException {
     // Load the class from a stream and return the loaded class
-    DynamicObject result = som.compiler.SourcecodeCompiler.compileClass(stmt, null, this);
+    DynamicObject result = som.compiler.SourcecodeCompiler.compileClass(stmt, null, this, structuralProbe);
     if (Universe.getCurrent().printAST()) { Disassembler.dump(result); }
     return result;
   }

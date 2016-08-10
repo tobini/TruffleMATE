@@ -52,6 +52,8 @@ import som.vmobjects.SReflectiveObject;
 import som.vmobjects.SReflectiveObjectLayoutImpl;
 import som.vmobjects.SSymbol;
 import tools.debugger.WebDebugger;
+import tools.dym.DynamicMetrics;
+import tools.language.StructuralProbe;
 
 import com.oracle.truffle.api.Assumption;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
@@ -63,6 +65,9 @@ import com.oracle.truffle.api.debug.Debugger;
 import com.oracle.truffle.api.debug.ExecutionEvent;
 import com.oracle.truffle.api.debug.SuspendedEvent;
 import com.oracle.truffle.api.frame.MaterializedFrame;
+import com.oracle.truffle.api.instrument.WrapperNode;
+import com.oracle.truffle.api.instrumentation.InstrumentationHandler;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
 import com.oracle.truffle.api.vm.EventConsumer;
@@ -80,7 +85,7 @@ public class Universe extends ExecutionContext {
     mateDeactivated = this.getTruffleRuntime().createAssumption();
     mateActivated = null;
     if (ObjectMemory.last == null){
-      objectMemory = new ObjectMemory(options.classPath);
+      objectMemory = new ObjectMemory(options.classPath, structuralProbe);
       objectMemory.initializeSystem();
     } else {
       objectMemory = ObjectMemory.last;
@@ -148,15 +153,14 @@ public class Universe extends ExecutionContext {
         //webDebugger.startServer(debugger);
       }
 
-      /*if (vmOptions.dynamicMetricsEnabled) {
+      if (vmOptions.dynamicMetricsEnabled) {
         assert VmSettings.DYNAMIC_METRICS;
         Instrument dynM = instruments.get(DynamicMetrics.ID);
         dynM.setEnabled(true);
-        structuralProbes = dynM.lookup(StructuralProbe.class);
-        assert structuralProbes != null : "Initialization of DynamicMetrics tool incomplete";
-      }*/
+        structuralProbe = dynM.lookup(StructuralProbe.class);
+        assert structuralProbe != null : "Initialization of DynamicMetrics tool incomplete";
+      }
 
-      //engine.eval(null);
       engine.eval(SomLanguage.START);
       engine.dispose();
     } catch (IOException e) {
@@ -421,6 +425,19 @@ public class Universe extends ExecutionContext {
     }
   };
   
+  public static void insertInstrumentationWrapper(final Node node) {
+    // TODO: make thread-safe!!!
+    // TODO: can I assert that it is locked?? helper on Node??
+    if (VmSettings.INSTRUMENTATION) {
+      assert node.getSourceSection() != null || (node instanceof WrapperNode) : "Node needs source section, or needs to be wrapper";
+      // TODO: a way to check whether the node needs actually wrapping?
+      // String[] tags = node.getSourceSection().getTags();
+      // if (tags != null && tags.length > 0) {
+      InstrumentationHandler.insertInstrumentationWrapper(node);
+      //}
+    }
+  }
+  
   private final TruffleRuntime                  truffleRuntime;
   // TODO: this is not how it is supposed to be... it is just a hack to cope
   //       with the use of system.exit in SOM to enable testing
@@ -432,6 +449,7 @@ public class Universe extends ExecutionContext {
   @CompilationFinal private static Universe current;
   @CompilationFinal private static PolyglotEngine engine;
   private final ObjectMemory objectMemory;
+  @CompilationFinal private static StructuralProbe structuralProbe;
   
   @CompilationFinal private static Debugger    debugger;
   @CompilationFinal private static WebDebugger webDebugger;
