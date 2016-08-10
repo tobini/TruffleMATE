@@ -9,9 +9,14 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 public final class GenericBlockDispatchNode extends AbstractDispatchNode {
+  protected GenericBlockDispatchNode(SourceSection source) {
+    super(source);
+  }
+
   @Child private IndirectCallNode call = Truffle.getRuntime().createIndirectCallNode();
 
   @Override

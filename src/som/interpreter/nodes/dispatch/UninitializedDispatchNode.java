@@ -13,12 +13,14 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 public final class UninitializedDispatchNode extends AbstractDispatchNode {
   protected final SSymbol selector;
 
-  public UninitializedDispatchNode(final SSymbol selector) {
+  public UninitializedDispatchNode(final SourceSection source, final SSymbol selector) {
+    super(source);
     this.selector = selector;
   }
 
@@ -51,7 +53,7 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
         callTarget = null;
       }
       
-      UninitializedDispatchNode newChainEnd = new UninitializedDispatchNode(selector);
+      UninitializedDispatchNode newChainEnd = new UninitializedDispatchNode(this.sourceSection, selector);
       DispatchGuard guard = DispatchGuard.create(rcvr);
       AbstractCachedDispatchNode node;
       if (method != null) {
@@ -65,7 +67,7 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
     // the chain is longer than the maximum defined by INLINE_CACHE_SIZE and
     // thus, this callsite is considered to be megaprophic, and we generalize
     // it.
-    GenericDispatchNode genericReplacement = new GenericDispatchNode(selector);
+    GenericDispatchNode genericReplacement = new GenericDispatchNode(this.sourceSection, selector);
     GenericMessageSendNode sendNode = (GenericMessageSendNode) first.getParent();
     sendNode.replaceDispatchListHead(genericReplacement);
     return genericReplacement;

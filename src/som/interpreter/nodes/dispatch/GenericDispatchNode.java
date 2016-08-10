@@ -13,12 +13,14 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 public final class GenericDispatchNode extends AbstractDispatchNode {
   @Child private IndirectCallNode call;
   protected final SSymbol selector;
 
-  public GenericDispatchNode(final SSymbol selector) {
+  public GenericDispatchNode(final SourceSection source, final SSymbol selector) {
+    super(source);
     this.selector = selector;
     call = Truffle.getRuntime().createIndirectCallNode();
   }

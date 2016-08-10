@@ -12,6 +12,7 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 /**
  * Super sends are special, they lead to a lexically defined receiver class.
@@ -19,10 +20,14 @@ import com.oracle.truffle.api.object.DynamicObject;
  */
 public abstract class SuperDispatchNode extends AbstractDispatchNode {
 
-  public static SuperDispatchNode create(final SSymbol selector,
+  protected SuperDispatchNode(SourceSection source) {
+    super(source);
+  }
+
+  public static SuperDispatchNode create(final SourceSection source, final SSymbol selector,
       final ISuperReadNode superNode) {
     CompilerAsserts.neverPartOfCompilation("SuperDispatchNode.create1");
-    return new UninitializedDispatchNode(selector, superNode.getHolderClass(),
+    return new UninitializedDispatchNode(source, selector, superNode.getHolderClass(),
         superNode.isClassSide());
   }
 
@@ -31,8 +36,9 @@ public abstract class SuperDispatchNode extends AbstractDispatchNode {
     private final SSymbol holderClass;
     private final boolean classSide;
 
-    private UninitializedDispatchNode(final SSymbol selector,
+    private UninitializedDispatchNode(final SourceSection source, final SSymbol selector,
         final SSymbol holderClass, final boolean classSide) {
+      super(source);
       this.selector    = selector;
       this.holderClass = holderClass;
       this.classSide   = classSide;
@@ -47,7 +53,7 @@ public abstract class SuperDispatchNode extends AbstractDispatchNode {
       }
       DirectCallNode superMethodNode = Truffle.getRuntime().createDirectCallNode(
           SInvokable.getCallTarget(method, level));
-      return replace(new CachedDispatchNode(superMethodNode));
+      return replace(new CachedDispatchNode(this.sourceSection, superMethodNode));
     }
 
     @Override
@@ -71,7 +77,8 @@ public abstract class SuperDispatchNode extends AbstractDispatchNode {
   private static final class CachedDispatchNode extends SuperDispatchNode {
     @Child private DirectCallNode cachedSuperMethod;
 
-    private CachedDispatchNode(final DirectCallNode superMethod) {
+    private CachedDispatchNode(final SourceSection source, final DirectCallNode superMethod) {
+      super(source);
       this.cachedSuperMethod = superMethod;
     }
 

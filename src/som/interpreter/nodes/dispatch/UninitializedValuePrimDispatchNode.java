@@ -10,10 +10,15 @@ import som.vmobjects.SInvokable;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 public final class UninitializedValuePrimDispatchNode
     extends AbstractDispatchNode {
+
+  public UninitializedValuePrimDispatchNode(SourceSection source) {
+    super(source);
+  }
 
   private AbstractDispatchNode specialize(final VirtualFrame frame, final SBlock rcvr) {
     transferToInterpreterAndInvalidate("Initialize a dispatch node.");
@@ -31,12 +36,12 @@ public final class UninitializedValuePrimDispatchNode
       DynamicObject method = rcvr.getMethod();
 
       assert method != null;
-      UninitializedValuePrimDispatchNode uninitialized = new UninitializedValuePrimDispatchNode();
+      UninitializedValuePrimDispatchNode uninitialized = new UninitializedValuePrimDispatchNode(this.sourceSection);
       CachedDispatchNode node = new CachedDispatchNode(
           DispatchGuard.createForBlock(rcvr), SInvokable.getCallTarget(method, SArguments.getExecutionLevel(frame)), uninitialized);
       return replace(node);
     } else {
-      GenericBlockDispatchNode generic = new GenericBlockDispatchNode();
+      GenericBlockDispatchNode generic = new GenericBlockDispatchNode(this.sourceSection);
       primitiveNode.adoptNewDispatchListHead(generic);
       return generic;
     }
