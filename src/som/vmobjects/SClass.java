@@ -154,7 +154,7 @@ public final class SClass {
   }
 
   @SuppressWarnings("unchecked")
-  private static HashMap<SSymbol, DynamicObject> getInvokablesTable(
+  public static HashMap<SSymbol, DynamicObject> getInvokablesTable(
       final DynamicObject classObj) {
     return SClassLayoutImpl.INSTANCE.getInvokablesTable(classObj);
   }
