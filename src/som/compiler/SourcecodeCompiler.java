@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import som.compiler.Parser.ParseError;
+import som.interpreter.SomLanguage;
 import som.vm.ObjectMemory;
 import som.vm.Universe;
 import som.vmobjects.SClass;
@@ -50,6 +51,7 @@ public final class SourcecodeCompiler {
     File file = new File(fname);
     Source source = Source.newBuilder(file.getCanonicalFile()).
         name(file.getPath()).
+        mimeType(SomLanguage.MIME_TYPE).
         build();
     
     Parser parser = new Parser(new FileReader(fname), new File(fname).length(), source, memory, structuralProbe);
