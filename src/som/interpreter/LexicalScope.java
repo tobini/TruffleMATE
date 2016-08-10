@@ -40,7 +40,7 @@ public final class LexicalScope {
   }
 
   public void setMethod(final Method method) {
-    CompilerAsserts.neverPartOfCompilation("LexicalContext.sOM()");
+    CompilerAsserts.neverPartOfCompilation("LexicalContext.SOM()");
     // might be reset when doing inlining/embedded, but should always
     // refer to the same method
     assert this.method == null ||
