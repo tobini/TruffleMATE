@@ -45,7 +45,7 @@ public abstract class BlockPrims {
 
     public ValueNonePrim() {
       super(null);
-      dispatchNode = new UninitializedValuePrimDispatchNode();
+      dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
     @Specialization
@@ -94,7 +94,7 @@ public abstract class BlockPrims {
 
     public ValueOnePrim() {
       super(null);
-      dispatchNode = new UninitializedValuePrimDispatchNode();
+      dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
     @Specialization
@@ -139,7 +139,7 @@ public abstract class BlockPrims {
 
     public ValueTwoPrim() {
       super(null);
-      dispatchNode = new UninitializedValuePrimDispatchNode();
+      dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
     @Specialization
@@ -184,7 +184,7 @@ public abstract class BlockPrims {
 
     public ValueThreePrim() {
       super(null);
-      dispatchNode = new UninitializedValuePrimDispatchNode();
+      dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
     @Specialization

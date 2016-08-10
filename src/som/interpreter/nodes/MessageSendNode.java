@@ -88,7 +88,7 @@ public final class MessageSendNode {
   public static GenericMessageSendNode createGeneric(final SSymbol selector,
       final ExpressionNode[] argumentNodes, final SourceSection source) {
     return new GenericMessageSendNode(selector, argumentNodes,
-      new UninitializedDispatchNode(selector), source);
+      new UninitializedDispatchNode(source, selector), source);
   }
 
   public abstract static class AbstractMessageSendNode extends ExpressionNode
@@ -194,7 +194,7 @@ public final class MessageSendNode {
     protected GenericMessageSendNode makeGenericSend() {
       GenericMessageSendNode send = new GenericMessageSendNode(selector,
           argumentNodes,
-          new UninitializedDispatchNode(selector),
+          new UninitializedDispatchNode(this.sourceSection, selector),
           getSourceSection());
       return replace(send);
     }
@@ -523,7 +523,7 @@ public final class MessageSendNode {
       ISuperReadNode argumentNode;
       argumentNode = (ISuperReadNode)(argumentNodes[0]);
       GenericMessageSendNode node = new GenericMessageSendNode(selector,
-        argumentNodes, SuperDispatchNode.create(selector,
+        argumentNodes, SuperDispatchNode.create(this.sourceSection, selector,
             argumentNode), getSourceSection());
       return replace(node);
     }
@@ -587,7 +587,7 @@ public final class MessageSendNode {
   public static class GenericMessageSendNode
       extends AbstractMessageSendNode {
 
-    private final SSymbol selector;
+    protected final SSymbol selector;
 
     @Child private AbstractDispatchNode dispatchNode;
 

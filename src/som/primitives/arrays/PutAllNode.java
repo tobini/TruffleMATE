@@ -34,7 +34,7 @@ public abstract class PutAllNode extends BinaryExpressionNode
 
   public PutAllNode() {
     super(null);
-    block = new UninitializedValuePrimDispatchNode();
+    block = new UninitializedValuePrimDispatchNode(this.sourceSection);
   }
 
   @Override

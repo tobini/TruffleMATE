@@ -32,7 +32,7 @@ public abstract class DoPrim extends BinaryExpressionNode
 
   public DoPrim() {
     super(null);
-    block = new UninitializedValuePrimDispatchNode();
+    block = new UninitializedValuePrimDispatchNode(this.sourceSection);
   }
 
   @Override

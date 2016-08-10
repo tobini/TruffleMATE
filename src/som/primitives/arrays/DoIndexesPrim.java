@@ -28,7 +28,7 @@ public abstract class DoIndexesPrim extends BinaryExpressionNode
 
   public DoIndexesPrim() {
     super(null);
-    block = new UninitializedValuePrimDispatchNode();
+    block = new UninitializedValuePrimDispatchNode(this.sourceSection);
     length = LengthPrimFactory.create(null);
   }
 
@@ -42,7 +42,6 @@ public abstract class DoIndexesPrim extends BinaryExpressionNode
 
   private void loop(final VirtualFrame frame, final SBlock block, final int length) {
     try {
-      assert SArray.FIRST_IDX == 0;
       if (SArray.FIRST_IDX < length) {
         this.block.executeDispatch(frame, SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), new Object[] {
             block, (long) SArray.FIRST_IDX + 1}); // +1 because it is going to the smalltalk level

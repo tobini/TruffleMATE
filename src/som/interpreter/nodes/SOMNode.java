@@ -28,6 +28,7 @@ import som.interpreter.SplitterForLexicallyEmbeddedCode;
 import som.interpreter.Types;
 
 import com.oracle.truffle.api.dsl.TypeSystemReference;
+import com.oracle.truffle.api.instrument.WrapperNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -96,6 +97,15 @@ public abstract class SOMNode extends Node implements MateNode {
     Node replacement = this.asMateNode();
     if (replacement != null){
       this.replace(replacement);
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static <T extends Node> T unwrapIfNecessary(final T node) {
+    if (node instanceof WrapperNode) {
+      return (T) ((WrapperNode) node).getChild();
+    } else {
+      return node;
     }
   }
   
