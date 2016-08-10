@@ -195,7 +195,7 @@ public class ObjectMemory {
    *  It is used mainly for system initialization.
    */
   public DynamicObject loadClass(final SSymbol name, final DynamicObject systemClass) {
-    return loadClass(name,systemClass, true);
+    return loadClass(name, systemClass, true);
   }
   
   private DynamicObject loadClass(final SSymbol name, final DynamicObject systemClass, boolean loadPrimitives) {

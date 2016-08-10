@@ -53,9 +53,12 @@ import som.vmobjects.SReflectiveObjectLayoutImpl;
 import som.vmobjects.SSymbol;
 import tools.debugger.WebDebugger;
 import tools.dym.DynamicMetrics;
+import tools.highlight.Highlight;
+import tools.highlight.Tags;
 import tools.language.StructuralProbe;
 
 import com.oracle.truffle.api.Assumption;
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.ExecutionContext;
@@ -70,6 +73,7 @@ import com.oracle.truffle.api.instrumentation.InstrumentationHandler;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
+import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.vm.EventConsumer;
 import com.oracle.truffle.api.vm.PolyglotEngine;
 import com.oracle.truffle.api.vm.PolyglotEngine.Builder;
@@ -225,6 +229,12 @@ public class Universe extends ExecutionContext {
 
   public int lastExitCode() {
     return lastExitCode;
+  }
+  
+  public static void callerNeedsToBeOptimized(final String msg) {
+    if (VmSettings.FAIL_ON_MISSING_OPTIMIZATIONS) {
+      CompilerAsserts.neverPartOfCompilation(msg);
+    }
   }
 
   public static void errorExit(final String message) {
@@ -413,7 +423,7 @@ public class Universe extends ExecutionContext {
       new EventConsumer<ExecutionEvent>(ExecutionEvent.class) {
     @Override
     protected void on(final ExecutionEvent event) {
-      webDebugger.reportExecutionEvent(event);
+      WebDebugger.reportExecutionEvent(event);
     }
   };
 
@@ -421,9 +431,17 @@ public class Universe extends ExecutionContext {
       new EventConsumer<SuspendedEvent>(SuspendedEvent.class) {
     @Override
     protected void on(final SuspendedEvent e) {
-      webDebugger.reportSuspendedEvent(e);
+      WebDebugger.reportSuspendedEvent(e);
     }
   };
+  
+  public static void reportSyntaxElement(final Class<? extends Tags> type,
+      final SourceSection source) {
+    Highlight.reportNonAstSyntax(type, source);
+    if (webDebugger != null) {
+      WebDebugger.reportSyntaxElement(type, source);
+    }
+  }
   
   public static void insertInstrumentationWrapper(final Node node) {
     // TODO: make thread-safe!!!
