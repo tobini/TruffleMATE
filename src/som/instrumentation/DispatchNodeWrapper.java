@@ -1,11 +1,13 @@
 package som.instrumentation;
 
 import som.interpreter.nodes.dispatch.AbstractDispatchNode;
+import som.vm.constants.ExecutionLevel;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.instrumentation.InstrumentableFactory;
 import com.oracle.truffle.api.instrumentation.ProbeNode;
 import com.oracle.truffle.api.nodes.NodeCost;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 
@@ -59,10 +61,10 @@ public final class DispatchNodeWrapper implements
     }
 
     @Override
-    public Object executeDispatch(final VirtualFrame frame, final Object[] arguments) {
+    public Object executeDispatch(final VirtualFrame frame, DynamicObject environment, ExecutionLevel level, final Object[] arguments) {
       try {
         probeNode.onEnter(frame);
-        Object returnValue = delegateNode.executeDispatch(frame, arguments);
+        Object returnValue = delegateNode.executeDispatch(frame, environment, level, arguments);
         probeNode.onReturnValue(frame, returnValue);
         return returnValue;
       } catch (Throwable t) {
