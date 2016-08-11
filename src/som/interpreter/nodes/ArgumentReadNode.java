@@ -1,5 +1,6 @@
 package som.interpreter.nodes;
 
+import som.instrumentation.SuperReadWrapperFactory;
 import som.interpreter.FrameOnStackMarker;
 import som.interpreter.InlinerAdaptToEmbeddedOuterContext;
 import som.interpreter.InlinerForLexicallyEmbeddedMethods;
@@ -20,6 +21,7 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.FrameInstance.FrameAccess;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.instrumentation.Instrumentable;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -141,6 +143,7 @@ public abstract class ArgumentReadNode {
     }
   }
 
+  @Instrumentable(factory = SuperReadWrapperFactory.class)
   public static class LocalSuperReadNode extends LocalArgumentReadNode
       implements ISuperReadNode {
 
@@ -183,6 +186,7 @@ public abstract class ArgumentReadNode {
     }
   }
 
+  @Instrumentable(factory = SuperReadWrapperFactory.class)
   public static class NonLocalSuperReadNode extends
       NonLocalArgumentReadNode implements ISuperReadNode {
 
