@@ -36,12 +36,29 @@ parser.add_argument('-ti', '--trace-invalidation', help='trace assumption invali
 parser.add_argument('-it', '--inline_threshold', help='Increase the inlining threshold',
                     dest='inline_threshold', type=int, default=2500)
 
-parser.add_argument('-p', '--profile', help='enable profiling after warmup',
+def addBaseDir( path ):
+    paths = path.split(":")
+    return ':'.join([BASE_DIR + '/' + s for s in paths])
+
+defaultClassPath = ['Smalltalk:Smalltalk/Mate/:Smalltalk/Mate/MOP:' + 
+                   'Smalltalk/Collections/Streams:' +
+                   'Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:Smalltalk/FileSystem/Streams:' + 
+                   'Examples/Benchmarks:Examples/Benchmarks/LanguageFeatures:Examples/Benchmarks/DeltaBlueInstrumented:Examples/Benchmarks/DeltaBlue:Examples/Benchmarks/NBody:Examples/Benchmarks/Mate:Examples/Benchmarks/Mate/DelegationProxies:Examples/Benchmarks/Mate/Tracing:Examples/Benchmarks/Json:Examples/Benchmarks/Mate/IndividualOperations:Examples/Benchmarks/Mate/Profiling:Examples/Benchmarks/Mate/Columnar']
+
+defaultClassPath = map(addBaseDir, defaultClassPath)
+
+parser.add_argument('-cp', '--classpath', help='classpath, default: all benchs and core-lib',
+                    dest='som_cp', default=defaultClassPath)
+
+profile = parser.add_argument_group('Profile', 'Profile Execution')
+parser.add_argument('-gp', '--profile', help='enable profiling after warmup',
                     dest='profile', action='store_true', default=False)
-parser.add_argument('-pa', '--profile-allocations', help='enable profiling after warmup, and profile allocations',
+parser.add_argument('-ga', '--profile-allocations', help='enable profiling after warmup, and profile allocations',
                     dest='profile_allocations', action='store_true', default=False)
-parser.add_argument('-pt', '--profile-times', help='enable profiling after certain time intervals',
+parser.add_argument('-gt', '--profile-times', help='enable profiling after certain time intervals',
                     dest='profile_timed', action='store_true', default=False)
+profile.add_argument('-tp', '--truffle-profile', help='enable Graal-level profiling after warmup',
+                    dest='truffle_profile', action='store_true', default=False)
 
 parser.add_argument('-w', '--perf-warnings', help='enable performance warnings',
                     dest='perf_warnings', action='store_true', default=False)
@@ -68,6 +85,16 @@ parser.add_argument('-T', '--no-trace', help='do not print truffle compilation i
 parser.add_argument('--no-graph-pe', help='disable Graph PE',
                     dest='graph_pe', action='store_false', default=True)
 
+tools = parser.add_argument_group('Tools', 'Additional Tools')
+tools.add_argument('-dm', '--dynamic-metrics', help='Capture Dynamic Metrics',
+                    dest='dynamic_metrics', action='store_true', default=False)
+tools.add_argument('-hl', '--highlight', nargs=1, help='enable highlight tool and define output file',
+                    dest='highlight_file', default=False, metavar='highlight-file')
+tools.add_argument('-td', '--truffle-debugger', help='start Truffle debugger',
+                    dest='truffle_debugger', action='store_true', default=False)
+tools.add_argument('-wd', '--web-debugger', help='start Web debugger',
+                    dest='web_debugger', action='store_true', default=False)
+
 parser.add_argument('--mate', help='run som with mate nodes',
                     dest='mate', action='store_true', default=False)
 parser.add_argument('-activateMate', help='enable mate nodes',
@@ -79,11 +106,12 @@ parser.add_argument('-vv', '--verbose', action='store_true', default=False,
 
 parser.add_argument('args', nargs=argparse.REMAINDER,
                     help='arguments passed to TruffleMate')
+
 args, unknown = parser.parse_known_args()
 
 JAVA_ARGS = ['-d64']
 
-if args.java_interpreter:
+if args.java_interpreter or args.dynamic_metrics:
     args.interpreter = True
 
 if args.interpreter:
@@ -121,6 +149,15 @@ SOM_ARGS = ['-Xbootclasspath/a:'
              + BASE_DIR + '/libs/truffle/mxbuild/dists/truffle-api.jar',
             "som.vm.Universe"]
 
+if GRAAL_FLAGS:
+    flags = [GRAAL_FLAGS]
+else:
+    flags = []
+
+if args.dynamic_metrics:
+    SOM_ARGS += ['--dynamic-metrics']
+    flags += ['-Dsom.dynamicMetrics=true']
+
 # == Hotspot -XX:CompileCommand=print,*::callRoot
 # Splitting
 # -G:+TruffleSplitting
@@ -136,11 +173,6 @@ if args.inline_threshold:
 else:
    TWEAK_INLINING = []               
 
-
-if GRAAL_FLAGS:
-    flags = [GRAAL_FLAGS]
-else:
-    flags = []
 
 # Handle executable names
 if sys.argv[0].endswith('fast'):
@@ -198,6 +230,10 @@ if args.threads:
     flags += ['-Dsom.threads=%s' % args.threads ]
 if args.java_interpreter:
     flags += ['-Xint']
+    
+if (args.truffle_profile or args.truffle_debugger or args.web_debugger or
+    args.dynamic_metrics or args.highlight_file):
+    flags += ['-Dsom.instrumentation=true']    
 
 mate_args = []
 if args.mate:
@@ -205,7 +241,7 @@ if args.mate:
 if args.mateActivated:
     mate_args += ['-activateMate']
 
-all_args = JAVA_ARGS + flags + TWEAK_INLINING + SOM_ARGS + mate_args + unknown + args.args
+all_args = JAVA_ARGS + unknown + flags + TWEAK_INLINING + SOM_ARGS  + mate_args + ['-cp'] + args.som_cp + args.args
 
 if args.verbose:
     print "CMD: " + java_bin + ' ' + ' '.join(all_args)
