@@ -16,6 +16,7 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeCost;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 public abstract class BlockPrims {
@@ -44,7 +45,11 @@ public abstract class BlockPrims {
     @Child private AbstractDispatchNode dispatchNode;
 
     public ValueNonePrim() {
-      super(null);
+      this(null);
+    }
+    
+    public ValueNonePrim(SourceSection source) {
+      super(source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
@@ -93,7 +98,11 @@ public abstract class BlockPrims {
     @Child private AbstractDispatchNode dispatchNode;
 
     public ValueOnePrim() {
-      super(null);
+      this(null);
+    }
+    
+    public ValueOnePrim(SourceSection source) {
+      super(source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
@@ -138,7 +147,11 @@ public abstract class BlockPrims {
     @Child private AbstractDispatchNode dispatchNode;
 
     public ValueTwoPrim() {
-      super(null);
+      this(null);
+    }
+    
+    public ValueTwoPrim(SourceSection source) {
+      super(source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
@@ -183,7 +196,11 @@ public abstract class BlockPrims {
     @Child private AbstractDispatchNode dispatchNode;
 
     public ValueThreePrim() {
-      super(null);
+      this(null);
+    }
+    
+    public ValueThreePrim(SourceSection source) {
+      super(source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
@@ -224,7 +241,8 @@ public abstract class BlockPrims {
 
   @GenerateNodeFactory
   public abstract static class ValueMorePrim extends QuaternaryExpressionNode {
-    public ValueMorePrim() { super(null); }
+    public ValueMorePrim() {this(null);}
+    public ValueMorePrim(SourceSection source) { super(source); }
     @Specialization
     public final Object doSBlock(final VirtualFrame frame,
         final SBlock receiver, final Object firstArg, final Object secondArg,

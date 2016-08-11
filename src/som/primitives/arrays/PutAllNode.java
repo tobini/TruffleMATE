@@ -23,6 +23,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
@@ -33,7 +34,11 @@ public abstract class PutAllNode extends BinaryExpressionNode
   @Child private AbstractDispatchNode block;
 
   public PutAllNode() {
-    super(null);
+    this(null);
+  }
+  
+  public PutAllNode(SourceSection source) {
+    super(source);
     block = new UninitializedValuePrimDispatchNode(this.sourceSection);
   }
 

@@ -31,6 +31,11 @@ public abstract class AbstractDispatchNode extends Node implements DispatchChain
     this.sourceSection = null;
   }
   
+  @Override
+  public SourceSection getSourceSection() {
+    return sourceSection;
+  }
+  
   public abstract Object executeDispatch(
       final VirtualFrame frame, final DynamicObject environment, final ExecutionLevel exLevel, final Object[] arguments);
 

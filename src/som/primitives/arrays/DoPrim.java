@@ -21,6 +21,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.profiles.ValueProfile;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
@@ -32,6 +33,11 @@ public abstract class DoPrim extends BinaryExpressionNode
 
   public DoPrim() {
     super(null);
+    block = new UninitializedValuePrimDispatchNode(this.sourceSection);
+  }
+  
+  public DoPrim(final SourceSection source) {
+    super(source);
     block = new UninitializedValuePrimDispatchNode(this.sourceSection);
   }
 

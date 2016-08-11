@@ -212,7 +212,7 @@ public final class MessageSendNode {
         case "value":
           if (receiver instanceof SBlock || receiver instanceof Boolean) {
             return replace(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
-                argumentNodes[0], ValueNonePrimFactory.create(null)));
+                argumentNodes[0], ValueNonePrimFactory.create(getSourceSection(), null)));
           }
           break;
         case "not":
@@ -254,20 +254,20 @@ public final class MessageSendNode {
           if (arguments[0] instanceof SArray) {
             return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
                 argumentNodes[1],
-                DoIndexesPrimFactory.create(null, null)));
+                DoIndexesPrimFactory.create(getSourceSection(), null, null)));
           }
           break;
         case "do:":
           if (arguments[0] instanceof SArray) {
             return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
                 argumentNodes[1],
-                DoPrimFactory.create(null, null)));
+                DoPrimFactory.create(getSourceSection(), null, null)));
           }
           break;
         case "putAll:":
           return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector,
                 argumentNodes[0], argumentNodes[1],
-                PutAllNodeFactory.create(null, null, LengthPrimFactory.create(null))));
+                PutAllNodeFactory.create(getSourceSection(), null, null, LengthPrimFactory.create(null))));
         case "whileTrue:": {
           if (argumentNodes[1] instanceof BlockNode &&
               argumentNodes[0] instanceof BlockNode) {
@@ -333,7 +333,7 @@ public final class MessageSendNode {
           if (arguments[0] instanceof SBlock) {
             return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
                 argumentNodes[1],
-                ValueOnePrimFactory.create(null, null)));
+                ValueOnePrimFactory.create(getSourceSection(), null, null)));
           }
           break;
 

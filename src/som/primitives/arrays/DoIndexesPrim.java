@@ -18,6 +18,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
@@ -27,7 +28,11 @@ public abstract class DoIndexesPrim extends BinaryExpressionNode
   @Child private LengthPrim length;
 
   public DoIndexesPrim() {
-    super(null);
+    this(null);
+  }
+  
+  public DoIndexesPrim(SourceSection source) {
+    super(source);
     block = new UninitializedValuePrimDispatchNode(this.sourceSection);
     length = LengthPrimFactory.create(null);
   }
