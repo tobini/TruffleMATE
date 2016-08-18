@@ -28,9 +28,13 @@ import com.oracle.truffle.api.source.SourceSection;
 import som.instrumentation.InstrumentableDirectCallNode;
 import som.instrumentation.InstrumentableDirectCallNode.InstrumentableBlockApplyNode;
 import som.interpreter.Invokable;
+import som.interpreter.nodes.OperationNode;
+import som.vm.NotYetImplementedException;
+import tools.dym.Tags.BasicPrimitiveOperation;
 import tools.dym.Tags.CachedClosureInvoke;
 import tools.dym.Tags.CachedVirtualInvoke;
 import tools.dym.Tags.ClassRead;
+import tools.dym.Tags.ComplexPrimitiveOperation;
 import tools.dym.Tags.ControlFlowCondition;
 import tools.dym.Tags.FieldRead;
 import tools.dym.Tags.FieldWrite;
@@ -42,6 +46,7 @@ import tools.dym.Tags.LoopNode;
 import tools.dym.Tags.NewArray;
 import tools.dym.Tags.NewObject;
 import tools.dym.Tags.OpClosureApplication;
+import tools.dym.Tags.PrimitiveArgument;
 import tools.dym.Tags.VirtualInvoke;
 import tools.dym.nodes.AllocationProfilingNode;
 import tools.dym.nodes.ArrayAllocationProfilingNode;
@@ -55,6 +60,9 @@ import tools.dym.nodes.LateClosureTargetNode;
 import tools.dym.nodes.LoopIterationReportNode;
 import tools.dym.nodes.LoopProfilingNode;
 import tools.dym.nodes.ReadProfilingNode;
+import tools.dym.nodes.OperationProfilingNode;
+import tools.dym.nodes.LateReportResultNode;
+import tools.dym.nodes.ReportResultNode;
 import tools.dym.profiles.AllocationProfile;
 import tools.dym.profiles.ArrayCreationProfile;
 import tools.dym.profiles.BranchProfile;
@@ -189,7 +197,7 @@ public class DynamicMetrics extends TruffleInstrument {
     });
   }
 
-  /*private static int numberOfChildren(final Node node) {
+  private static int numberOfChildren(final Node node) {
     int i = 0;
     for (@SuppressWarnings("unused") Node child : node.getChildren()) {
       i += 1;
@@ -241,7 +249,7 @@ public class DynamicMetrics extends TruffleInstrument {
       int idx = p.registerSubexpressionAndGetIdx(ctx.getInstrumentedNode());
       return new ReportResultNode(p.getProfile(), idx);
     });
-  }*/
+  }
 
   //Probably not neccesary because receivers are already tracked by Callsites
   /*private void addReceiverInstrumentation(final Instrumenter instrumenter,
@@ -334,8 +342,8 @@ public class DynamicMetrics extends TruffleInstrument {
         new Class<?>[] {LiteralTag.class}, NO_TAGS,
         Counter::new, CountingNode<Counter>::new);
 
-    //ExecutionEventNodeFactory opInstrumentFact = addOperationInstrumentation(instrumenter);
-    //addSubexpressionInstrumentation(instrumenter, opInstrumentFact);
+    ExecutionEventNodeFactory opInstrumentFact = addOperationInstrumentation(instrumenter);
+    addSubexpressionInstrumentation(instrumenter, opInstrumentFact);
 
     addInstrumentation(instrumenter, fieldReadProfiles,
         new Class<?>[] {FieldRead.class}, NO_TAGS,
