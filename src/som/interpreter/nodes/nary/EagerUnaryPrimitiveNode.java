@@ -8,10 +8,9 @@ import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.instrumentation.StandardTags.RootTag;
+import com.oracle.truffle.api.instrument.WrapperNode;
 
-
-public class EagerUnaryPrimitiveNode extends UnaryExpressionNode {
+public class EagerUnaryPrimitiveNode extends EagerPrimitive {
 
   @Child private ExpressionNode receiver;
   @Child private UnaryExpressionNode primitive;
@@ -24,7 +23,7 @@ public class EagerUnaryPrimitiveNode extends UnaryExpressionNode {
   
   public EagerUnaryPrimitiveNode(final SSymbol selector,
       final ExpressionNode receiver, final UnaryExpressionNode primitive) {
-    super(null);
+    super(primitive.getSourceSection());
     this.receiver  = receiver;
     this.primitive = primitive;
     this.selector = selector;
@@ -33,11 +32,9 @@ public class EagerUnaryPrimitiveNode extends UnaryExpressionNode {
   @Override
   public Object executeGeneric(final VirtualFrame frame) {
     Object rcvr = receiver.executeGeneric(frame);
-
     return executeEvaluated(frame, rcvr);
   }
 
-  @Override
   public Object executeEvaluated(final VirtualFrame frame,
       final Object receiver) {
     try {
@@ -60,10 +57,17 @@ public class EagerUnaryPrimitiveNode extends UnaryExpressionNode {
   
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
-    if (tag == RootTag.class) {
-      return true;
-    } else {
-      return super.isTaggedWith(tag);
-    }
+    assert !(primitive instanceof WrapperNode);
+    return primitive.isTaggedWith(tag);
+  }
+
+  @Override
+  public String getOperation() {
+    return selector.getString();
+  }
+
+  @Override
+  public Object doPreEvaluated(VirtualFrame frame, Object[] args) {
+    return executeEvaluated(frame, args[0]);
   }
 }

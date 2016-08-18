@@ -8,10 +8,9 @@ import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.instrumentation.StandardTags.RootTag;
+import com.oracle.truffle.api.instrument.WrapperNode;
 
-
-public class EagerBinaryPrimitiveNode extends BinaryExpressionNode {
+public class EagerBinaryPrimitiveNode extends EagerPrimitive {
 
   @Child private ExpressionNode receiver;
   @Child private ExpressionNode argument;
@@ -24,14 +23,13 @@ public class EagerBinaryPrimitiveNode extends BinaryExpressionNode {
       final ExpressionNode receiver,
       final ExpressionNode argument,
       final BinaryExpressionNode primitive) {
-    super(null);
+    super(primitive.getSourceSection());
     this.receiver  = receiver;
     this.argument  = argument;
     this.primitive = primitive;
     this.selector = selector;
   }
 
-  @Override
   public ExpressionNode getReceiver(){
     return receiver;
   }
@@ -43,7 +41,6 @@ public class EagerBinaryPrimitiveNode extends BinaryExpressionNode {
     return executeEvaluated(frame, rcvr, arg);
   }
 
-  @Override
   public Object executeEvaluated(final VirtualFrame frame,
     final Object receiver, final Object argument) {
     try {
@@ -61,7 +58,6 @@ public class EagerBinaryPrimitiveNode extends BinaryExpressionNode {
     return replace(node);
   }
 
-  @Override
   public ExpressionNode getArgument() {
     return argument;
   }
@@ -72,10 +68,17 @@ public class EagerBinaryPrimitiveNode extends BinaryExpressionNode {
   
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
-    if (tag == RootTag.class) {
-      return true;
-    } else {
-      return super.isTaggedWith(tag);
-    }
+    assert !(primitive instanceof WrapperNode);
+    return primitive.isTaggedWith(tag);
+  }
+
+  @Override
+  public String getOperation() {
+    return selector.getString();
+  }
+
+  @Override
+  public Object doPreEvaluated(VirtualFrame frame, Object[] args) {
+    return executeEvaluated(frame, args[0], args[1]);
   }
 }

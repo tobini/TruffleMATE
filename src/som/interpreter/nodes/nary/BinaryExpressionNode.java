@@ -7,12 +7,15 @@ import som.vm.constants.ReflectiveOp;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.instrumentation.Instrumentable;
 import com.oracle.truffle.api.source.SourceSection;
+import som.instrumentation.FixedSizeExpressionWrapperFactory;
 
 
 @NodeChildren({
   @NodeChild(value = "receiver", type = ExpressionNode.class),
   @NodeChild(value = "argument", type = ExpressionNode.class)})
+@Instrumentable(factory = FixedSizeExpressionWrapperFactory.class)
 public abstract class BinaryExpressionNode extends ExpressionNode
     implements PreevaluatedExpression {
 
@@ -36,14 +39,13 @@ public abstract class BinaryExpressionNode extends ExpressionNode
     
   }
   
-  public Object[] evaluateArguments(final VirtualFrame frame){
-    Object[] arguments = new Object[2];
-    arguments[0] = this.getReceiver().executeGeneric(frame);
-    arguments[1] = this.getArgument().executeGeneric(frame);
-    return arguments; 
-  }
-  
   public ReflectiveOp reflectiveOperation(){
     return ReflectiveOp.MessageLookup;
+  }
+  
+  //Weird, I need this method because if they do not exist eager classes do not compile
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    return super.isTaggedWith(tag);
   }
 }

@@ -10,6 +10,7 @@ import som.interpreter.nodes.dispatch.GenericDispatchNode;
 import som.interpreter.nodes.dispatch.SuperDispatchNode;
 import som.interpreter.nodes.dispatch.UninitializedDispatchNode;
 import som.interpreter.nodes.literals.BlockNode;
+import som.interpreter.nodes.nary.EagerPrimitive;
 import som.interpreter.nodes.specialized.AndMessageNodeFactory;
 import som.interpreter.nodes.specialized.AndMessageNodeFactory.AndBoolMessageNodeFactory;
 import som.interpreter.nodes.specialized.IfMessageNodeGen;
@@ -56,6 +57,7 @@ import som.primitives.arrays.NewPrimFactory;
 import som.primitives.arrays.PutAllNodeFactory;
 import som.primitives.arrays.ToArgumentsArrayNodeGen;
 import som.vm.NotYetImplementedException;
+import som.vm.Universe;
 import som.vm.constants.Classes;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.MateClasses;
@@ -198,6 +200,20 @@ public final class MessageSendNode {
           getSourceSection());
       return replace(send);
     }
+    
+    //protected <T extends EagerPrimitive> T makeEagerPrim(T prim, ExpressionNode[] arguments, ExpressionNode basicMessage) {
+    protected <T extends EagerPrimitive> T makeEagerPrim(T prim, ExpressionNode[] arguments) {
+      //Why? Shouldn't it already be wrapped?
+      //Universe.insertInstrumentationWrapper(this);
+
+      Universe.insertInstrumentationWrapper(prim);
+      for (ExpressionNode arg: arguments){
+        //SOMNode.unwrapIfNecessary(arg).markAsPrimitiveArgument();
+        Universe.insertInstrumentationWrapper(arg);
+      }
+      return prim;
+    }
+    
 
     protected PreevaluatedExpression specializeUnary(final Object[] args, ExecutionLevel level) {
       Object receiver = args[0];
@@ -205,8 +221,8 @@ public final class MessageSendNode {
         // eagerly but cautious:
         case "length":
           if (receiver instanceof SArray) {
-            return replace(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
-                argumentNodes[0], LengthPrimFactory.create(null)));
+            return makeEagerPrim(replace(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
+                argumentNodes[0], LengthPrimFactory.create(getSourceSection(), null))), new ExpressionNode[]{argumentNodes[0]});
           }
           break;
         case "value":
@@ -267,7 +283,7 @@ public final class MessageSendNode {
         case "putAll:":
           return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector,
                 argumentNodes[0], argumentNodes[1],
-                PutAllNodeFactory.create(getSourceSection(), null, null, LengthPrimFactory.create(null))));
+                PutAllNodeFactory.create(getSourceSection(), null, null, LengthPrimFactory.create(getSourceSection(), null))));
         case "whileTrue:": {
           if (argumentNodes[1] instanceof BlockNode &&
               argumentNodes[0] instanceof BlockNode) {

@@ -18,7 +18,6 @@ public abstract class AbstractMessageSpecializationsFactory {
   public abstract EagerQuaternaryPrimitiveNode quaternaryPrimitiveFor(SSymbol selector, ExpressionNode receiver, ExpressionNode argument, ExpressionNode argument2, ExpressionNode argument3, QuaternaryExpressionNode primitive);
   
   public static class SOMMessageSpecializationsFactory extends AbstractMessageSpecializationsFactory {
-
     @Override
     public EagerUnaryPrimitiveNode unaryPrimitiveFor(SSymbol selector,
         ExpressionNode receiver, UnaryExpressionNode primitive) {

@@ -9,10 +9,11 @@ import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.instrument.WrapperNode;
 import com.oracle.truffle.api.instrumentation.StandardTags.RootTag;
 
 
-public class EagerQuaternaryPrimitiveNode extends QuaternaryExpressionNode {
+public class EagerQuaternaryPrimitiveNode extends EagerPrimitive {
 
   @Child private ExpressionNode receiver;
   @Child private ExpressionNode argument1;
@@ -29,7 +30,7 @@ public class EagerQuaternaryPrimitiveNode extends QuaternaryExpressionNode {
       final ExpressionNode argument2,
       final ExpressionNode argument3,
       final QuaternaryExpressionNode primitive) {
-    super(null);
+    super(primitive.getSourceSection());
     this.receiver  = receiver;
     this.argument1 = argument1;
     this.argument2 = argument2;
@@ -52,7 +53,6 @@ public class EagerQuaternaryPrimitiveNode extends QuaternaryExpressionNode {
     return executeEvaluated(frame, rcvr, arg1, arg2, arg3);
   }
 
-  @Override
   public Object executeEvaluated(final VirtualFrame frame,
     final Object receiver, final Object argument1, final Object argument2, final Object argument3) {
     try {
@@ -75,17 +75,23 @@ public class EagerQuaternaryPrimitiveNode extends QuaternaryExpressionNode {
     return selector;
   }
 
-  @Override
   public ExpressionNode getThirdArg() {
     return argument3;
   }
   
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
-    if (tag == RootTag.class) {
-      return true;
-    } else {
-      return super.isTaggedWith(tag);
-    }
+    assert !(primitive instanceof WrapperNode);
+    return primitive.isTaggedWith(tag);
+  }
+
+  @Override
+  public String getOperation() {
+    return selector.getString();
+  }
+
+  @Override
+  public Object doPreEvaluated(VirtualFrame frame, Object[] args) {
+    return executeEvaluated(frame, args[0], args[1], args[2], args[3]);
   }
 }

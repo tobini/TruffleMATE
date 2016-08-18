@@ -47,4 +47,10 @@ public abstract class TernaryExpressionNode extends ExpressionNode
   public ReflectiveOp reflectiveOperation(){
     return ReflectiveOp.MessageLookup;
   }
+  
+  //Weird, I need this method because if they do not exist eager classes do not compile
+  @Override
+  protected boolean isTaggedWith(final Class<?> tag) {
+    return super.isTaggedWith(tag);
+  }
 }
