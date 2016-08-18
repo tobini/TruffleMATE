@@ -14,7 +14,7 @@ public class ArrayAllocationProfilingNode extends CountingNode<ArrayCreationProf
 
   public ArrayAllocationProfilingNode(final ArrayCreationProfile counter) {
     super(counter);
-    size = LengthPrimFactory.create(null);
+    size = LengthPrimFactory.create(null, null);
   }
 
   @Override
