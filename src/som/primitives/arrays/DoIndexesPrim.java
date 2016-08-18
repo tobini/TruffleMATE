@@ -34,7 +34,7 @@ public abstract class DoIndexesPrim extends BinaryExpressionNode
   public DoIndexesPrim(SourceSection source) {
     super(source);
     block = new UninitializedValuePrimDispatchNode(this.sourceSection);
-    length = LengthPrimFactory.create(null);
+    length = LengthPrimFactory.create(null, null);
   }
 
   @Specialization

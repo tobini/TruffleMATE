@@ -82,7 +82,7 @@ public abstract class Primitives {
         // HACK for node class where we use `executeWith`
         if (nodeFactory == PutAllNodeFactory.getInstance()) {
           primNode = nodeFactory.createNode(args[0], args[1],
-              LengthPrimFactory.create(null));
+              LengthPrimFactory.create(null, null));
         } else {
           primNode = nodeFactory.createNode(args[0], args[1]);
         }

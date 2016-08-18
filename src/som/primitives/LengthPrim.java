@@ -4,18 +4,22 @@ import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
 import som.vmobjects.SSymbol;
+import tools.dym.Tags.BasicPrimitiveOperation;
 import tools.dym.Tags.OpLength;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.profiles.ValueProfile;
-
+import com.oracle.truffle.api.source.SourceSection;
 
 @GenerateNodeFactory
 @ImportStatic(ArrayType.class)
 public abstract class LengthPrim extends UnaryExpressionNode {
 
+  public LengthPrim(final SourceSection source) { super(source); }
+  public LengthPrim() { this(null); }
+  
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 
   @Specialization(guards = "isEmptyType(receiver)")
@@ -72,7 +76,7 @@ public abstract class LengthPrim extends UnaryExpressionNode {
   
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
-    if (tag == OpLength.class) {
+    if (tag == OpLength.class || tag == BasicPrimitiveOperation.class) {
       return true;
     } else {
       return super.isTaggedWith(tag);
