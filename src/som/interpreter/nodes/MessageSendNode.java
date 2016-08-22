@@ -689,15 +689,13 @@ public final class MessageSendNode {
     @Override
     @ExplodeLoop
     public Object executeGeneric(final VirtualFrame frame) {
+      Object rcvr = receiver.executeGeneric(frame);
     
-      int i;
-      Object receiver = this.receiver.executeGeneric(frame);
-    
-      for (i = 0; i < this.messages.length - 1; i++) {
-        this.messages[i].executeGenericWithReceiver(frame, receiver);
+      for (int i = 0; i < messages.length - 1; i++) {
+        this.messages[i].executeGenericWithReceiver(frame, rcvr);
       }
     
-      return this.messages[i].executeGenericWithReceiver(frame, receiver);
+      return this.messages[messages.length - 1].executeGenericWithReceiver(frame, rcvr);
     }
   }
 }
