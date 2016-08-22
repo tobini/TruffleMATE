@@ -93,7 +93,7 @@ public final class MessageSendNode {
       new UninitializedDispatchNode(source, selector), source);
   }
 
-  public abstract static class AbstractMessageSendNode extends ExpressionNode
+  public abstract static class AbstractMessageSendNode extends ExpressionWithReceiverNode
       implements PreevaluatedExpression {
 
     public static AbstractMessageSpecializationsFactory specializationFactory = new AbstractMessageSpecializationsFactory.SOMMessageSpecializationsFactory();
@@ -108,17 +108,34 @@ public final class MessageSendNode {
     public boolean isSuperSend() {
       return argumentNodes[0] instanceof ISuperReadNode;
     }
+    
+    @Override
+    public ExpressionNode getReceiver() {
+      return argumentNodes[0];
+    }
 
     @Override
     public Object executeGeneric(final VirtualFrame frame) {
       Object[] arguments = evaluateArguments(frame);
       return doPreEvaluated(frame, arguments);
     }
+    
+    @Override
+    public Object executeGenericWithReceiver(final VirtualFrame frame, final Object receiver) {
+      Object[] arguments = evaluateArgumentsWithReceiver(frame, receiver);
+      return doPreEvaluated(frame, arguments);
+    }
 
     @ExplodeLoop
     public Object[] evaluateArguments(final VirtualFrame frame) {
-      Object[] arguments = new Object[argumentNodes.length];
-      for (int i = 0; i < argumentNodes.length; i++) {
+      return evaluateArgumentsWithReceiver(frame, argumentNodes[0].executeGeneric(frame));
+    }
+    
+    @ExplodeLoop
+    public Object[] evaluateArgumentsWithReceiver(final VirtualFrame frame, final Object receiver) {
+      Object[] arguments = new Object[argumentNodes.length + 1];
+      arguments[0] = receiver;
+      for (int i = 1; i < argumentNodes.length; i++) {
         arguments[i] = argumentNodes[i].executeGeneric(frame);
         assert arguments[i] != null;
       }
@@ -653,6 +670,34 @@ public final class MessageSendNode {
       } else {
         return super.isTaggedWith(tag);
       }
+    }
+  }
+  
+  public static class CascadeMessageSendNode
+      extends ExpressionNode {
+    @Child private ExpressionNode receiver;
+    final @Children private ExpressionWithReceiverNode[] messages;
+    
+    public CascadeMessageSendNode(final ExpressionNode receiver,
+        final ExpressionWithReceiverNode[] messages, final SourceSection source) {
+    
+      super(source);
+      this.receiver = receiver;
+      this.messages = messages;
+    }
+    
+    @Override
+    @ExplodeLoop
+    public Object executeGeneric(final VirtualFrame frame) {
+    
+      int i;
+      Object receiver = this.receiver.executeGeneric(frame);
+    
+      for (i = 0; i < this.messages.length - 1; i++) {
+        this.messages[i].executeGenericWithReceiver(frame, receiver);
+      }
+    
+      return this.messages[i].executeGenericWithReceiver(frame, receiver);
     }
   }
 }

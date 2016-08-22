@@ -39,12 +39,11 @@ public class EagerTernaryPrimitiveNode extends EagerPrimitive {
   public ExpressionNode getSecondArg(){return argument2;}
   
   @Override
-  public Object executeGeneric(final VirtualFrame frame) {
-    Object rcvr = receiver.executeGeneric(frame);
+  public Object executeGenericWithReceiver(final VirtualFrame frame, Object receiver) {
     Object arg1 = argument1.executeGeneric(frame);
     Object arg2 = argument2.executeGeneric(frame);
 
-    return executeEvaluated(frame, rcvr, arg1, arg2);
+    return executeEvaluated(frame, receiver, arg1, arg2);
   }
 
   public Object executeEvaluated(final VirtualFrame frame,

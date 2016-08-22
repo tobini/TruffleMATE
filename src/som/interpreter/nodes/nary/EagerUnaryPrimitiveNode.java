@@ -30,9 +30,8 @@ public class EagerUnaryPrimitiveNode extends EagerPrimitive {
   }
 
   @Override
-  public Object executeGeneric(final VirtualFrame frame) {
-    Object rcvr = receiver.executeGeneric(frame);
-    return executeEvaluated(frame, rcvr);
+  public Object executeGenericWithReceiver(final VirtualFrame frame, Object receiver) {
+    return executeEvaluated(frame, receiver);
   }
 
   public Object executeEvaluated(final VirtualFrame frame,

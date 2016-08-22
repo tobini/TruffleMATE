@@ -35,10 +35,9 @@ public class EagerBinaryPrimitiveNode extends EagerPrimitive {
   }
 
   @Override
-  public Object executeGeneric(final VirtualFrame frame) {
-    Object rcvr = receiver.executeGeneric(frame);
+  public Object executeGenericWithReceiver(final VirtualFrame frame, Object receiver) {
     Object arg  = argument.executeGeneric(frame);
-    return executeEvaluated(frame, rcvr, arg);
+    return executeEvaluated(frame, receiver, arg);
   }
 
   public Object executeEvaluated(final VirtualFrame frame,
