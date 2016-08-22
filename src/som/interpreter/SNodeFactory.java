@@ -11,6 +11,7 @@ import som.interpreter.nodes.ArgumentReadNode.NonLocalSuperReadNode;
 import som.interpreter.nodes.ArgumentReadNode.ThisContextNode;
 import som.interpreter.nodes.ContextualNode;
 import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.ExpressionWithReceiverNode;
 import som.interpreter.nodes.FieldNode.FieldReadNode;
 import som.interpreter.nodes.FieldNode.FieldWriteNode;
 import som.interpreter.nodes.FieldNodeFactory.FieldReadNodeGen;
@@ -21,6 +22,7 @@ import som.interpreter.nodes.LocalVariableNode.LocalVariableWriteNode;
 import som.interpreter.nodes.LocalVariableNodeFactory.LocalVariableWriteNodeGen;
 import som.interpreter.nodes.MessageSendNode;
 import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
+import som.interpreter.nodes.MessageSendNode.CascadeMessageSendNode;
 import som.interpreter.nodes.ReturnNonLocalNode;
 import som.interpreter.nodes.ReturnNonLocalNode.CatchNonLocalReturnNode;
 import som.interpreter.nodes.SequenceNode;
@@ -119,7 +121,12 @@ public final class SNodeFactory {
       final List<ExpressionNode> exprs, final SourceSection source) {
     return MessageSendNode.create(msg, exprs.toArray(new ExpressionNode[0]), source);
   }
-
+  
+  public static CascadeMessageSendNode createCascadeMessageSend(final ExpressionNode receiver,
+      final List<ExpressionNode> messages, final SourceSection source) {
+      return new CascadeMessageSendNode(receiver, messages.toArray(new ExpressionWithReceiverNode[0]), source);
+  }
+  
   public static ReturnNonLocalNode createNonLocalReturn(final ExpressionNode exp,
       final FrameSlot markerSlot, final int contextLevel,
       final SourceSection source) {

@@ -58,6 +58,7 @@ public class SomTests {
         {"Reflection"    },
         {"SelfBlock"     },
         {"Super"         },
+        {"MethodCascade" },
 
         {"Set"           },
         {"String"        },

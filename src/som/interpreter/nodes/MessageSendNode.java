@@ -120,6 +120,11 @@ public final class MessageSendNode {
       return doPreEvaluated(frame, arguments);
     }
     
+    public Object[] evaluateArguments(final VirtualFrame frame) {
+      Object receiver = argumentNodes[0].executeGeneric(frame);
+      return evaluateArgumentsWithReceiver(frame, receiver);
+    }
+    
     @Override
     public Object executeGenericWithReceiver(final VirtualFrame frame, final Object receiver) {
       Object[] arguments = evaluateArgumentsWithReceiver(frame, receiver);
@@ -127,13 +132,8 @@ public final class MessageSendNode {
     }
 
     @ExplodeLoop
-    public Object[] evaluateArguments(final VirtualFrame frame) {
-      return evaluateArgumentsWithReceiver(frame, argumentNodes[0].executeGeneric(frame));
-    }
-    
-    @ExplodeLoop
     public Object[] evaluateArgumentsWithReceiver(final VirtualFrame frame, final Object receiver) {
-      Object[] arguments = new Object[argumentNodes.length + 1];
+      Object[] arguments = new Object[argumentNodes.length];
       arguments[0] = receiver;
       for (int i = 1; i < argumentNodes.length; i++) {
         arguments[i] = argumentNodes[i].executeGeneric(frame);

@@ -59,8 +59,10 @@ import static som.compiler.Symbol.STString;
 import static som.compiler.Symbol.STChar;
 import static som.compiler.Symbol.Separator;
 import static som.compiler.Symbol.Star;
+import static som.compiler.Symbol.SemiColon;
 import static som.interpreter.SNodeFactory.createGlobalRead;
 import static som.interpreter.SNodeFactory.createMessageSend;
+import static som.interpreter.SNodeFactory.createCascadeMessageSend;
 import static som.interpreter.SNodeFactory.createSequence;
 
 import java.io.Reader;
@@ -563,12 +565,32 @@ public class Parser {
     expect(Assign, KeywordTag.class);
     return v;
   }
+  
+  private ExpressionNode cascadeMessages(final MethodGenerationContext mgenc, 
+      ExpressionNode firstMessage, ExpressionNode receiver,
+      SourceCoordinate coord, SourceSection section) throws ParseError {
+    List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
+    expressions.add(firstMessage);
+    while (accept(SemiColon, StatementSeparatorTag.class)) {
+      ExpressionNode message = messages(mgenc, receiver);
+      expressions.add(message);
+    }
+    return createCascadeMessageSend(receiver, expressions, section);
+  }
 
   private ExpressionNode evaluation(final MethodGenerationContext mgenc) throws ParseError {
     ExpressionNode exp = primary(mgenc);
     if (isIdentifier(sym) || sym == Keyword || sym == OperatorSequence
         || symIn(binaryOpSyms)) {
+      ExpressionNode receiver = exp;
+      SourceCoordinate coord = getCoordinate();
+      SourceSection section = getSource(coord);
+      
       exp = messages(mgenc, exp);
+      
+      if (SemiColon == sym) {
+        return cascadeMessages(mgenc, exp, receiver, coord, section);
+      }
     }
     return exp;
   }
