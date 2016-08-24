@@ -1,5 +1,6 @@
 package som.primitives;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.Types;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
@@ -18,7 +19,7 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObject;
-
+import com.oracle.truffle.api.source.SourceSection;
 
 public final class ObjectPrims {
 
@@ -91,7 +92,10 @@ public final class ObjectPrims {
 
   @GenerateNodeFactory
   public abstract static class HaltPrim extends UnaryExpressionNode {
-    public HaltPrim() { super(null); }
+    public HaltPrim() { 
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Halt")); 
+    }
+    
     @Specialization
     public final Object doSAbstractObject(final Object receiver) {
       Universe.errorPrintln("BREAKPOINT");
@@ -101,6 +105,10 @@ public final class ObjectPrims {
 
   @GenerateNodeFactory
   public abstract static class ClassPrim extends UnaryExpressionNode {
+    public ClassPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Class"));
+    }
+
     @Specialization
     public final DynamicObject doSAbstractObject(final SAbstractObject receiver) {
       return receiver.getSOMClass();
@@ -128,6 +136,10 @@ public final class ObjectPrims {
   
   @GenerateNodeFactory
   public abstract static class ShallowCopyPrim extends UnaryExpressionNode {
+    public ShallowCopyPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Shallow"));
+    }
+
     @Specialization
     public final Object doSObject(final DynamicObject receiver) {
       return receiver.copy(receiver.getShape());
@@ -136,6 +148,10 @@ public final class ObjectPrims {
   
   @GenerateNodeFactory
   public abstract static class HashPrim extends UnaryExpressionNode {
+    public HashPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Hash"));
+    }
+
     @Specialization
     public final long doSObject(final DynamicObject receiver) {
       return receiver.hashCode();

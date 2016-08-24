@@ -2,6 +2,7 @@ package som.primitives;
 
 import java.math.BigInteger;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.primitives.arithmetic.ArithmeticPrim;
@@ -16,12 +17,17 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.profiles.BranchProfile;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 public abstract class IntegerPrims {
 
   @GenerateNodeFactory
   public abstract static class RandomPrim extends UnaryExpressionNode {
+    public RandomPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Random"));
+    }
+
     @Specialization
     public final long doLong(final long receiver) {
       return (long) (receiver * Math.random());
@@ -30,6 +36,10 @@ public abstract class IntegerPrims {
 
   @GenerateNodeFactory
   public abstract static class As32BitSignedValue extends UnaryExpressionNode {
+    public As32BitSignedValue() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "As32bit"));
+    }
+
     @Specialization
     public final long doLong(final long receiver) {
       return (int) receiver;
@@ -47,6 +57,10 @@ public abstract class IntegerPrims {
 
   @GenerateNodeFactory
   public abstract static class As32BitUnsignedValue extends UnaryExpressionNode {
+    public As32BitUnsignedValue() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "As32BitUnsigned"));
+    }
+
     @Specialization
     public final long doLong(final long receiver) {
       return Integer.toUnsignedLong((int) receiver);
@@ -154,6 +168,10 @@ public abstract class IntegerPrims {
 
   @GenerateNodeFactory
   public abstract static class AbsPrim extends UnaryExpressionNode {
+    public AbsPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Abs"));
+    }
+
     @Specialization
     public final long doLong(final long receiver) {
       return Math.abs(receiver);

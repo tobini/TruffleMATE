@@ -3,6 +3,7 @@ package som.primitives;
 import java.io.File;
 import java.io.IOException;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
@@ -21,12 +22,17 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.profiles.ValueProfile;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 public abstract class FilePluginPrims {
   
   @GenerateNodeFactory
   public abstract static class ImageFilePrim extends UnaryExpressionNode {
+    public ImageFilePrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Image File Name"));
+    }
+
     @Specialization
     public String doGeneric(DynamicObject receiver) {
       return System.getProperty("user.dir") + "/" + Universe.getCurrent().imageName();
@@ -81,7 +87,7 @@ public abstract class FilePluginPrims {
   })
   @ImportStatic(ArrayType.class)
   public abstract static class ReadIntoFilePrim extends ExpressionNode {
-    public ReadIntoFilePrim() { super(null); }
+    public ReadIntoFilePrim() { super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Read Into File")); }
     
     private final ValueProfile storageType = ValueProfile.createClassProfile();
     

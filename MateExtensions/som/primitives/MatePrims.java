@@ -1,5 +1,6 @@
 package som.primitives;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SAbstractObject;
@@ -11,10 +12,15 @@ import som.vmobjects.SShape;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 public final class MatePrims {
   @GenerateNodeFactory
   public abstract static class MateNewEnvironmentPrim extends UnaryExpressionNode {
+    public MateNewEnvironmentPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "New Environment"));
+    }
+
     @Specialization
     public final DynamicObject doSClass(final DynamicObject receiver) {
       return SMateEnvironment.create(receiver);
@@ -40,6 +46,10 @@ public final class MatePrims {
   
   @GenerateNodeFactory
   public abstract static class MateShapeFieldsCountPrim extends UnaryExpressionNode {
+    public MateShapeFieldsCountPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Shape Fields"));
+    }
+
     @Specialization
     public final long doSShape(SShape shape) {
       return shape.getShape().getPropertyCount();
@@ -48,6 +58,10 @@ public final class MatePrims {
   
   @GenerateNodeFactory
   public abstract static class MateGetShapePrim extends UnaryExpressionNode {
+    public MateGetShapePrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Get Shape"));
+    }
+
     @Specialization
     public final SShape doSObject(DynamicObject receiver) {
       return new SShape(receiver.getShape().getPropertyCount());
@@ -76,6 +90,10 @@ public final class MatePrims {
   
   @GenerateNodeFactory
   public abstract static class MateGetShapeForInstancesPrim extends UnaryExpressionNode {
+    public MateGetShapeForInstancesPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Get Shape For Instances"));
+    }
+
     @Specialization
     public final SShape doSObject(DynamicObject clazz) {
       return new SShape(SClass.getFactory(clazz).getShape());

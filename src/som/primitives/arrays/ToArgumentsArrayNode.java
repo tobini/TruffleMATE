@@ -13,6 +13,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.profiles.ValueProfile;
+import com.oracle.truffle.api.source.SourceSection;
 
 @ImportStatic(ArrayType.class)
 @NodeChildren({
@@ -22,7 +23,9 @@ public abstract class ToArgumentsArrayNode extends ExpressionNode {
 
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 
-  public ToArgumentsArrayNode() { super(null); }
+  public ToArgumentsArrayNode() { 
+    super(SourceSection.createUnavailable("?", "To Arguments Array")); 
+  }
 
   public final static boolean isNull(final Object somArray) {
     return somArray == null;

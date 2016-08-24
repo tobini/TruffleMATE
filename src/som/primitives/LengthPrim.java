@@ -1,5 +1,6 @@
 package som.primitives;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
@@ -18,7 +19,7 @@ import com.oracle.truffle.api.source.SourceSection;
 public abstract class LengthPrim extends UnaryExpressionNode {
 
   public LengthPrim(final SourceSection source) { super(source); }
-  public LengthPrim() { this(null); }
+  public LengthPrim() { this(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Length")); }
   
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 

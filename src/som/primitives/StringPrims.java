@@ -1,5 +1,6 @@
 package som.primitives;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
@@ -11,6 +12,7 @@ import tools.dym.Tags.StringAccess;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 public class StringPrims {
@@ -50,7 +52,10 @@ public class StringPrims {
   @GenerateNodeFactory
   public abstract static class AsSymbolPrim extends UnaryExpressionNode {
     private final Universe universe;
-    public AsSymbolPrim() { this.universe = Universe.getCurrent(); }
+    public AsSymbolPrim() { 
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "As Symbol"));
+      this.universe = Universe.getCurrent(); 
+    }
 
     @Specialization
     public final SAbstractObject doString(final String receiver) {
@@ -130,6 +135,10 @@ public class StringPrims {
   @GenerateNodeFactory
   public abstract static class AsNumberStringPrim extends UnaryExpressionNode {
   
+    public AsNumberStringPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "As Number for Strings"));
+    }
+
     @Specialization
     public final Number doString(final String receiver) {
       try{

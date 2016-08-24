@@ -1,6 +1,8 @@
 package som.primitives;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.ExpressionWithTagsNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import som.interpreter.nodes.dispatch.InvokeOnCache;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
@@ -15,12 +17,17 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 public final class MethodPrims {
 
   @GenerateNodeFactory
   public abstract static class SignaturePrim extends UnaryExpressionNode {
+    public SignaturePrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Signature"));
+    }
+
     @Specialization
     public final SAbstractObject doSMethod(final DynamicObject receiver) {
       return SInvokable.getSignature(receiver);
@@ -29,6 +36,10 @@ public final class MethodPrims {
 
   @GenerateNodeFactory
   public abstract static class HolderPrim extends UnaryExpressionNode {
+    public HolderPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Holder"));
+    }
+
     @Specialization
     public final DynamicObject doSMethod(final DynamicObject receiver) {
       return SInvokable.getHolder(receiver);
@@ -42,7 +53,7 @@ public final class MethodPrims {
     @NodeChild(value = "somArr", type = ExpressionNode.class),
     @NodeChild(value = "argArr", type = ToArgumentsArrayNode.class,
                executeWith = {"somArr", "target"})})
-  public abstract static class InvokeOnPrim extends ExpressionNode
+  public abstract static class InvokeOnPrim extends ExpressionWithTagsNode
     implements PreevaluatedExpression {
     @Child private InvokeOnCache callNode;
     
@@ -52,7 +63,7 @@ public final class MethodPrims {
     public abstract ToArgumentsArrayNode getArgArr();
 
     public InvokeOnPrim() {
-      super(null);
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Invoke On"));
       callNode = InvokeOnCache.create();
     }
     public InvokeOnPrim(final InvokeOnPrim node) { this(); }

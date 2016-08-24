@@ -4,6 +4,7 @@ import som.interpreter.FrameOnStackMarker;
 import som.interpreter.Invokable;
 import som.interpreter.MateVisitors;
 import som.interpreter.SArguments;
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vm.Universe;
@@ -19,12 +20,17 @@ import com.oracle.truffle.api.frame.FrameInstance;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.FrameInstance.FrameAccess;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 public class ContextPrims {
   @GenerateNodeFactory
   @ImportStatic(SClass.class)
   public abstract static class GetMethodPrim extends UnaryExpressionNode {
+    public GetMethodPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Get Method"));
+    }
+
     @Specialization
     public final DynamicObject doMaterializedFrame(final FrameInstance frame) {
       RootCallTarget target = ((RootCallTarget)frame.getCallTarget());
@@ -34,6 +40,10 @@ public class ContextPrims {
   
   @GenerateNodeFactory
   public abstract static class SenderPrim extends UnaryExpressionNode {
+    public SenderPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Sender"));
+    }
+
     @Specialization
     public final FrameInstance doMaterializedFrame(final FrameInstance frame) {
       TruffleRuntime runtime = ((Universe)((ExpressionNode)this).getRootNode().getExecutionContext()).getTruffleRuntime();
@@ -56,6 +66,10 @@ public class ContextPrims {
   @GenerateNodeFactory
   @ImportStatic(SClass.class)
   public abstract static class GetReceiverFromContextPrim extends UnaryExpressionNode {
+    public GetReceiverFromContextPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Get Receiver From Context"));
+    }
+
     @Specialization
     public final DynamicObject doMaterializedFrame(final Object frame) {
       Frame virtualFrame = ((FrameInstance)frame).getFrame(FrameAccess.READ_ONLY, false);

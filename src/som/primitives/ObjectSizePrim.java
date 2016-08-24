@@ -1,5 +1,6 @@
 package som.primitives;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SObject;
 
@@ -7,11 +8,16 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
 @ImportStatic(SObject.class)
 public abstract class ObjectSizePrim extends UnaryExpressionNode {
+  public ObjectSizePrim() {
+    super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Object Size"));
+  }
+
   @Specialization
   public final long doArray(final Object[] receiver) {
     int size = 0;

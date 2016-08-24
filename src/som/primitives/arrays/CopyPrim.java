@@ -1,5 +1,6 @@
 package som.primitives.arrays;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
@@ -8,11 +9,16 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.profiles.ValueProfile;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
 @ImportStatic(ArrayType.class)
 public abstract class CopyPrim extends UnaryExpressionNode {
+
+  public CopyPrim() {
+    super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Copy for Arrays"));
+  }
 
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 

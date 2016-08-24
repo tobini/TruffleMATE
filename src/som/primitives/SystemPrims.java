@@ -1,5 +1,6 @@
 package som.primitives;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
@@ -12,6 +13,7 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 public final class SystemPrims {
@@ -74,6 +76,10 @@ public final class SystemPrims {
   @ImportStatic(SystemPrims.class)
   @GenerateNodeFactory
   public abstract static class PrintNewlinePrim extends UnaryExpressionNode {
+    public PrintNewlinePrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Print New Line"));
+    }
+
     @Specialization(guards = "receiverIsSystemObject(receiver)")
     public final Object doSObject(final DynamicObject receiver) {
       Universe.println();
@@ -84,6 +90,10 @@ public final class SystemPrims {
   @ImportStatic(SystemPrims.class)
   @GenerateNodeFactory
   public abstract static class FullGCPrim extends UnaryExpressionNode {
+    public FullGCPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Full GC"));
+    }
+
     @Specialization(guards = "receiverIsSystemObject(receiver)")
     public final Object doSObject(final DynamicObject receiver) {
       System.gc();
@@ -94,6 +104,10 @@ public final class SystemPrims {
   @ImportStatic(SystemPrims.class)
   @GenerateNodeFactory
   public abstract static class TimePrim extends UnaryExpressionNode {
+    public TimePrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Time"));
+    }
+
     @Specialization(guards = "receiverIsSystemObject(receiver)")
     public final long doSObject(final DynamicObject receiver) {
       return System.currentTimeMillis() - startTime;
@@ -103,6 +117,10 @@ public final class SystemPrims {
   @ImportStatic(SystemPrims.class)
   @GenerateNodeFactory
   public abstract static class TicksPrim extends UnaryExpressionNode {
+    public TicksPrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Ticks"));
+    }
+
     @Specialization(guards = "receiverIsSystemObject(receiver)")
     public final long doSObject(final DynamicObject receiver) {
       return System.nanoTime() / 1000L - startMicroTime;
