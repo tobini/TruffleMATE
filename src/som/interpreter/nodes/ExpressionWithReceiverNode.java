@@ -3,7 +3,7 @@ package som.interpreter.nodes;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
 
-public abstract class ExpressionWithReceiverNode extends ExpressionNode {
+public abstract class ExpressionWithReceiverNode extends ExpressionWithTagsNode {
   public ExpressionWithReceiverNode(final SourceSection sourceSection) {
     super(sourceSection);
   }

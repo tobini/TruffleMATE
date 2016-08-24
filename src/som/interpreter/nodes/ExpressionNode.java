@@ -48,6 +48,17 @@ public abstract class ExpressionNode extends SOMNode {
   public ExpressionNode(final SourceSection sourceSection) {
     super(sourceSection);
   }
+  
+  protected ExpressionNode(final ExpressionNode wrappedNode) {
+    super(null);
+  }
+
+  public void markAsRootExpression()        { throw new UnsupportedOperationException(); }
+  public void markAsLoopBody()              { throw new UnsupportedOperationException(); }
+  public void markAsControlFlowCondition()  { throw new UnsupportedOperationException(); }
+  public void markAsPrimitiveArgument()     { throw new UnsupportedOperationException(); }
+  public void markAsVirtualInvokeReceiver() { throw new UnsupportedOperationException(); }
+  public boolean isMarkedAsRootExpression() { throw new UnsupportedOperationException(); }
 
   public abstract Object executeGeneric(final VirtualFrame frame);
   

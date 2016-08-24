@@ -21,7 +21,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 
-public abstract class LocalVariableNode extends ExpressionNode {
+public abstract class LocalVariableNode extends ExpressionWithTagsNode {
   protected final FrameSlot slot;
 
   private LocalVariableNode(final FrameSlot slot, final SourceSection source) {

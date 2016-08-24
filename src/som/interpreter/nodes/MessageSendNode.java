@@ -221,11 +221,11 @@ public final class MessageSendNode {
     //protected <T extends EagerPrimitive> T makeEagerPrim(T prim, ExpressionNode[] arguments, ExpressionNode basicMessage) {
     protected <T extends EagerPrimitive> T makeEagerPrim(T prim, ExpressionNode[] arguments) {
       //Why? Shouldn't it already be wrapped?
-      //Universe.insertInstrumentationWrapper(this);
-
+      Universe.insertInstrumentationWrapper(this);
+      
       Universe.insertInstrumentationWrapper(prim);
       for (ExpressionNode arg: arguments){
-        //SOMNode.unwrapIfNecessary(arg).markAsPrimitiveArgument();
+        SOMNode.unwrapIfNecessary(arg).markAsPrimitiveArgument();
         Universe.insertInstrumentationWrapper(arg);
       }
       return prim;
@@ -239,7 +239,7 @@ public final class MessageSendNode {
         case "length":
           if (receiver instanceof SArray) {
             return makeEagerPrim(replace(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
-                argumentNodes[0], LengthPrimFactory.create(getSourceSection(), null))), new ExpressionNode[]{argumentNodes[0]});
+                argumentNodes[0], LengthPrimFactory.create(getSourceSection(), null))), argumentNodes);
           }
           break;
         case "value":

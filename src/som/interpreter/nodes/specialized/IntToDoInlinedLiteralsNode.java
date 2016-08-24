@@ -6,6 +6,7 @@ import som.interpreter.Invokable;
 import som.interpreter.MateifyVisitor;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
 import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.ExpressionWithTagsNode;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -23,7 +24,7 @@ import com.oracle.truffle.api.source.SourceSection;
 @NodeChildren({
   @NodeChild(value = "from",  type = ExpressionNode.class),
   @NodeChild(value = "to",  type = ExpressionNode.class)})
-public abstract class IntToDoInlinedLiteralsNode extends ExpressionNode {
+public abstract class IntToDoInlinedLiteralsNode extends ExpressionWithTagsNode {
 
   @Child protected ExpressionNode body;
 

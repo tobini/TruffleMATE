@@ -3,6 +3,7 @@ package som.interpreter.nodes.specialized.whileloops;
 import som.interpreter.Invokable;
 import som.interpreter.MateifyVisitor;
 import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.ExpressionWithTagsNode;
 import som.vm.constants.Nil;
 
 import com.oracle.truffle.api.CompilerAsserts;
@@ -16,7 +17,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 
 
-public final class WhileInlinedLiteralsNode extends ExpressionNode {
+public final class WhileInlinedLiteralsNode extends ExpressionWithTagsNode {
 
   @Child private ExpressionNode conditionNode;
   @Child private ExpressionNode bodyNode;

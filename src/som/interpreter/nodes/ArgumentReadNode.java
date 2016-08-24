@@ -27,13 +27,20 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class ArgumentReadNode {
 
-  public static class LocalArgumentReadNode extends ExpressionNode {
+  @Instrumentable(factory = LocalArgumentReadNodeWrapper.class)
+  public static class LocalArgumentReadNode extends ExpressionWithTagsNode {
     protected final int argumentIndex;
 
     public LocalArgumentReadNode(final int argumentIndex, final SourceSection source) {
       super(source);
       assert argumentIndex >= 0;
       this.argumentIndex = argumentIndex;
+    }
+    
+    // For Wrapper use only
+    protected LocalArgumentReadNode(final LocalArgumentReadNode wrappedNode) {
+      super(wrappedNode);
+      this.argumentIndex = wrappedNode.argumentIndex;
     }
 
     @Override
@@ -241,7 +248,7 @@ public abstract class ArgumentReadNode {
     }
   }
   
-  public static class ThisContextNode extends ExpressionNode {
+  public static class ThisContextNode extends ExpressionWithTagsNode {
     public ThisContextNode(final SourceSection source) {
       super(source);
     }

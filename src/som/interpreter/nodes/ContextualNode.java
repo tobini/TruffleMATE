@@ -32,7 +32,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.profiles.ValueProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
-public abstract class ContextualNode extends ExpressionNode {
+public abstract class ContextualNode extends ExpressionWithTagsNode {
 
   protected final int contextLevel;
   private final ValueProfile frameType;

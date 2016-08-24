@@ -1,6 +1,7 @@
 package som.interpreter.nodes.specialized;
 
 import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.ExpressionWithTagsNode;
 import tools.dym.Tags.ControlFlowCondition;
 import tools.dym.Tags.OpComparison;
 
@@ -11,7 +12,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.source.SourceSection;
 
 
-public abstract class BooleanInlinedLiteralNode extends ExpressionNode {
+public abstract class BooleanInlinedLiteralNode extends ExpressionWithTagsNode {
 
   @Child protected ExpressionNode receiverNode;
   @Child protected ExpressionNode argumentNode;

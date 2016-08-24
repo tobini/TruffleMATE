@@ -8,7 +8,7 @@ import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.instrument.WrapperNode;
+import com.oracle.truffle.api.instrumentation.InstrumentableFactory.WrapperNode;
 
 public class EagerBinaryPrimitiveNode extends EagerPrimitive {
 

@@ -24,6 +24,7 @@ package som.interpreter.nodes.literals;
 import som.compiler.MethodGenerationContext;
 import som.compiler.Variable.Local;
 import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.ExpressionWithTagsNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import tools.highlight.Tags.LiteralTag;
 
@@ -33,7 +34,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.source.SourceSection;
 
 @NodeInfo(cost = NodeCost.NONE)
-public abstract class LiteralNode extends ExpressionNode
+public abstract class LiteralNode extends ExpressionWithTagsNode
     implements PreevaluatedExpression {
 
   public LiteralNode(final SourceSection source) {

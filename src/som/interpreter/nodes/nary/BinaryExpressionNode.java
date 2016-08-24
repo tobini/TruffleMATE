@@ -1,6 +1,7 @@
 package som.interpreter.nodes.nary;
 
 import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.ExpressionWithTagsNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import som.vm.constants.ReflectiveOp;
 
@@ -9,6 +10,7 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.instrumentation.Instrumentable;
 import com.oracle.truffle.api.source.SourceSection;
+
 import som.instrumentation.FixedSizeExpressionWrapperFactory;
 
 
@@ -16,7 +18,7 @@ import som.instrumentation.FixedSizeExpressionWrapperFactory;
   @NodeChild(value = "receiver", type = ExpressionNode.class),
   @NodeChild(value = "argument", type = ExpressionNode.class)})
 @Instrumentable(factory = FixedSizeExpressionWrapperFactory.class)
-public abstract class BinaryExpressionNode extends ExpressionNode
+public abstract class BinaryExpressionNode extends ExpressionWithTagsNode
     implements PreevaluatedExpression {
 
   public abstract ExpressionNode getReceiver();
@@ -27,7 +29,7 @@ public abstract class BinaryExpressionNode extends ExpressionNode
   }
 
   // for nodes that are not representing source code
-  public BinaryExpressionNode() { super(null); }
+  public BinaryExpressionNode() { this(null); }
 
   public abstract Object executeEvaluated(final VirtualFrame frame,
       final Object receiver, Object argument);

@@ -26,6 +26,7 @@ import som.interpreter.InlinerAdaptToEmbeddedOuterContext;
 import som.interpreter.InlinerForLexicallyEmbeddedMethods;
 import som.interpreter.ReturnException;
 import som.interpreter.SArguments;
+import som.interpreter.SomLanguage;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SBlock;
@@ -179,7 +180,7 @@ public final class ReturnNonLocalNode extends ContextualNode {
 
     public CatchNonLocalReturnNode(final ExpressionNode methodBody,
         final FrameSlot frameOnStackMarker) {
-      super(null);
+      super(SourceSection.createUnavailable("?", "?"));
       this.methodBody = methodBody;
       this.nonLocalReturnHandler = BranchProfile.create();
       this.frameOnStackMarker    = frameOnStackMarker;
