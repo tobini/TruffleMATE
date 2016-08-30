@@ -39,7 +39,6 @@ public abstract class MateAbstractSemanticNodes {
 
     public abstract DynamicObject executeGeneric(VirtualFrame frame);
 
-    
     @Specialization(guards = "getEnvironment(frame) == nilObject")
     public DynamicObject doNoSemanticsInFrame(final VirtualFrame frame) {
       return null;
@@ -83,7 +82,7 @@ public abstract class MateAbstractSemanticNodes {
         final VirtualFrame frame,
         final DynamicObject receiver,
         @Cached("receiver.getShape()") final Shape cachedShape,
-        @Cached("environmentReflectiveMethod(getEnvironment(cachedShape), reflectiveOperation)") final DynamicObject method) {
+        @Cached("environmentReflectiveMethod(getEnvironment(receiver), reflectiveOperation)") final DynamicObject method) {
       return method;
     }
     
@@ -92,7 +91,7 @@ public abstract class MateAbstractSemanticNodes {
         final VirtualFrame frame,
         final DynamicObject receiver,
         @Cached("receiver.getShape().getObjectType()") final ObjectType cachedType,
-        @Cached("environmentReflectiveMethod(getEnvironment(receiver.getShape()), reflectiveOperation)") final DynamicObject method) {
+        @Cached("environmentReflectiveMethod(getEnvironment(receiver), reflectiveOperation)") final DynamicObject method) {
       return method;
     }
     
@@ -117,8 +116,8 @@ public abstract class MateAbstractSemanticNodes {
       return SMateEnvironment.methodImplementing(environment, operation);
     }
     
-    public static DynamicObject getEnvironment(Shape shape){
-        return SReflectiveObject.getEnvironment(shape);
+    public static DynamicObject getEnvironment(DynamicObject receiver){
+        return SReflectiveObject.getEnvironment(receiver);
     }
     
     @Override
@@ -135,6 +134,7 @@ public abstract class MateAbstractSemanticNodes {
     public NodeCost getCost() {
       return NodeCost.NONE;
     }
+    
   }
   
   public static abstract class MateSemanticCheckNode extends MateAbstractSemanticsLevelNode {
@@ -195,6 +195,10 @@ public abstract class MateAbstractSemanticNodes {
     public NodeCost getCost() {
       return NodeCost.NONE;
     }
+    
+    public ReflectiveOp getReflectiveOperation(){
+      return environment.reflectiveOperation;
+    }
   }  
   
   public static abstract class MateSemanticsMetalevelNode extends MateAbstractSemanticsLevelNode {
@@ -210,25 +214,32 @@ public abstract class MateAbstractSemanticNodes {
   }
     
   public static abstract class MateSemanticsBaselevelNode extends MateAbstractSemanticsLevelNode {
-    @Child MateEnvironmentSemanticCheckNode environment;
-    @Child MateObjectSemanticCheckNode      object;
     final BranchProfile executeObjectSemantics = BranchProfile.create();
+    ReflectiveOp reflectiveOperation;
     
     public MateSemanticsBaselevelNode(MateEnvironmentSemanticCheckNode env, MateObjectSemanticCheckNode obj) {
       super();
-      environment = env;
-      object = obj;
+      this.reflectiveOperation = env.reflectiveOperation;
     }
     
     @Specialization
-    public DynamicObject executeOptimized(final VirtualFrame frame,
-        Object[] arguments){
-      DynamicObject value = environment.executeGeneric(frame);
-      if (value == null){  
-        executeObjectSemantics.enter();
-        return object.executeGeneric(frame, arguments[0]);
-      } 
-      return value;
+    protected DynamicObject executeGeneric(final VirtualFrame frame,
+        Object[] arguments) {
+      if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Base & arguments[0] instanceof DynamicObject){
+        DynamicObject env = SArguments.getEnvironment(frame);
+        DynamicObject method = null;
+        if (env != null){
+           method = SMateEnvironment.methodImplementing(env, reflectiveOperation);
+        }
+        if (method == null & SReflectiveObject.isSReflectiveObject(((DynamicObject)arguments[0]))){  
+          env = SReflectiveObject.getEnvironment(((DynamicObject)arguments[0]));
+          if (env != Nil.nilObject){
+            method = SMateEnvironment.methodImplementing(env, reflectiveOperation);
+          }  
+        }
+        return method;
+      }
+      return null;
     }
   }
 }

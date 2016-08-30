@@ -5,7 +5,6 @@ import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SClass;
 import som.vmobjects.SMateEnvironment;
-import som.vmobjects.SReflectiveObjectLayoutImpl.SReflectiveObjectType;
 import som.vmobjects.SShape;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
@@ -58,9 +57,11 @@ public final class MatePrims {
   public abstract static class MateInstallEnvironmentInShapePrim extends BinaryExpressionNode {
     @Specialization
     public final SShape doSObject(SShape shape, DynamicObject environment) {
-      return new SShape(
+      //Check what to do in this version where the environment is in the objects instead of in the shapes.
+      return null;
+      /*return new SShape(
           shape.getShape().changeType(
-              ((SReflectiveObjectType)shape.getShape().getObjectType()).setEnvironment(environment)));
+              ((SReflectiveObjectType)shape.getShape().getObjectType()).setEnvironment(environment)));*/
     }
   }
   
