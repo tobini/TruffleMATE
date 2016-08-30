@@ -51,17 +51,17 @@ public class SInvokable {
     Invokable getInvokableMeta(final DynamicObject object);
     RootCallTarget getCallTargetMeta(final DynamicObject object);
     void setHolderUnsafe(DynamicObject object, DynamicObject value);
-    DynamicObject createInvokable(DynamicObjectFactory factory, SSymbol signature, Invokable invokable, RootCallTarget callTarget, Invokable invokableMeta, RootCallTarget callTargetMeta, DynamicObject holder);
-    DynamicObjectFactory createInvokableShape(DynamicObject klass, DynamicObject environment);
+    DynamicObject createInvokable(DynamicObjectFactory factory, DynamicObject environment, SSymbol signature, Invokable invokable, RootCallTarget callTarget, Invokable invokableMeta, RootCallTarget callTargetMeta, DynamicObject holder);
+    DynamicObjectFactory createInvokableShape(DynamicObject klass);
     boolean isInvokable(DynamicObject object);
     boolean isInvokable(ObjectType objectType);
   }
     
-  private static final DynamicObjectFactory INVOKABLES_FACTORY = InvokableLayoutImpl.INSTANCE.createInvokableShape(Classes.primitiveClass, Nil.nilObject);
+  private static final DynamicObjectFactory INVOKABLES_FACTORY = InvokableLayoutImpl.INSTANCE.createInvokableShape(Classes.primitiveClass);
   
   public static DynamicObject create(final SSymbol signature, final Invokable invokable) {
     Invokable invokableMeta = (Invokable) invokable.deepCopy();
-    return InvokableLayoutImpl.INSTANCE.createInvokable(INVOKABLES_FACTORY, signature, invokable, invokable.createCallTarget(), 
+    return InvokableLayoutImpl.INSTANCE.createInvokable(INVOKABLES_FACTORY, Nil.nilObject, signature, invokable, invokable.createCallTarget(), 
         invokableMeta, invokableMeta.createCallTarget(), Nil.nilObject);
   }
   
@@ -130,18 +130,18 @@ public class SInvokable {
     @Layout
     public interface MethodLayout extends InvokableLayout {
       DynamicObject[] getEmbeddedBlocks(final DynamicObject object);
-      DynamicObject createMethod(DynamicObjectFactory factory, SSymbol signature, Invokable invokable, 
+      DynamicObject createMethod(DynamicObjectFactory factory, DynamicObject environment, SSymbol signature, Invokable invokable, 
           RootCallTarget callTarget, Invokable invokableMeta, RootCallTarget callTargetMeta, DynamicObject holder, DynamicObject[] embeddedBlocks);
-      DynamicObjectFactory createMethodShape(DynamicObject klass, DynamicObject environment);
+      DynamicObjectFactory createMethodShape(DynamicObject klass);
       boolean isMethod(DynamicObject object);
       boolean isMethod(ObjectType objectType);
     }
     
-    private static final DynamicObjectFactory SMETHOD_FACTORY    = MethodLayoutImpl.INSTANCE.createMethodShape(Classes.methodClass, Nil.nilObject);
+    private static final DynamicObjectFactory SMETHOD_FACTORY    = MethodLayoutImpl.INSTANCE.createMethodShape(Classes.methodClass);
     
     public static DynamicObject create(final SSymbol signature, final Invokable invokable, final DynamicObject[] embeddedBlocks) {
       Invokable invokableMeta = (Invokable) invokable.deepCopy();
-      return MethodLayoutImpl.INSTANCE.createMethod(SMETHOD_FACTORY, signature, invokable, 
+      return MethodLayoutImpl.INSTANCE.createMethod(SMETHOD_FACTORY, Nil.nilObject, signature, invokable, 
           invokable.createCallTarget(), invokableMeta, invokableMeta.createCallTarget(), Nil.nilObject, embeddedBlocks);
     }
     

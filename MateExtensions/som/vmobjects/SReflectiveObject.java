@@ -29,16 +29,13 @@ import som.vm.constants.Nil;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
 import com.oracle.truffle.api.object.ObjectType;
-import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.object.dsl.Layout;
 
 public class SReflectiveObject extends SObject {
   @Layout
   public interface SReflectiveObjectLayout extends SObjectLayout {
-    DynamicObject createSReflectiveObject(DynamicObjectFactory factory);
-    DynamicObjectFactory createSReflectiveObjectShape(DynamicObject klass, DynamicObject environment);
-    DynamicObject getEnvironment(DynamicObjectFactory factory);
-    DynamicObject getEnvironment(ObjectType objectType);
+    DynamicObject createSReflectiveObject(DynamicObjectFactory factory, DynamicObject environment);
+    DynamicObjectFactory createSReflectiveObjectShape(DynamicObject klass);
     DynamicObject getEnvironment(DynamicObject object);
     void setEnvironment(DynamicObject object, DynamicObject value);
     boolean isSReflectiveObject(DynamicObject object);
@@ -47,14 +44,10 @@ public class SReflectiveObject extends SObject {
   
   //Only needed for system initialization
   public static final DynamicObjectFactory SREFLECTIVE_OBJECT_FACTORY = 
-      SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(Nil.nilObject, Nil.nilObject);
+      SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(Nil.nilObject);
   
   public static final DynamicObject getEnvironment(final DynamicObject obj) {
     return SReflectiveObjectLayoutImpl.INSTANCE.getEnvironment(obj);
-  }
-  
-  public static final DynamicObject getEnvironment(final Shape shape) {
-    return SReflectiveObjectLayoutImpl.INSTANCE.getEnvironment(shape.getObjectType());
   }
   
   //@TruffleBoundary
@@ -114,9 +107,5 @@ public class SReflectiveObject extends SObject {
   
   public static boolean isSReflectiveObject(ObjectType type) {
     return SReflectiveObjectLayoutImpl.INSTANCE.isSReflectiveObject(type);
-  }
-  
-  public static DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
-    return SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(clazz, Nil.nilObject);
   }
 }

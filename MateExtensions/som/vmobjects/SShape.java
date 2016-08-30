@@ -7,7 +7,6 @@ import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
 
 public class SShape extends SAbstractObject {
-
   private Shape mockShape;
 
   @Override
@@ -16,7 +15,7 @@ public class SShape extends SAbstractObject {
   }
   
   public SShape(int fieldsCount){
-    Shape newShape = SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(Nil.nilObject, Nil.nilObject).getShape();
+    Shape newShape = SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(Nil.nilObject).getShape();
     for (int i = 1; i < fieldsCount; i ++){
       newShape.defineProperty(i, Nil.nilObject, 0);
     }
