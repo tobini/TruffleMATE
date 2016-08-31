@@ -137,9 +137,6 @@ public final class MessageSendNode {
       arguments[0] = receiver;
       for (int i = 1; i < argumentNodes.length; i++) {
         arguments[i] = argumentNodes[i].executeGeneric(frame);
-        if (arguments[i] == null){
-          int j = 1;
-        }
         assert arguments[i] != null;
       }
       return arguments;
