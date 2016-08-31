@@ -133,10 +133,13 @@ public final class MessageSendNode {
     
     @ExplodeLoop
     public Object[] evaluateArgumentsWithReceiver(final VirtualFrame frame, final Object receiver) {
-      Object[] arguments = new Object[argumentNodes.length + 1];
+      Object[] arguments = new Object[argumentNodes.length];
       arguments[0] = receiver;
       for (int i = 1; i < argumentNodes.length; i++) {
         arguments[i] = argumentNodes[i].executeGeneric(frame);
+        if (arguments[i] == null){
+          int j = 1;
+        }
         assert arguments[i] != null;
       }
       return arguments;
