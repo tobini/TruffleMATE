@@ -87,6 +87,7 @@ public final class SClass {
   public static DynamicObject createWithoutClass(SSymbol name) {
     CompilerAsserts.neverPartOfCompilation("Class creation");
     DynamicObject clazz =  INIT_CLASS_FACTORY.newInstance(
+        Nil.nilObject,                             // ENVIRONMENT
         name,                                      // NAME
         Nil.nilObject,                             // SUPERCLASS
         SArray.create(new Object[0]),              // INSTANCE_FIELDS
