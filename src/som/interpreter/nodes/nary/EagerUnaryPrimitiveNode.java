@@ -70,4 +70,9 @@ public class EagerUnaryPrimitiveNode extends EagerPrimitive {
   public Object doPreEvaluated(VirtualFrame frame, Object[] args) {
     return executeEvaluated(frame, args[0]);
   }
+  
+  @Override
+  protected void setTags(final byte tagMark) {
+    primitive.tagMark = tagMark;
+  }
 }

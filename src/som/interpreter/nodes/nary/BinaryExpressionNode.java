@@ -1,7 +1,6 @@
 package som.interpreter.nodes.nary;
 
 import som.interpreter.nodes.ExpressionNode;
-import som.interpreter.nodes.ExpressionWithTagsNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import som.vm.constants.ReflectiveOp;
 
@@ -19,9 +18,8 @@ import som.instrumentation.FixedSizeExpressionWrapperFactory;
   @NodeChild(value = "argument", type = ExpressionNode.class)})
 @Instrumentable(factory = FixedSizeExpressionWrapperFactory.class)
 public abstract class BinaryExpressionNode extends ExpressionWithTagsNode
-    implements PreevaluatedExpression {
+    implements ExpressionWithReceiver, PreevaluatedExpression {
 
-  public abstract ExpressionNode getReceiver();
   public abstract ExpressionNode getArgument();
   
   public BinaryExpressionNode(final SourceSection source) {

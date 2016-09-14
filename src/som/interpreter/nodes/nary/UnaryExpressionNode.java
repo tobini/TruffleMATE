@@ -1,24 +1,25 @@
 package som.interpreter.nodes.nary;
 
+import som.instrumentation.FixedSizeExpressionWrapperFactory;
 import som.interpreter.nodes.ExpressionNode;
-import som.interpreter.nodes.ExpressionWithTagsNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import som.vm.constants.ReflectiveOp;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.instrumentation.Instrumentable;
 import com.oracle.truffle.api.source.SourceSection;
 
+
+@Instrumentable(factory = FixedSizeExpressionWrapperFactory.class)
 @NodeChild(value = "receiver", type = ExpressionNode.class)
 public abstract class UnaryExpressionNode extends ExpressionWithTagsNode
-    implements PreevaluatedExpression {
-
-  public abstract ExpressionNode getReceiver();
+    implements ExpressionWithReceiver, PreevaluatedExpression {
   
   public UnaryExpressionNode(final SourceSection source) {
     super(source);
   }
-
+  
   public abstract Object executeEvaluated(final VirtualFrame frame,
       final Object receiver);
 
@@ -36,11 +37,5 @@ public abstract class UnaryExpressionNode extends ExpressionWithTagsNode
   
   public ReflectiveOp reflectiveOperation(){
     return ReflectiveOp.MessageLookup;
-  }
-  
-  //Weird, I need this method because if they do not exist eager classes do not compile
-  @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
-    return super.isTaggedWith(tag);
   }
 }

@@ -1,15 +1,15 @@
 package som.interpreter.nodes.nary;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.source.SourceSection;
-
-import som.interpreter.nodes.ExpressionWithReceiverNode;
+import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.OperationNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.source.SourceSection;
 
-public abstract class EagerPrimitive extends ExpressionWithReceiverNode
-    implements OperationNode, PreevaluatedExpression {
+
+public abstract class EagerPrimitive extends ExpressionNode
+    implements OperationNode, ExpressionWithReceiver, PreevaluatedExpression {
 
   protected EagerPrimitive(final SourceSection source) {
     super(source);
@@ -20,9 +20,8 @@ public abstract class EagerPrimitive extends ExpressionWithReceiverNode
     return executeGenericWithReceiver(frame, this.getReceiver().executeGeneric(frame));
   }
 
+  protected abstract void setTags(byte tagMark);
   /*protected EagerPrimitive(final EagerPrimitive prim) {
     super(prim);
-  }
-
-  protected abstract void setTags(byte tagMark);*/
+  }*/
 }

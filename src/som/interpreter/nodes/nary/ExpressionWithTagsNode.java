@@ -1,11 +1,14 @@
-package som.interpreter.nodes;
+package som.interpreter.nodes.nary;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+import com.oracle.truffle.api.instrumentation.InstrumentableFactory.WrapperNode;
 import com.oracle.truffle.api.instrumentation.StandardTags.RootTag;
 import com.oracle.truffle.api.instrumentation.StandardTags.StatementTag;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
 
 import som.interpreter.nodes.ExpressionNode;
+import som.vm.NotYetImplementedException;
 import tools.dym.Tags.ControlFlowCondition;
 import tools.dym.Tags.LoopBody;
 import tools.dym.Tags.PrimitiveArgument;
@@ -122,6 +125,20 @@ public abstract class ExpressionWithTagsNode extends ExpressionNode {
       return isTagged(VIRTUAL_INVOKE_RECEIVER);
     } else {
       return super.isTaggedWith(tag);
+    }
+  }
+
+  @Override
+  protected void onReplace(final Node newNode, final CharSequence reason) {
+    if (newNode instanceof WrapperNode) { return; }
+
+    if (newNode instanceof ExpressionWithTagsNode) {
+      ExpressionWithTagsNode n = (ExpressionWithTagsNode) newNode;
+      n.tagMark = tagMark;
+    } else if (newNode instanceof EagerPrimitive) {
+      ((EagerPrimitive) newNode).setTags(tagMark);
+    } else {
+      throw new NotYetImplementedException();
     }
   }
 }

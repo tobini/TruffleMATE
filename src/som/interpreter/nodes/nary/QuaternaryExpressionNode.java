@@ -1,7 +1,6 @@
 package som.interpreter.nodes.nary;
 
 import som.interpreter.nodes.ExpressionNode;
-import som.interpreter.nodes.ExpressionWithTagsNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import som.vm.constants.ReflectiveOp;
 
@@ -17,9 +16,8 @@ import com.oracle.truffle.api.source.SourceSection;
   @NodeChild(value = "secondArg", type = ExpressionNode.class),
   @NodeChild(value = "thirdArg",  type = ExpressionNode.class)})
 public abstract class QuaternaryExpressionNode extends ExpressionWithTagsNode 
-implements PreevaluatedExpression {
+    implements ExpressionWithReceiver, PreevaluatedExpression {
 
-  public abstract ExpressionNode getReceiver();
   public abstract ExpressionNode getFirstArg();
   public abstract ExpressionNode getSecondArg();
   public abstract ExpressionNode getThirdArg();

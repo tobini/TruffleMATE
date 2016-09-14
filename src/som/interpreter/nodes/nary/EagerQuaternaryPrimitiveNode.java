@@ -91,4 +91,9 @@ public class EagerQuaternaryPrimitiveNode extends EagerPrimitive {
   public Object doPreEvaluated(VirtualFrame frame, Object[] args) {
     return executeEvaluated(frame, args[0], args[1], args[2], args[3]);
   }
+  
+  @Override
+  protected void setTags(final byte tagMark) {
+    primitive.tagMark = tagMark;
+  }
 }
