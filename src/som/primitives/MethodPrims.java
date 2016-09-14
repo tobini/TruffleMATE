@@ -2,9 +2,9 @@ package som.primitives;
 
 import som.interpreter.SomLanguage;
 import som.interpreter.nodes.ExpressionNode;
-import som.interpreter.nodes.ExpressionWithTagsNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import som.interpreter.nodes.dispatch.InvokeOnCache;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.primitives.arrays.ToArgumentsArrayNode;
 import som.vmobjects.SAbstractObject;

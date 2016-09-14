@@ -26,8 +26,8 @@ import som.interpreter.InlinerAdaptToEmbeddedOuterContext;
 import som.interpreter.InlinerForLexicallyEmbeddedMethods;
 import som.interpreter.ReturnException;
 import som.interpreter.SArguments;
-import som.interpreter.SomLanguage;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SBlock;
 
@@ -127,7 +127,7 @@ public final class ReturnNonLocalNode extends ContextualNode {
    * previous non-local returns.
    * @author Stefan Marr
    */
-  public static final class ReturnLocalNode extends ExpressionNode {
+  public static final class ReturnLocalNode extends ExpressionWithTagsNode {
     @Child private ExpressionNode expression;
     private final FrameSlot frameOnStackMarker;
 

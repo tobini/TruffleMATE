@@ -21,6 +21,8 @@
  */
 package som.interpreter.nodes;
 
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
+
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeCost;

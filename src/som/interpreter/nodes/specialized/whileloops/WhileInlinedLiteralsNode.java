@@ -3,7 +3,7 @@ package som.interpreter.nodes.specialized.whileloops;
 import som.interpreter.Invokable;
 import som.interpreter.MateifyVisitor;
 import som.interpreter.nodes.ExpressionNode;
-import som.interpreter.nodes.ExpressionWithTagsNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.constants.Nil;
 
 import com.oracle.truffle.api.CompilerAsserts;

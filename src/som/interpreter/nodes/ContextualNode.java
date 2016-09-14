@@ -24,6 +24,7 @@ package som.interpreter.nodes;
 import som.interpreter.InlinerAdaptToEmbeddedOuterContext;
 import som.interpreter.InlinerForLexicallyEmbeddedMethods;
 import som.interpreter.SArguments;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vmobjects.SBlock;
 
 import com.oracle.truffle.api.frame.MaterializedFrame;

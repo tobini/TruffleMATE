@@ -3,6 +3,7 @@ package som.interpreter.nodes;
 import static som.interpreter.TruffleCompiler.transferToInterpreter;
 import som.compiler.Variable.Local;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.constants.Nil;
 import som.vm.constants.ReflectiveOp;
 import tools.dym.Tags.LocalVarRead;

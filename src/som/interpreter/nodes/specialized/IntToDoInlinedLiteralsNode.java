@@ -6,7 +6,7 @@ import som.interpreter.Invokable;
 import som.interpreter.MateifyVisitor;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
 import som.interpreter.nodes.ExpressionNode;
-import som.interpreter.nodes.ExpressionWithTagsNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;

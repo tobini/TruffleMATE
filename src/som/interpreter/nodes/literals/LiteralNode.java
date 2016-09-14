@@ -24,8 +24,8 @@ package som.interpreter.nodes.literals;
 import som.compiler.MethodGenerationContext;
 import som.compiler.Variable.Local;
 import som.interpreter.nodes.ExpressionNode;
-import som.interpreter.nodes.ExpressionWithTagsNode;
 import som.interpreter.nodes.PreevaluatedExpression;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import tools.highlight.Tags.LiteralTag;
 
 import com.oracle.truffle.api.frame.VirtualFrame;

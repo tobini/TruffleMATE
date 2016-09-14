@@ -1,7 +1,7 @@
 package som.interpreter.nodes.specialized;
 
 import som.interpreter.nodes.ExpressionNode;
-import som.interpreter.nodes.ExpressionWithTagsNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import tools.dym.Tags.ControlFlowCondition;
 import tools.dym.Tags.OpComparison;
 

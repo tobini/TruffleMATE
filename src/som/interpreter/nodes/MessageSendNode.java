@@ -11,6 +11,8 @@ import som.interpreter.nodes.dispatch.SuperDispatchNode;
 import som.interpreter.nodes.dispatch.UninitializedDispatchNode;
 import som.interpreter.nodes.literals.BlockNode;
 import som.interpreter.nodes.nary.EagerPrimitive;
+import som.interpreter.nodes.nary.ExpressionWithReceiver;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.interpreter.nodes.specialized.AndMessageNodeFactory;
 import som.interpreter.nodes.specialized.AndMessageNodeFactory.AndBoolMessageNodeFactory;
 import som.interpreter.nodes.specialized.IfMessageNodeGen;
@@ -93,8 +95,8 @@ public final class MessageSendNode {
       new UninitializedDispatchNode(source, selector), source);
   }
 
-  public abstract static class AbstractMessageSendNode extends ExpressionWithReceiverNode
-      implements PreevaluatedExpression {
+  public abstract static class AbstractMessageSendNode extends ExpressionWithTagsNode
+      implements PreevaluatedExpression, ExpressionWithReceiver {
 
     public static AbstractMessageSpecializationsFactory specializationFactory = new AbstractMessageSpecializationsFactory.SOMMessageSpecializationsFactory();
     @Children protected final ExpressionNode[] argumentNodes;
@@ -221,8 +223,8 @@ public final class MessageSendNode {
     //protected <T extends EagerPrimitive> T makeEagerPrim(T prim, ExpressionNode[] arguments, ExpressionNode basicMessage) {
     protected <T extends EagerPrimitive> T makeEagerPrim(T prim, ExpressionNode[] arguments) {
       //Why? Shouldn't it already be wrapped?
-      Universe.insertInstrumentationWrapper(this);
-      
+      //Universe.insertInstrumentationWrapper(this);
+      replace(prim);
       Universe.insertInstrumentationWrapper(prim);
       for (ExpressionNode arg: arguments){
         SOMNode.unwrapIfNecessary(arg).markAsPrimitiveArgument();
@@ -238,8 +240,8 @@ public final class MessageSendNode {
         // eagerly but cautious:
         case "length":
           if (receiver instanceof SArray) {
-            return makeEagerPrim(replace(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
-                argumentNodes[0], LengthPrimFactory.create(getSourceSection(), null))), argumentNodes);
+            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
+                argumentNodes[0], LengthPrimFactory.create(getSourceSection(), null)), argumentNodes);
           }
           break;
         case "value":
@@ -676,10 +678,10 @@ public final class MessageSendNode {
   public static class CascadeMessageSendNode
       extends ExpressionNode {
     @Child private ExpressionNode receiver;
-    final @Children private ExpressionWithReceiverNode[] messages;
+    final @Children private ExpressionWithReceiver[] messages;
     
     public CascadeMessageSendNode(final ExpressionNode receiver,
-        final ExpressionWithReceiverNode[] messages, final SourceSection source) {
+        final ExpressionWithReceiver[] messages, final SourceSection source) {
     
       super(source);
       this.receiver = receiver;

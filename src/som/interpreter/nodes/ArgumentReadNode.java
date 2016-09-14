@@ -6,6 +6,7 @@ import som.interpreter.InlinerAdaptToEmbeddedOuterContext;
 import som.interpreter.InlinerForLexicallyEmbeddedMethods;
 import som.interpreter.MateVisitors;
 import som.interpreter.SArguments;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.ReflectiveOp;

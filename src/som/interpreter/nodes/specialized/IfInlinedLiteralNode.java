@@ -2,7 +2,7 @@ package som.interpreter.nodes.specialized;
 
 import som.interpreter.MateifyVisitor;
 import som.interpreter.nodes.ExpressionNode;
-import som.interpreter.nodes.ExpressionWithTagsNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.constants.Nil;
 
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;

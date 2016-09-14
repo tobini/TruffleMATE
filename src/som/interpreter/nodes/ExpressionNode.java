@@ -63,25 +63,6 @@ public abstract class ExpressionNode extends SOMNode {
   public abstract Object executeGeneric(final VirtualFrame frame);
   
   @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
-    if (tag == StatementTag.class) {
-      return true;
-    } else if (tag == RootTag.class) {
-      return false;//isTagged(ROOT_EXPR);
-    } else if (tag == LoopBody.class) {
-      return false; //isTagged(LOOP_BODY);
-    } else if (tag == ControlFlowCondition.class) {
-      return false; //isTagged(CONTROL_FLOW_CONDITION);
-    } else if (tag == PrimitiveArgument.class) {
-      return false; //isTagged(PRIMITIVE_ARGUMENT);
-    } else if (tag == VirtualInvokeReceiver.class) {
-      return false; //isTagged(VIRTUAL_INVOKE_RECEIVER);
-    } else {
-      return super.isTaggedWith(tag);
-    }
-  }
-
-  @Override
   public ExpressionNode getFirstMethodBodyNode() { return this; }
   
   public boolean executeBoolean(final VirtualFrame frame) throws UnexpectedResultException {
