@@ -143,9 +143,7 @@ public abstract class MateAbstractSemanticNodes {
 
     public MateSemanticCheckNode(final SourceSection source,
         ReflectiveOp operation) {
-      super();
-      environment = MateEnvironmentSemanticCheckNodeGen.create(operation);
-      object = MateObjectSemanticCheckNodeGen.create(operation);
+      this(MateEnvironmentSemanticCheckNodeGen.create(operation), MateObjectSemanticCheckNodeGen.create(operation));
     }
     
     public MateSemanticCheckNode(final MateEnvironmentSemanticCheckNode env,
