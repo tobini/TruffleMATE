@@ -12,6 +12,7 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.profiles.ValueProfile;
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 @GenerateNodeFactory
@@ -19,7 +20,10 @@ import com.oracle.truffle.api.source.SourceSection;
 public abstract class LengthPrim extends UnaryExpressionNode {
 
   public LengthPrim(final SourceSection source) { super(source); }
-  public LengthPrim() { this(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Length")); }
+  public LengthPrim() { this(
+      //SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Length")
+      Source.newBuilder("length").internal().name("lengthName").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1)
+      ); }
   
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 

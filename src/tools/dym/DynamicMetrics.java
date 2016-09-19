@@ -331,12 +331,12 @@ public class DynamicMetrics extends TruffleInstrument {
         ClosureApplicationProfile::new, CountingNode<ClosureApplicationProfile>::new);
     addClosureTargetInstrumentation(instrumenter, closureApplicationFactory);
 
-    addInstrumentation(instrumenter, newObjectCounter,
+    /*addInstrumentation(instrumenter, newObjectCounter,
         new Class<?>[] {NewObject.class}, NO_TAGS,
         AllocationProfile::new, AllocationProfilingNode::new);
     addInstrumentation(instrumenter, newArrayCounter,
         new Class<?>[] {NewArray.class}, NO_TAGS,
-        ArrayCreationProfile::new, ArrayAllocationProfilingNode::new);
+        ArrayCreationProfile::new, ArrayAllocationProfilingNode::new);*/
 
     addInstrumentation(instrumenter, literalReadCounter,
         new Class<?>[] {LiteralTag.class}, NO_TAGS,

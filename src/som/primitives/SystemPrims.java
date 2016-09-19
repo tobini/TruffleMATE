@@ -7,6 +7,7 @@ import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vm.Universe;
 import som.vm.constants.Globals;
 import som.vm.constants.Nil;
+import som.vmobjects.SClass;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
@@ -82,7 +83,7 @@ public final class SystemPrims {
 
     @Specialization(guards = "receiverIsSystemObject(receiver)")
     public final Object doSObject(final DynamicObject receiver) {
-      Universe.println();
+      Universe.println("");
       return receiver;
     }
   }
@@ -126,7 +127,20 @@ public final class SystemPrims {
       return System.nanoTime() / 1000L - startMicroTime;
     }
   }
+  
+  @GenerateNodeFactory
+  public abstract static class CurrentInstancePrim extends UnaryExpressionNode {
+    public CurrentInstancePrim() {
+      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Current system instance"));
+    }
 
+    @Specialization
+    public final DynamicObject doSObject(final DynamicObject receiver) {
+      assert(SClass.getName(receiver).equals("system"));
+      return Universe.getCurrent().getSystemObject();
+    }
+  }
+  
   {
     startMicroTime = System.nanoTime() / 1000L;
     startTime = startMicroTime / 1000L;

@@ -223,7 +223,7 @@ public final class MessageSendNode {
     //protected <T extends EagerPrimitive> T makeEagerPrim(T prim, ExpressionNode[] arguments, ExpressionNode basicMessage) {
     protected <T extends EagerPrimitive> T makeEagerPrim(T prim, ExpressionNode[] arguments) {
       //Why? Shouldn't it already be wrapped?
-      //Universe.insertInstrumentationWrapper(this);
+      Universe.insertInstrumentationWrapper(this);
       replace(prim);
       Universe.insertInstrumentationWrapper(prim);
       for (ExpressionNode arg: arguments){
@@ -233,7 +233,6 @@ public final class MessageSendNode {
       return prim;
     }
     
-
     protected PreevaluatedExpression specializeUnary(final Object[] args, ExecutionLevel level) {
       Object receiver = args[0];
       switch (selector.getString()) {
@@ -396,9 +395,8 @@ public final class MessageSendNode {
               argumentNodes[1],
               LessThanPrimFactory.create(null, null)));
         case "<=":
-          return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              LessThanOrEqualPrimFactory.create(null, null)));
+          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
+              argumentNodes[1], LessThanOrEqualPrimFactory.create(null, null)), argumentNodes);
         case ">":
           return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
               argumentNodes[1],

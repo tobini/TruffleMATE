@@ -7,6 +7,7 @@ import som.interpreter.nodes.nary.TernaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.primitives.reflection.IndexDispatch;
 import som.vm.Universe;
+import som.vm.constants.Globals;
 import som.vm.constants.Nil;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SClass;
@@ -22,7 +23,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 public final class ObjectPrims {
-
+  
   @GenerateNodeFactory
   public abstract static class InstVarAtPrim extends BinaryExpressionNode {
 
@@ -127,10 +128,20 @@ public final class ObjectPrims {
 
   @GenerateNodeFactory
   public abstract static class installEnvironmentPrim extends BinaryExpressionNode {
+    @Specialization(guards = "receiverIsSystemObject(receiver)")
+    public final DynamicObject doSystemObject(final DynamicObject receiver, final DynamicObject environment) {
+      Universe.getCurrent().setGlobalEnvironment(environment);
+      return environment; 
+    }
+    
     @Specialization
     public final Object doSObject(final DynamicObject receiver, final DynamicObject environment) {
       SReflectiveObject.setEnvironment(receiver, environment);
       return receiver;
+    }
+    
+    public static final boolean receiverIsSystemObject(final DynamicObject receiver) {
+      return receiver == Globals.systemObject;
     }
   }
   

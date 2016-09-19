@@ -25,6 +25,7 @@
 
 package som.primitives;
 
+import som.primitives.SystemPrimsFactory.CurrentInstancePrimFactory;
 import som.primitives.SystemPrimsFactory.ExitPrimFactory;
 import som.primitives.SystemPrimsFactory.FullGCPrimFactory;
 import som.primitives.SystemPrimsFactory.GlobalPutPrimFactory;
@@ -49,5 +50,7 @@ public final class SystemPrimitives extends Primitives {
     installInstancePrimitive("time",         TimePrimFactory.getInstance());
     installInstancePrimitive("ticks",        TicksPrimFactory.getInstance());
     installInstancePrimitive("fullGC",       FullGCPrimFactory.getInstance());
+    
+    installClassPrimitive("current",         CurrentInstancePrimFactory.getInstance());
   }
 }

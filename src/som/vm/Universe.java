@@ -38,6 +38,7 @@ import som.interpreter.SomLanguage;
 import som.interpreter.TruffleCompiler;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.MateClasses;
+import som.vm.constants.Nil;
 import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.SArray;
 import som.vmobjects.SBasicObjectLayoutImpl;
@@ -88,6 +89,10 @@ public class Universe extends ExecutionContext {
     options = new VMOptions(args);
     mateDeactivated = this.getTruffleRuntime().createAssumption();
     mateActivated = null;
+    globalSemanticsDeactivated = this.getTruffleRuntime().createAssumption();
+    globalSemanticsActivated = null;
+    globalSemantics = null;
+    
     if (ObjectMemory.last == null){
       objectMemory = new ObjectMemory(options.classPath, structuralProbe);
       objectMemory.initializeSystem();
@@ -302,44 +307,22 @@ public class Universe extends ExecutionContext {
 
   @TruffleBoundary
   public static void errorPrint(final String msg) {
-    // Checkstyle: stop
     System.err.print(msg);
-    // Checkstyle: resume
   }
 
   @TruffleBoundary
   public static void errorPrintln(final String msg) {
-    // Checkstyle: stop
     System.err.println(msg);
-    // Checkstyle: resume
-  }
-
-  @TruffleBoundary
-  public static void errorPrintln() {
-    // Checkstyle: stop
-    System.err.println();
-    // Checkstyle: resume
   }
 
   @TruffleBoundary
   public static void print(final String msg) {
-    // Checkstyle: stop
     System.out.print(msg);
-    // Checkstyle: resume
   }
 
   @TruffleBoundary
   public static void println(final String msg) {
-    // Checkstyle: stop
     System.out.println(msg);
-    // Checkstyle: resume
-  }
-
-  @TruffleBoundary
-  public static void println() {
-    // Checkstyle: stop
-    System.out.println();
-    // Checkstyle: resume
   }
 
   public static Universe getCurrent(){
@@ -456,6 +439,20 @@ public class Universe extends ExecutionContext {
     }
   }
   
+  public void setGlobalEnvironment(DynamicObject environment) {
+    if (globalSemanticsActivated.isValid()){
+      globalSemanticsActivated.invalidate();
+    } else {
+      globalSemanticsDeactivated.invalidate();
+    }
+    if (environment == Nil.nilObject){
+      globalSemanticsDeactivated = Truffle.getRuntime().createAssumption();
+    } else {
+      globalSemanticsActivated = Truffle.getRuntime().createAssumption();
+    }
+    globalSemantics = environment;
+  }
+  
   private final TruffleRuntime                  truffleRuntime;
   // TODO: this is not how it is supposed to be... it is just a hack to cope
   //       with the use of system.exit in SOM to enable testing
@@ -475,4 +472,8 @@ public class Universe extends ExecutionContext {
   
   @CompilationFinal private Assumption mateActivated;
   @CompilationFinal private Assumption mateDeactivated;
+  
+  @CompilationFinal private Assumption globalSemanticsActivated;
+  @CompilationFinal private Assumption globalSemanticsDeactivated;
+  @CompilationFinal private DynamicObject globalSemantics;
 }
