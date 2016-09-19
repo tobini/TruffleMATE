@@ -17,6 +17,7 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.profiles.BranchProfile;
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 
@@ -146,6 +147,10 @@ public abstract class IntegerPrims {
 
   @GenerateNodeFactory
   public abstract static class ToPrim extends BinaryExpressionNode {
+    public ToPrim() {
+      super(Source.newBuilder("To for Arrays").internal().name("to").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public final SArray doLong(final long receiver, final long right) {
       int cnt = (int) right - (int) receiver + 1;

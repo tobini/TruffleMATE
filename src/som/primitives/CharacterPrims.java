@@ -8,12 +8,18 @@ import tools.dym.Tags.StringAccess;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 public class CharacterPrims {
 
   @GenerateNodeFactory
   public abstract static class NewCharPrim extends BinaryExpressionNode {
+    
+    public NewCharPrim() {
+      super(Source.newBuilder("NewChar").internal().name("new char").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public final Character doCreate(final DynamicObject clazz, final long value) {
       return (char) value;
@@ -220,6 +226,10 @@ public class CharacterPrims {
   
   @GenerateNodeFactory
   public abstract static class CompareCharsPrim extends BinaryExpressionNode {
+    public CompareCharsPrim() {
+      super(Source.newBuilder("Compare Charactes").internal().name("compare chars").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public final long doCharacter(final char receiver, final char param) {
       return Character.compare(receiver, param);

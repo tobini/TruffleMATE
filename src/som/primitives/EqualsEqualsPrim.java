@@ -2,6 +2,7 @@ package som.primitives;
 
 import java.math.BigInteger;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.vm.constants.Globals;
 import som.vmobjects.SArray;
@@ -12,11 +13,16 @@ import som.vmobjects.SSymbol;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.Source;
 
 
 @GenerateNodeFactory
 public abstract class EqualsEqualsPrim extends BinaryExpressionNode {
-
+  
+  public EqualsEqualsPrim() { 
+    super(Source.newBuilder("==").internal().name("equals equals").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  }
+  
   @Specialization
   public final boolean doBoolean(final boolean left, final boolean right) {
     return left == right;

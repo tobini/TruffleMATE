@@ -71,7 +71,8 @@ public class EagerTernaryPrimitiveNode extends EagerPrimitive {
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     assert !(primitive instanceof WrapperNode);
-    return primitive.isTaggedWith(tag);
+    boolean result = super.isTaggedWith(tag)? super.isTaggedWith(tag) : primitive.isTaggedWith(tag); 
+    return result;
   }
 
   @Override

@@ -1,6 +1,7 @@
 package som.interpreter.nodes.specialized.whileloops;
 
 import som.interpreter.SArguments;
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Globals;
@@ -14,6 +15,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.Source;
 
 
 public abstract class WhileCache extends BinaryExpressionNode {
@@ -23,6 +25,7 @@ public abstract class WhileCache extends BinaryExpressionNode {
   protected final boolean predicateBool;
 
   public WhileCache(final boolean predicateBool) {
+    super(Source.newBuilder("While").internal().name("while cached").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
     this.predicateBool = predicateBool;
   }
 

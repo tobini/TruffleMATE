@@ -1,5 +1,6 @@
 package som.primitives.arrays;
 
+import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
@@ -11,11 +12,16 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.profiles.ValueProfile;
+import com.oracle.truffle.api.source.Source;
 
 @GenerateNodeFactory
 @ImportStatic(ArrayType.class)
 public abstract class AtPrim extends BinaryExpressionNode {
 
+  public AtPrim() { 
+    super(Source.newBuilder("at:").internal().name("at").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  }
+  
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 
   @Specialization(guards = "isEmptyType(receiver)")

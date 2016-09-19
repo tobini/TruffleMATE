@@ -12,6 +12,7 @@ import som.vmobjects.SShape;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 public final class MatePrims {
@@ -29,6 +30,10 @@ public final class MatePrims {
   
   @GenerateNodeFactory
   public abstract static class MateNewShapePrim extends BinaryExpressionNode {
+    public MateNewShapePrim() {
+      super(Source.newBuilder("New Shape").internal().name("mate new shape").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public final SAbstractObject doSClass(final DynamicObject receiver, final long fieldsCount) {
       return new SShape((int)fieldsCount);
@@ -37,6 +42,10 @@ public final class MatePrims {
   
   @GenerateNodeFactory
   public abstract static class MateChangeShapePrim extends BinaryExpressionNode {
+    public MateChangeShapePrim() {
+      super(Source.newBuilder("Change Shape").internal().name("mate change shape").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public final DynamicObject doSObject(final DynamicObject receiver, SShape newShape) {
       receiver.setShapeAndResize(receiver.getShape(), newShape.getShape());
@@ -70,6 +79,10 @@ public final class MatePrims {
   
   @GenerateNodeFactory
   public abstract static class MateInstallEnvironmentInShapePrim extends BinaryExpressionNode {
+    public MateInstallEnvironmentInShapePrim() {
+      super(Source.newBuilder("Install Environment in Shape").internal().name("mate install env in shape").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public final SShape doSObject(SShape shape, DynamicObject environment) {
       return new SShape(
@@ -80,6 +93,10 @@ public final class MatePrims {
   
   @GenerateNodeFactory
   public abstract static class MateUpdateShapeForInstancesPrim extends BinaryExpressionNode {
+    public MateUpdateShapeForInstancesPrim() {
+      super(Source.newBuilder("Update Class Instances Shape").internal().name("update shape for instances").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public final DynamicObject doSObject(DynamicObject clazz, SShape shape) {
       //Todo: Take into account that this would not work if the factory was already compiled in a fast path.

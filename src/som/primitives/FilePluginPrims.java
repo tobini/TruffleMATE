@@ -22,6 +22,7 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.profiles.ValueProfile;
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 
@@ -53,6 +54,11 @@ public abstract class FilePluginPrims {
   
   @GenerateNodeFactory
   public abstract static class GetPositionFilePrim extends BinaryExpressionNode {
+    
+    public GetPositionFilePrim() {
+      super(Source.newBuilder("Get Position in File").internal().name("get position").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public long doGeneric(DynamicObject receiver, SFile file) {
       return file.getPosition();
@@ -71,6 +77,10 @@ public abstract class FilePluginPrims {
   
   @GenerateNodeFactory
   public abstract static class SizeFilePrim extends BinaryExpressionNode {
+    public SizeFilePrim() {
+      super(Source.newBuilder("Size for Files").internal().name("size file").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public long doGeneric(DynamicObject receiver, SFile file) {
       return file.getFile().length();
@@ -124,6 +134,10 @@ public abstract class FilePluginPrims {
   
   @GenerateNodeFactory
   public abstract static class AtEndFilePrim extends BinaryExpressionNode {
+    public AtEndFilePrim() {
+      super(Source.newBuilder("At End for Files").internal().name("at end").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     @TruffleBoundary
     public boolean doGeneric(DynamicObject receiver, SFile file) {
@@ -134,6 +148,5 @@ public abstract class FilePluginPrims {
       }
     }
   }
-  
 }
 

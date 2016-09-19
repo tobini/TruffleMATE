@@ -20,6 +20,7 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 public final class ObjectPrims {
@@ -30,7 +31,7 @@ public final class ObjectPrims {
     @Child private IndexDispatch dispatch;
 
     public InstVarAtPrim() {
-      super();
+      super(Source.newBuilder("Inst Var At").internal().name("inst var at").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
       dispatch = IndexDispatch.create();
     }
     public InstVarAtPrim(final InstVarAtPrim node) { this(); }
@@ -83,6 +84,10 @@ public final class ObjectPrims {
 
   @GenerateNodeFactory
   public abstract static class InstVarNamedPrim extends BinaryExpressionNode {
+    public InstVarNamedPrim() {
+      super(Source.newBuilder("Inst Var Named").internal().name("inst var named").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @TruffleBoundary
     @Specialization
     public final Object doSObject(final DynamicObject receiver, final SSymbol fieldName) {
@@ -128,6 +133,10 @@ public final class ObjectPrims {
 
   @GenerateNodeFactory
   public abstract static class installEnvironmentPrim extends BinaryExpressionNode {
+    public installEnvironmentPrim() {
+      super(Source.newBuilder("Install Environment").internal().name("install environment").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization(guards = "receiverIsSystemObject(receiver)")
     public final DynamicObject doSystemObject(final DynamicObject receiver, final DynamicObject environment) {
       Universe.getCurrent().setGlobalEnvironment(environment);

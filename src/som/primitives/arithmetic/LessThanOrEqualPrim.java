@@ -3,9 +3,6 @@ package som.primitives.arithmetic;
 import java.math.BigInteger;
 
 import som.interpreter.SomLanguage;
-import tools.dym.Tags.BasicPrimitiveOperation;
-import tools.dym.Tags.OpLength;
-
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.source.Source;

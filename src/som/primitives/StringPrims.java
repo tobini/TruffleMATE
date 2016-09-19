@@ -12,6 +12,7 @@ import tools.dym.Tags.StringAccess;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 
@@ -19,6 +20,10 @@ public class StringPrims {
 
   @GenerateNodeFactory
   public abstract static class ConcatPrim extends BinaryExpressionNode {
+    public ConcatPrim() {
+      super(Source.newBuilder("Concat Strings").internal().name("concat").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public final String doString(final String receiver, final String argument) {
       return receiver + argument;
@@ -109,6 +114,10 @@ public class StringPrims {
   
   @GenerateNodeFactory
   public abstract static class AtStringPrim extends BinaryExpressionNode {
+    public AtStringPrim() {
+      super(Source.newBuilder("At for Strings").internal().name("at").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public final char doString(final String receiver, long index) {
       if (index > receiver.length()){

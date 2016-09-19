@@ -26,9 +26,6 @@ public abstract class BinaryExpressionNode extends ExpressionWithTagsNode
     super(source);
   }
 
-  // for nodes that are not representing source code
-  public BinaryExpressionNode() { this(null); }
-
   public abstract Object executeEvaluated(final VirtualFrame frame,
       final Object receiver, Object argument);
 
