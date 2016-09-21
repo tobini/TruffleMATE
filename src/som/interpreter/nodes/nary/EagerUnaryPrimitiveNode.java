@@ -16,18 +16,15 @@ public class EagerUnaryPrimitiveNode extends EagerPrimitive {
   @Child private ExpressionNode receiver;
   @Child private UnaryExpressionNode primitive;
 
-  private final SSymbol selector;
-
   public ExpressionNode getReceiver(){
     return receiver;
   }
   
   public EagerUnaryPrimitiveNode(final SSymbol selector,
       final ExpressionNode receiver, final UnaryExpressionNode primitive) {
-    super(primitive.getSourceSection());
+    super(primitive.getSourceSection(), selector);
     this.receiver  = receiver;
     this.primitive = primitive;
-    this.selector = selector;
   }
 
   @Override
@@ -51,20 +48,11 @@ public class EagerUnaryPrimitiveNode extends EagerPrimitive {
     return replace(node);
   }
   
-  protected SSymbol getSelector(){
-    return selector;
-  }
-  
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     assert !(primitive instanceof WrapperNode);
     boolean result = super.isTaggedWith(tag)? super.isTaggedWith(tag) : primitive.isTaggedWith(tag); 
     return result;
-  }
-
-  @Override
-  public String getOperation() {
-    return selector.getString();
   }
 
   @Override

@@ -2,6 +2,7 @@ package som.interpreter.nodes.nary;
 
 import som.interpreter.nodes.OperationNode;
 import som.interpreter.nodes.PreevaluatedExpression;
+import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
@@ -9,9 +10,11 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class EagerPrimitive extends ExpressionWithTagsNode
     implements OperationNode, ExpressionWithReceiver, PreevaluatedExpression {
+  protected final SSymbol selector;
 
-  protected EagerPrimitive(final SourceSection source) {
+  protected EagerPrimitive(final SourceSection source, SSymbol sel) {
     super(source);
+    selector = sel;
   }
   
   @Override
@@ -20,7 +23,13 @@ public abstract class EagerPrimitive extends ExpressionWithTagsNode
   }
 
   protected abstract void setTags(byte tagMark);
-  /*protected EagerPrimitive(final EagerPrimitive prim) {
-    super(prim);
-  }*/
+  
+  protected SSymbol getSelector(){
+    return selector;
+  }
+  
+   @Override
+  public String getOperation() {
+    return selector.getString();
+  }
 }

@@ -23,6 +23,7 @@ package som.interpreter.nodes;
 
 import som.interpreter.SArguments;
 import som.interpreter.TruffleCompiler;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
@@ -35,7 +36,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 
-public abstract class GlobalNode extends ExpressionNode {
+public abstract class GlobalNode extends ExpressionWithTagsNode {
 
   protected final SSymbol  globalName;
 

@@ -79,6 +79,10 @@ public abstract class IntegerPrims {
 
   @GenerateNodeFactory
   public abstract static class FromStringPrim extends ArithmeticPrim {
+    public FromStringPrim() {
+      super(Source.newBuilder("FromString").internal().name("from string for integers").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     protected final boolean receiverIsIntegerClass(final DynamicObject receiver) {
       return receiver == Classes.integerClass;
     }
@@ -107,6 +111,10 @@ public abstract class IntegerPrims {
 
   @GenerateNodeFactory
   public abstract static class LeftShiftPrim extends ArithmeticPrim {
+    public LeftShiftPrim() {
+      super(Source.newBuilder("<<").internal().name("left shift").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     private final BranchProfile overflow = BranchProfile.create();
 
     @Specialization(rewriteOn = ArithmeticException.class)
@@ -131,6 +139,10 @@ public abstract class IntegerPrims {
 
   @GenerateNodeFactory
   public abstract static class UnsignedRightShiftPrim extends ArithmeticPrim {
+    public UnsignedRightShiftPrim() {
+      super(Source.newBuilder(">>").internal().name("unsigned right shift").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public final long doLong(final long receiver, final long right) {
       return receiver >>> right;
@@ -139,6 +151,10 @@ public abstract class IntegerPrims {
 
   @GenerateNodeFactory
   public abstract static class MaxIntPrim extends ArithmeticPrim {
+    public MaxIntPrim() {
+      super(Source.newBuilder("MaxInt").internal().name("max integer").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
     @Specialization
     public final long doLong(final long receiver, final long right) {
       return Math.max(receiver, right);

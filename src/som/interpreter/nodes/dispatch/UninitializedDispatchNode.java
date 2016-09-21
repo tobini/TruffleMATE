@@ -4,6 +4,7 @@ import static som.interpreter.TruffleCompiler.transferToInterpreterAndInvalidate
 import som.interpreter.SArguments;
 import som.interpreter.Types;
 import som.interpreter.nodes.MessageSendNode.GenericMessageSendNode;
+import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
@@ -36,13 +37,6 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
     Object rcvr = arguments[0];
     assert rcvr != null;
 
-    /*if (rcvr instanceof DynamicObject) {
-      DynamicObject r = (DynamicObject) rcvr;
-      if (r.updateShape() && first != this) { // if first is this, short cut and directly continue...
-        return first;
-      }
-    }*/
-    
     if (chainDepth < INLINE_CACHE_SIZE) {
       DynamicObject rcvrClass = Types.getClassOf(rcvr);
       DynamicObject method = SClass.lookupInvokable(rcvrClass, selector);
@@ -61,7 +55,10 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
       } else {
         node = new CachedDnuNode(rcvrClass, guard, selector, newChainEnd, SArguments.getExecutionLevel(frame));
       }
-      return replace(node);
+      Universe.insertInstrumentationWrapper(this);
+      replace(node);
+      Universe.insertInstrumentationWrapper(node);
+      return node;
     }
 
     // the chain is longer than the maximum defined by INLINE_CACHE_SIZE and

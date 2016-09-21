@@ -14,10 +14,6 @@ public abstract class ArithmeticPrim extends BinaryExpressionNode {
     super(source);
   }
   
-  public ArithmeticPrim() {
-    super(null);
-  }
-
   protected final Number reduceToLongIfPossible(final BigInteger result) {
     if (result.bitLength() > Long.SIZE - 1) {
       return result;

@@ -715,21 +715,29 @@ public class Parser {
     if (msg.getNumberOfSignatureArguments() == 2) {
       if (arguments.get(1) instanceof LiteralNode) {
         if ("ifTrue:".equals(msgStr)) {
+          ExpressionNode condition = arguments.get(0);
+          condition.markAsControlFlowCondition();
           ExpressionNode inlinedBody = ((LiteralNode) arguments.get(1)).inline(mgenc);
-          return new IfInlinedLiteralNode(arguments.get(0), true, inlinedBody,
+          return new IfInlinedLiteralNode(condition, true, inlinedBody,
               arguments.get(1), source);
         } else if ("ifFalse:".equals(msgStr)) {
+          ExpressionNode condition = arguments.get(0);
+          condition.markAsControlFlowCondition();
           ExpressionNode inlinedBody = ((LiteralNode) arguments.get(1)).inline(mgenc);
-          return new IfInlinedLiteralNode(arguments.get(0), false, inlinedBody,
+          return new IfInlinedLiteralNode(condition, false, inlinedBody,
               arguments.get(1), source);
         } else if ("whileTrue:".equals(msgStr)) {
           ExpressionNode inlinedCondition = ((LiteralNode) arguments.get(0)).inline(mgenc);
+          inlinedCondition.markAsControlFlowCondition();
           ExpressionNode inlinedBody      = ((LiteralNode) arguments.get(1)).inline(mgenc);
+          inlinedBody.markAsLoopBody();
           return new WhileInlinedLiteralsNode(inlinedCondition, inlinedBody,
               true, arguments.get(0), arguments.get(1), source);
         } else if ("whileFalse:".equals(msgStr)) {
           ExpressionNode inlinedCondition = ((LiteralNode) arguments.get(0)).inline(mgenc);
+          inlinedCondition.markAsControlFlowCondition();
           ExpressionNode inlinedBody      = ((LiteralNode) arguments.get(1)).inline(mgenc);
+          inlinedBody.markAsLoopBody();
           return new WhileInlinedLiteralsNode(inlinedCondition, inlinedBody,
               false, arguments.get(0), arguments.get(1), source);
         } else if ("or:".equals(msgStr) || "||".equals(msgStr)) {
@@ -743,15 +751,18 @@ public class Parser {
     } else if (msg.getNumberOfSignatureArguments() == 3) {
       if ("ifTrue:ifFalse:".equals(msgStr) &&
           arguments.get(1) instanceof LiteralNode && arguments.get(2) instanceof LiteralNode) {
+        ExpressionNode condition = arguments.get(0);
+        condition.markAsControlFlowCondition();
         ExpressionNode inlinedTrueNode  = ((LiteralNode) arguments.get(1)).inline(mgenc);
         ExpressionNode inlinedFalseNode = ((LiteralNode) arguments.get(2)).inline(mgenc);
-        return new IfTrueIfFalseInlinedLiteralsNode(arguments.get(0),
+        return new IfTrueIfFalseInlinedLiteralsNode(condition,
             inlinedTrueNode, inlinedFalseNode, arguments.get(1), arguments.get(2),
             source);
       } else if ("to:do:".equals(msgStr) &&
           arguments.get(2) instanceof LiteralNode) {
         Local loopIdx = mgenc.addLocal("i:" + source.getCharIndex());
         ExpressionNode inlinedBody = ((LiteralNode) arguments.get(2)).inline(mgenc, loopIdx);
+        inlinedBody.markAsLoopBody();
         return IntToDoInlinedLiteralsNodeGen.create(inlinedBody, loopIdx.getSlot(),
             arguments.get(2), source, arguments.get(0), arguments.get(1));
       }

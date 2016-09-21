@@ -2,13 +2,20 @@ package som.primitives.arithmetic;
 
 import java.math.BigInteger;
 
+import som.interpreter.SomLanguage;
+
 import com.oracle.truffle.api.ExactMath;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.source.Source;
 
 
 @GenerateNodeFactory
 public abstract class SubtractionPrim extends ArithmeticPrim {
+  public SubtractionPrim() {
+    super(Source.newBuilder("-").internal().name("substraction").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  }
+
   @Specialization(rewriteOn = ArithmeticException.class)
   public final long doLong(final long left, final long right) {
     return ExactMath.subtractExact(left, right);

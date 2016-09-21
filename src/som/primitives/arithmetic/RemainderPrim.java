@@ -2,12 +2,19 @@ package som.primitives.arithmetic;
 
 import java.math.BigInteger;
 
+import som.interpreter.SomLanguage;
+
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.source.Source;
 
 
 @GenerateNodeFactory
 public abstract class RemainderPrim extends ArithmeticPrim {
+  public RemainderPrim() {
+    super(Source.newBuilder("%").internal().name("remainder").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  }
+
   @Specialization
   public final double doDouble(final double left, final double right) {
     return left % right;

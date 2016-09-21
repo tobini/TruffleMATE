@@ -19,8 +19,6 @@ public class EagerQuaternaryPrimitiveNode extends EagerPrimitive {
   @Child private ExpressionNode argument3;
   @Child private QuaternaryExpressionNode primitive;
 
-  private final SSymbol selector;
-
   public EagerQuaternaryPrimitiveNode(
       final SSymbol selector,
       final ExpressionNode receiver,
@@ -28,13 +26,12 @@ public class EagerQuaternaryPrimitiveNode extends EagerPrimitive {
       final ExpressionNode argument2,
       final ExpressionNode argument3,
       final QuaternaryExpressionNode primitive) {
-    super(primitive.getSourceSection());
+    super(primitive.getSourceSection(), selector);
     this.receiver  = receiver;
     this.argument1 = argument1;
     this.argument2 = argument2;
     this.argument3 = argument3;
     this.primitive = primitive;
-    this.selector = selector;
   }
 
   public ExpressionNode getReceiver(){return receiver;}
@@ -68,10 +65,6 @@ public class EagerQuaternaryPrimitiveNode extends EagerPrimitive {
     return replace(node);
   }
   
-  protected SSymbol getSelector(){
-    return selector;
-  }
-
   public ExpressionNode getThirdArg() {
     return argument3;
   }
@@ -81,11 +74,6 @@ public class EagerQuaternaryPrimitiveNode extends EagerPrimitive {
     assert !(primitive instanceof WrapperNode);
     boolean result = super.isTaggedWith(tag)? super.isTaggedWith(tag) : primitive.isTaggedWith(tag); 
     return result;
-  }
-
-  @Override
-  public String getOperation() {
-    return selector.getString();
   }
 
   @Override

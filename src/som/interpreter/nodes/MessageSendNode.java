@@ -213,16 +213,21 @@ public final class MessageSendNode {
     protected abstract PreevaluatedExpression makeSuperSend();
 
     protected GenericMessageSendNode makeGenericSend() {
+      Universe.insertInstrumentationWrapper(this);
+      ExpressionNode rcvr = unwrapIfNecessary(argumentNodes[0]);
+      rcvr.markAsVirtualInvokeReceiver();
       GenericMessageSendNode send = new GenericMessageSendNode(selector,
           argumentNodes,
           new UninitializedDispatchNode(this.sourceSection, selector),
           getSourceSection());
-      return replace(send);
+      replace(send);
+      Universe.insertInstrumentationWrapper(send);
+      assert unwrapIfNecessary(argumentNodes[0]) == rcvr : "for some reason these are not the same anymore. race?";
+      Universe.insertInstrumentationWrapper(argumentNodes[0]);
+      return send;
     }
     
-    //protected <T extends EagerPrimitive> T makeEagerPrim(T prim, ExpressionNode[] arguments, ExpressionNode basicMessage) {
     protected <T extends EagerPrimitive> T makeEagerPrim(T prim) {
-      //Why? Shouldn't it already be wrapped?
       Universe.insertInstrumentationWrapper(this);
       replace(prim);
       Universe.insertInstrumentationWrapper(prim);
@@ -307,7 +312,7 @@ public final class MessageSendNode {
               argumentNodes[0] instanceof BlockNode) {
             BlockNode argBlockNode = (BlockNode) argumentNodes[1];
             SBlock    argBlock     = (SBlock)    arguments[1];
-            return makeEagerPrim(
+            return replace(
                 AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
                     argumentNodes[1],
                     new WhileTrueStaticBlocksNode(
@@ -322,7 +327,7 @@ public final class MessageSendNode {
               argumentNodes[0] instanceof BlockNode) {
             BlockNode argBlockNode = (BlockNode) argumentNodes[1];
             SBlock    argBlock     = (SBlock)    arguments[1];
-            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
+            return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
                 argumentNodes[1],
                 new WhileFalseStaticBlocksNode(
                     (BlockNode) argumentNodes[0], argBlockNode,
@@ -336,7 +341,7 @@ public final class MessageSendNode {
               return replace(AndMessageNodeFactory.create((SBlock) arguments[1],
                   getSourceSection(), level, argumentNodes[0], argumentNodes[1]));
             } else if (arguments[1] instanceof Boolean) {
-              return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
+              return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
                   argumentNodes[1],
                   AndBoolMessageNodeFactory.create(
                       getSourceSection(),
@@ -348,13 +353,13 @@ public final class MessageSendNode {
         case "||":
           if (arguments[0] instanceof Boolean) {
             if (argumentNodes[1] instanceof BlockNode) {
-              return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
+              return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
                   argumentNodes[1],
                   OrMessageNodeGen.create((SBlock) arguments[1],
                       getSourceSection(), level,
                       argumentNodes[0], argumentNodes[1])));
             } else if (arguments[1] instanceof Boolean) {
-              return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
+              return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
                   argumentNodes[1],
                   OrBoolMessageNodeGen.create(
                       getSourceSection(),
@@ -372,12 +377,12 @@ public final class MessageSendNode {
           break;
 
         case "ifTrue:":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
+          return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
               argumentNodes[1],
               IfMessageNodeGen.create(true, getSourceSection(),
                   argumentNodes[0], argumentNodes[1])));
         case "ifFalse:":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
+          return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
               argumentNodes[1],
               IfMessageNodeGen.create(false, getSourceSection(),
                   argumentNodes[0], argumentNodes[1])));
@@ -617,6 +622,7 @@ public final class MessageSendNode {
 
 /// TODO: currently, we do not only specialize the given stuff above, but also what has been classified as 'value' sends in the OMOP branch. Is that a problem?
 
+  @Instrumentable(factory = MessageSendNodeWrapper.class)
   public static class GenericMessageSendNode
       extends AbstractMessageSendNode {
 

@@ -18,20 +18,17 @@ public class EagerTernaryPrimitiveNode extends EagerPrimitive {
   @Child private ExpressionNode argument2;
   @Child private TernaryExpressionNode primitive;
 
-  private final SSymbol selector;
-
   public EagerTernaryPrimitiveNode(
       final SSymbol selector,
       final ExpressionNode receiver,
       final ExpressionNode argument1,
       final ExpressionNode argument2,
       final TernaryExpressionNode primitive) {
-    super(primitive.getSourceSection());
+    super(primitive.getSourceSection(), selector);
     this.receiver  = receiver;
     this.argument1 = argument1;
     this.argument2 = argument2;
     this.primitive = primitive;
-    this.selector = selector;
   }
 
   public ExpressionNode getReceiver(){return receiver;}
@@ -64,20 +61,11 @@ public class EagerTernaryPrimitiveNode extends EagerPrimitive {
     return replace(node);
   }
   
-  protected SSymbol getSelector(){
-    return selector;
-  }
-  
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     assert !(primitive instanceof WrapperNode);
     boolean result = super.isTaggedWith(tag)? super.isTaggedWith(tag) : primitive.isTaggedWith(tag); 
     return result;
-  }
-
-  @Override
-  public String getOperation() {
-    return selector.getString();
   }
 
   @Override

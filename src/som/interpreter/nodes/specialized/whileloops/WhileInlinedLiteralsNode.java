@@ -5,12 +5,12 @@ import som.interpreter.MateifyVisitor;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.constants.Nil;
+import tools.dym.Tags.LoopNode;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;

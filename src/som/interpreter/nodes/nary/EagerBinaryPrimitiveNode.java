@@ -16,18 +16,15 @@ public class EagerBinaryPrimitiveNode extends EagerPrimitive {
   @Child private ExpressionNode argument;
   @Child private BinaryExpressionNode primitive;
 
-  private final SSymbol selector;
-
   public EagerBinaryPrimitiveNode(
       final SSymbol selector,
       final ExpressionNode receiver,
       final ExpressionNode argument,
       final BinaryExpressionNode primitive) {
-    super(primitive.getSourceSection());
+    super(primitive.getSourceSection(), selector);
     this.receiver  = receiver;
     this.argument  = argument;
     this.primitive = primitive;
-    this.selector = selector;
   }
 
   public ExpressionNode getReceiver(){
@@ -61,15 +58,6 @@ public class EagerBinaryPrimitiveNode extends EagerPrimitive {
     return argument;
   }
   
-  protected SSymbol getSelector(){
-    return selector;
-  }
-  
-   @Override
-  public String getOperation() {
-    return selector.getString();
-  }
-
   @Override
   public Object doPreEvaluated(VirtualFrame frame, Object[] args) {
     return executeEvaluated(frame, args[0], args[1]);

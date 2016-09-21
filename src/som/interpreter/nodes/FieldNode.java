@@ -23,6 +23,7 @@ package som.interpreter.nodes;
 
 import som.interpreter.nodes.MateFieldNodesFactory.MateFieldReadNodeGen;
 import som.interpreter.nodes.MateFieldNodesFactory.MateFieldWriteNodeGen;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.interpreter.objectstorage.FieldAccessorNode;
 import som.interpreter.objectstorage.FieldAccessorNode.ReadFieldNode;
 import som.interpreter.objectstorage.FieldAccessorNode.WriteFieldNode;
@@ -37,7 +38,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
-public abstract class FieldNode extends ExpressionNode {
+public abstract class FieldNode extends ExpressionWithTagsNode {
   protected FieldNode(final SourceSection source) {
     super(source);
   }
