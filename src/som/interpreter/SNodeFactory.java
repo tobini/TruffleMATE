@@ -22,6 +22,7 @@ import som.interpreter.nodes.LocalVariableNodeFactory.LocalVariableWriteNodeGen;
 import som.interpreter.nodes.MessageSendNode;
 import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
 import som.interpreter.nodes.MessageSendNode.CascadeMessageSendNode;
+import som.interpreter.nodes.NonLocalVariableNodeFactory.NonLocalArgumentVariableEmbeddedinBlockReadNodeUninitializedNodeGen;
 import som.interpreter.nodes.ReturnNonLocalNode;
 import som.interpreter.nodes.ReturnNonLocalNode.CatchNonLocalReturnNode;
 import som.interpreter.nodes.SequenceNode;
@@ -67,6 +68,12 @@ public final class SNodeFactory {
   public static ContextualNode createLocalVarRead(final Local variable,
       final int contextLevel, final SourceSection source) {
     return new UninitializedVariableReadNode(variable, contextLevel, source);
+  }
+  
+  public static ContextualNode createInlinedAsLocalArgumentVarRead(final Local variable,
+      final int contextLevel, final SourceSection source) {
+    return NonLocalArgumentVariableEmbeddedinBlockReadNodeUninitializedNodeGen.create(
+        contextLevel, variable.getSlot(), source);
   }
 
   public static ExpressionNode createArgumentRead(final Argument variable,

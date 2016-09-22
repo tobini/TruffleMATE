@@ -13,8 +13,12 @@ import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.MethodLayoutImpl;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
+
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlot;
+import com.oracle.truffle.api.frame.FrameSlotTypeException;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
@@ -70,7 +74,7 @@ public class BlockNode extends LiteralNode {
       final InlinerForLexicallyEmbeddedMethods inliner) {
     Invokable adapted = ((Method) InvokableLayoutImpl.INSTANCE.getInvokable(blockMethod)).
         cloneAndAdaptToEmbeddedOuterContext(inliner);
-    replaceAdapted(adapted);
+    replaceAdaptedForEmbeddedOuter(adapted, inliner.getBlockArguments());
   }
 
   @Override
@@ -82,14 +86,27 @@ public class BlockNode extends LiteralNode {
   }
 
   private void replaceAdapted(final Invokable adaptedForContext) {
-    DynamicObject adapted = Universe.newMethod(
+    DynamicObject adapted = methodForInvokable(adaptedForContext);
+    replace(createNode(adapted));
+  }
+  
+  private DynamicObject methodForInvokable(final Invokable adaptedForContext){
+    return Universe.newMethod(
         MethodLayoutImpl.INSTANCE.getSignature(blockMethod), adaptedForContext, false,
         MethodLayoutImpl.INSTANCE.getEmbeddedBlocks(blockMethod));
-    replace(createNode(adapted));
+  }
+  
+  private void replaceAdaptedForEmbeddedOuter(final Invokable adaptedForContext, Local[] blockArguments) {
+    DynamicObject adapted = methodForInvokable(adaptedForContext);
+    replace(createNodeForEmbeddedOuter(adapted, blockArguments));
   }
 
   protected BlockNode createNode(final DynamicObject adapted) {
     return new BlockNode(adapted, getSourceSection());
+  }
+  
+  protected BlockNode createNodeForEmbeddedOuter(final DynamicObject adapted, final Local[] blockArguments){
+    return createNode(adapted);
   }
 
   @Override
@@ -100,7 +117,7 @@ public class BlockNode extends LiteralNode {
     return InvokableLayoutImpl.INSTANCE.getInvokable(blockMethod).inline(mgenc, blockArguments);
   }
 
-  public static final class BlockNodeWithContext extends BlockNode {
+  public static class BlockNodeWithContext extends BlockNode {
 
     public BlockNodeWithContext(final DynamicObject blockMethod,
         final SourceSection source) {
@@ -124,5 +141,65 @@ public class BlockNode extends LiteralNode {
     protected BlockNode createNode(final DynamicObject adapted) {
       return new BlockNodeWithContext(adapted, getSourceSection());
     }
+    
+    @Override
+    protected BlockNode createNodeForEmbeddedOuter(final DynamicObject adapted, final Local[] blockArguments){
+      return new BlockNodeWithContextForInlinedScope(adapted, getSourceSection(), blockArguments);
+    }
   }
+  
+  public static final class BlockNodeWithContextForInlinedScope extends BlockNodeWithContext {
+    private final Local[] inlinedAsLocalBlockArguments;
+    
+    public BlockNodeWithContextForInlinedScope(final DynamicObject blockMethod,
+        final SourceSection source, final Local[] blockArguments) {
+      super(blockMethod, source);
+      this.inlinedAsLocalBlockArguments = blockArguments;
+    }
+    
+    @Override
+    public SBlock executeSBlock(final VirtualFrame frame) {
+      if (blockClass == null) {
+        CompilerDirectives.transferToInterpreter();
+        setBlockClass();
+      }
+      FrameDescriptor descriptor = new FrameDescriptor();
+      VirtualFrame blockArgumentsEmbeddedFrame = Universe.getCurrent().getTruffleRuntime().createVirtualFrame(null, descriptor);
+      try {
+        for (Local local: inlinedAsLocalBlockArguments){
+          FrameSlot slot = blockArgumentsEmbeddedFrame.getFrameDescriptor().addFrameSlot(local.getSlotIdentifier(), local.getSlot().getKind());
+          switch(local.getSlot().getKind()){
+            case Long:
+                blockArgumentsEmbeddedFrame.setLong(slot, frame.getLong(local.getSlot()));
+                break;
+            case Boolean:
+              assert false;
+              break;
+            case Byte:
+              assert false;
+              break;
+            case Double:
+              assert false;
+              break;
+            case Float:
+              assert false;
+              break;
+            case Int:
+              assert false;
+              break;
+            case Object:
+              assert false;
+              break;
+            default:
+              assert false;
+              break;
+          }
+        }
+      } catch (FrameSlotTypeException e) {
+        // Should never enter here!
+      }
+      return Universe.newBlock(blockMethod, blockClass, frame.materialize(), blockArgumentsEmbeddedFrame.materialize());
+    }
+  }
+
 }

@@ -3,6 +3,7 @@ package som.interpreter.nodes;
 import static som.interpreter.TruffleCompiler.transferToInterpreter;
 import som.interpreter.InlinerAdaptToEmbeddedOuterContext;
 import som.interpreter.InlinerForLexicallyEmbeddedMethods;
+import som.interpreter.nodes.NonLocalVariableNodeFactory.NonLocalArgumentVariableEmbeddedinBlockReadNodeGen;
 import som.vm.constants.Nil;
 
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -10,6 +11,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.FrameSlotTypeException;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
@@ -95,7 +97,38 @@ public abstract class NonLocalVariableNode extends ContextualNode {
       return slot.getKind() == FrameSlotKind.Illegal;
     }
   }
-
+  
+  public abstract static class NonLocalArgumentVariableEmbeddedinBlockReadNodeUninitialized extends NonLocalArgumentVariableEmbeddedinBlockReadNode {
+    public NonLocalArgumentVariableEmbeddedinBlockReadNodeUninitialized(final int contextLevel,
+        final FrameSlot slot, final SourceSection source) {
+      super(contextLevel, slot, source);
+    }
+    
+    /*Needed because there is a mismatch in the slot index the first time the node is executed*/
+    @Specialization(guards = "1 == 1", insertBefore="doNil")
+    public final Object doGeneric(final VirtualFrame frame) {
+      FrameSlot updatedSlot = this.determineContext(frame).getFrameDescriptor().
+          findOrAddFrameSlot(slot.getIdentifier(), slot.getKind());
+      return replace(NonLocalArgumentVariableEmbeddedinBlockReadNodeGen.
+          create(contextLevel, updatedSlot, this.sourceSection)).executeGeneric(frame);
+    }
+    
+  }
+  
+  public abstract static class NonLocalArgumentVariableEmbeddedinBlockReadNode extends NonLocalVariableReadNode {
+    public NonLocalArgumentVariableEmbeddedinBlockReadNode(final int contextLevel,
+        final FrameSlot slot, final SourceSection source) {
+      super(contextLevel, slot, source);
+    }
+    
+    @Override
+    protected final MaterializedFrame determineContext(final VirtualFrame frame) {
+      // Graal needs help here to see that this is always a MaterializedFrame
+      // so, we record explicitly a class profile
+      return frameType.profile(determineSelf(frame).getEmbeddedContext());
+    }
+  }  
+  
   @NodeChild(value = "exp", type = ExpressionNode.class)
   public abstract static class NonLocalVariableWriteNode extends NonLocalVariableNode {
 

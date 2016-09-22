@@ -36,7 +36,7 @@ import com.oracle.truffle.api.source.SourceSection;
 public abstract class ContextualNode extends ExpressionWithTagsNode {
 
   protected final int contextLevel;
-  private final ValueProfile frameType;
+  protected final ValueProfile frameType;
 
   public ContextualNode(final int contextLevel, final SourceSection source) {
     super(source);
@@ -53,7 +53,7 @@ public abstract class ContextualNode extends ExpressionWithTagsNode {
   }
 
   @ExplodeLoop
-  protected final MaterializedFrame determineContext(final VirtualFrame frame) {
+  protected SBlock determineSelf(final VirtualFrame frame) {
     SBlock self = (SBlock) SArguments.rcvr(frame);
     int i = contextLevel - 1;
 
@@ -61,10 +61,13 @@ public abstract class ContextualNode extends ExpressionWithTagsNode {
       self = (SBlock) self.getOuterSelf();
       i--;
     }
-
+    return self;
+  }
+  
+  protected MaterializedFrame determineContext(final VirtualFrame frame) {
     // Graal needs help here to see that this is always a MaterializedFrame
     // so, we record explicitly a class profile
-    return frameType.profile(self.getContext());
+    return frameType.profile(determineSelf(frame).getContext());
   }
   
   @Override

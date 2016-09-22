@@ -90,6 +90,10 @@ public class InlinerForLexicallyEmbeddedMethods implements NodeVisitor {
   public ExpressionNode getReplacementForNonLocalArgument(final int contextLevel,
       final int argumentIndex, final SourceSection source) {
     assert contextLevel > 0;
-    return blockArguments[argumentIndex - 1].getReadNode(contextLevel, source);
+    return blockArguments[argumentIndex - 1].getReadNodeForInlinedArgument(contextLevel, source);
+  }
+  
+  public Local[] getBlockArguments(){
+    return blockArguments;
   }
 }

@@ -44,6 +44,15 @@ public final class SBlock extends SAbstractObject {
     this.method  = blockMethod;
     this.context = context;
     this.blockClass = blockClass;
+    this.blockFixedArguments = null;
+  }
+  
+  public SBlock(final DynamicObject blockMethod, final DynamicObject blockClass,
+      final MaterializedFrame context, final MaterializedFrame embeddedContext) {
+    this.method  = blockMethod;
+    this.context = context;
+    this.blockClass = blockClass;
+    this.blockFixedArguments = embeddedContext;
   }
 
   public final DynamicObject getMethod() {
@@ -53,6 +62,11 @@ public final class SBlock extends SAbstractObject {
   public final MaterializedFrame getContext() {
     assert context != null;
     return context;
+  }
+  
+  public final MaterializedFrame getEmbeddedContext() {
+    assert blockFixedArguments != null;
+    return blockFixedArguments;
   }
 
   @Override
@@ -100,4 +114,5 @@ public final class SBlock extends SAbstractObject {
   private final DynamicObject     blockClass;
   private final DynamicObject     method;
   private final MaterializedFrame context;
+  private final MaterializedFrame blockFixedArguments;
 }

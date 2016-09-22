@@ -2,6 +2,7 @@ package som.compiler;
 
 import static som.interpreter.SNodeFactory.createArgumentRead;
 import static som.interpreter.SNodeFactory.createLocalVarRead;
+import static som.interpreter.SNodeFactory.createInlinedAsLocalArgumentVarRead;
 import static som.interpreter.SNodeFactory.createSuperRead;
 import static som.interpreter.SNodeFactory.createVariableWrite;
 import static som.interpreter.SNodeFactory.createThisContext;
@@ -100,6 +101,16 @@ public abstract class Variable {
         isReadOutOfContext = true;
       }
       return createLocalVarRead(this, contextLevel, source);
+    }
+    
+    public ExpressionNode getReadNodeForInlinedArgument(final int contextLevel,
+        final SourceSection source) {
+      transferToInterpreterAndInvalidate("Variable.getReadNode");
+      isRead = true;
+      if (contextLevel > 0) {
+        isReadOutOfContext = true;
+      }
+      return createInlinedAsLocalArgumentVarRead(this, contextLevel, source);
     }
 
     public FrameSlot getSlot() {

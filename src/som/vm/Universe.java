@@ -257,6 +257,11 @@ public class Universe extends ExecutionContext {
       final DynamicObject blockClass, final MaterializedFrame context) {
     return new SBlock(method, blockClass, context);
   }
+  
+  public static SBlock newBlock(final DynamicObject method,
+      final DynamicObject blockClass, final MaterializedFrame context, final MaterializedFrame embeddedContext) {
+    return new SBlock(method, blockClass, context, embeddedContext);
+  }
 
   @TruffleBoundary
   public static DynamicObject newMethod(final SSymbol signature,
