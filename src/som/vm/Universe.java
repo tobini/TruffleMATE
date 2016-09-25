@@ -384,6 +384,18 @@ public class Universe extends ExecutionContext {
     return this.mateActivated;
   }
   
+  public Assumption getGlobalSemanticsDeactivatedAssumption(){
+    return this.globalSemanticsDeactivated;
+  }
+  
+  public Assumption getGlobalSemanticsActivatedAssumption(){
+    return this.globalSemanticsActivated;
+  }
+
+  public DynamicObject getGlobalSemantics(){
+    return this.globalSemantics;
+  }
+  
   public void activatedMate(){
     if (this.getMateDeactivatedAssumption().isValid()){
       this.getMateDeactivatedAssumption().invalidate();
