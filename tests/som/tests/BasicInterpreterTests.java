@@ -104,7 +104,9 @@ public class BasicInterpreterTests {
 
         {"BlockInlining", "testToDoNestDoNestIfTrue",                 2, Long.class },
         
-        {"ObjectFieldAccess", "test", 4, Long.class }
+        {"ObjectFieldAccess", "test",                                 4, Long.class },
+        
+        {"LocalVarAccess", "test",                                    1, Long.class }
 
     });
   }

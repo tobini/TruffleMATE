@@ -47,6 +47,7 @@ import som.interpreter.nodes.GlobalNode;
 import som.interpreter.nodes.ReturnNonLocalNode;
 import som.primitives.Primitives;
 import som.vm.Universe;
+import som.vm.constants.Nil;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -94,7 +95,7 @@ public final class MethodGenerationContext {
     this.blockMethod     = isBlockMethod;
 
     LexicalScope outer = (outerGenc != null) ? outerGenc.getCurrentLexicalScope() : null;
-    this.currentScope   = new LexicalScope(new FrameDescriptor(), outer);
+    this.currentScope   = new LexicalScope(new FrameDescriptor(Nil.nilObject), outer);
 
     accessesVariablesOfOuterScope = false;
     throwsNonLocalReturn            = false;
