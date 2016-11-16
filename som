@@ -241,7 +241,7 @@ if args.mate:
 if args.mateActivated:
     mate_args += ['-activateMate']
 
-all_args = JAVA_ARGS + unknown + flags + TWEAK_INLINING + SOM_ARGS  + mate_args + ['-cp'] + args.som_cp + args.args
+all_args = JAVA_ARGS + unknown + flags + TWEAK_INLINING + SOM_ARGS  + mate_args + ['-cp'] + args.som_cp.split() + args.args
 
 if args.verbose:
     print "CMD: " + java_bin + ' ' + ' '.join(all_args)
