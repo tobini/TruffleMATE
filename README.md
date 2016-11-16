@@ -6,11 +6,11 @@ Introduction
 
 Mate is an approach for building Virtual Machines that expose their whole 
 structure and behavior to the language level [Mate].
-A MOP[MOP] then enables to adapt reflectively the Virtual Machine behavior at run time.
+A [MOP] then enables to adapt reflectively the Virtual Machine behavior at run time.
 TruffleMate is an implementation of the Mate approach in Truffle that started as a branch from the [TruffleSOM] VM.
 
 This repository contains an extension to the [Truffle][T]-based implementation of SOM, including
-SOM's standard library, a number of examples and the Mate v1 Metaobject protocol[M]. 
+SOM's standard library, a number of examples and the [Mate v1 Metaobject protocol][M]. 
 
 Obtaining and Running TruffleMate
 --------------------------------
@@ -21,17 +21,17 @@ To checkout the code:
 
 Then, TruffleMate can be build with Ant:
 
-    ant jar
+    ant jar or ant compile
 
 Afterwards, the tests can be executed with:
 
-    ./som.sh -cp Smalltalk TestSuite/TestHarness.som
+    ./som -G -cp Smalltalk:TestSuite TestHarness
    
 A simple Hello World program is executed with:
 
-    ./som.sh -cp Smalltalk Examples/Hello.som
+    ./som -G -cp Smalltalk:Examples Hello
 
-The --mate -activateMate optiosn runs the system with the Mate MOP enabled.
+The --mate -activateMate options runs the system with the Mate MOP enabled. Note that the classpath must be also extended with the MOP classes found under Smalltalk/MATE. The -G runs TruffleMATE in interpreter mode. For running in combination with GRAAL install graal and remove the -G option.
 
 When working on TruffleMate, for instance in Eclipse, it is helpful to download
 the source files for Truffle as well:
