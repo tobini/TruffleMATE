@@ -1,6 +1,7 @@
 package tools.dym.profiles;
 
 import som.vmobjects.SClass;
+import som.vmobjects.SObject;
 import tools.dym.profiles.AllocationProfileFactory.AllocProfileNodeGen;
 
 import com.oracle.truffle.api.dsl.Cached;
@@ -64,11 +65,11 @@ public class AllocationProfile extends Counter {
 
     @Specialization(guards = "getFactory(obj) == factory", limit = "1")
     public void doDynamicObject(final DynamicObject obj,
-        @Cached("getFactory(obj)") final DynamicObjectFactory factory) { }
+        @Cached("create(getFactory(obj))") final DynamicObjectFactory factory) { }
     
     @SuppressWarnings("unused")
     protected static DynamicObjectFactory getFactory(final DynamicObject object){
-      return SClass.getFactory(object);
+      return SClass.getFactory(SObject.getSOMClass(object));
     }
   }
 }
