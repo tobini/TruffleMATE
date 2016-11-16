@@ -89,4 +89,4 @@ https://travis-ci.org/charig/TruffleMATE.png)](https://travis-ci.org/charig/Truf
  [RS]:  http://dx.doi.org/10.1016/j.cl.2005.02.003
  [T]:   http://www.christianwimmer.at/Publications/Wuerthinger12a/
  [M]:   http://dl.acm.org/citation.cfm?id=2814241
- [OPT]: hthttp://dl.acm.org/citation.cfm?id=2989234
+ [OPT]: http://dl.acm.org/citation.cfm?id=2989234
