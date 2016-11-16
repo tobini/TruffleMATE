@@ -76,6 +76,7 @@ import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.FieldNode.FieldReadNode;
 import som.interpreter.nodes.FieldNode.FieldWriteNode;
 import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
+import som.interpreter.nodes.MessageSendNode.CascadeMessageSendNode;
 import som.interpreter.nodes.literals.ArrayLiteralNode;
 import som.interpreter.nodes.literals.BigIntegerLiteralNode;
 import som.interpreter.nodes.literals.BlockNode;
@@ -86,6 +87,7 @@ import som.interpreter.nodes.literals.IntegerLiteralNode;
 import som.interpreter.nodes.literals.LiteralNode;
 import som.interpreter.nodes.literals.StringLiteralNode;
 import som.interpreter.nodes.literals.SymbolLiteralNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.interpreter.nodes.specialized.BooleanInlinedLiteralNode.AndInlinedLiteralNode;
 import som.interpreter.nodes.specialized.BooleanInlinedLiteralNode.OrInlinedLiteralNode;
 import som.interpreter.nodes.specialized.IfInlinedLiteralNode;
@@ -245,7 +247,7 @@ public class Parser {
         || symIn(binaryOpSyms)) {
       MethodGenerationContext mgenc = new MethodGenerationContext(cgenc);
 
-      ExpressionNode methodBody = method(mgenc);
+      ExpressionWithTagsNode methodBody = method(mgenc);
       DynamicObject method = mgenc.assemble(methodBody, lastMethodsSourceSection);
       cgenc.addInstanceMethod(method);
       if (structuralProbe != null){
@@ -260,7 +262,7 @@ public class Parser {
           || symIn(binaryOpSyms)) {
         MethodGenerationContext mgenc = new MethodGenerationContext(cgenc);
 
-        ExpressionNode methodBody = method(mgenc);
+        ExpressionWithTagsNode methodBody = method(mgenc);
         DynamicObject method = mgenc.assemble(methodBody, lastMethodsSourceSection);
         cgenc.addClassMethod(method);
         if (structuralProbe != null){
@@ -363,7 +365,7 @@ public class Parser {
         lexer.getNumberOfCharactersRead() - coord.charIndex);
   }
 
-  private ExpressionNode method(final MethodGenerationContext mgenc) throws ParseError {
+  private ExpressionWithTagsNode method(final MethodGenerationContext mgenc) throws ParseError {
     pattern(mgenc);
     expect(Equal, KeywordTag.class);
     if (sym == Primitive) {
@@ -415,10 +417,10 @@ public class Parser {
     mgenc.setSignature(objectMemory.symbolFor(kw.toString()));
   }
 
-  private ExpressionNode methodBlock(final MethodGenerationContext mgenc) throws ParseError {
+  private ExpressionWithTagsNode methodBlock(final MethodGenerationContext mgenc) throws ParseError {
     expect(NewTerm, null);
     SourceCoordinate coord = getCoordinate();
-    ExpressionNode methodBody = blockContents(mgenc);
+    ExpressionWithTagsNode methodBody = blockContents(mgenc);
     lastMethodsSourceSection = getSource(coord);
     expect(EndTerm, null);
 
@@ -464,7 +466,7 @@ public class Parser {
     return variable();
   }
 
-  private ExpressionNode blockContents(final MethodGenerationContext mgenc) throws ParseError {
+  private ExpressionWithTagsNode blockContents(final MethodGenerationContext mgenc) throws ParseError {
     if (accept(Or, DelimiterOpeningTag.class)) {
       locals(mgenc);
       expect(Or, DelimiterClosingTag.class);
@@ -478,9 +480,9 @@ public class Parser {
     }
   }
 
-  private ExpressionNode blockBody(final MethodGenerationContext mgenc) throws ParseError {
+  private ExpressionWithTagsNode blockBody(final MethodGenerationContext mgenc) throws ParseError {
     SourceCoordinate coord = getCoordinate();
-    List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
+    List<ExpressionWithTagsNode> expressions = new ArrayList<ExpressionWithTagsNode>();
 
     while (true) {
       if (accept(Exit, KeywordTag.class)) {
@@ -491,7 +493,7 @@ public class Parser {
       } else if (sym == EndTerm) {
         // the end of the method has been found (EndTerm) - make it implicitly
         // return "self"
-        ExpressionNode self = variableRead(mgenc, "self", getSource(getCoordinate()));
+        ExpressionWithTagsNode self = variableRead(mgenc, "self", getSource(getCoordinate()));
         expressions.add(self);
         return createSequenceNode(coord, expressions);
       }
@@ -501,8 +503,8 @@ public class Parser {
     }
   }
 
-  private ExpressionNode createSequenceNode(final SourceCoordinate coord,
-      final List<ExpressionNode> expressions) {
+  private ExpressionWithTagsNode createSequenceNode(final SourceCoordinate coord,
+      final List<ExpressionWithTagsNode> expressions) {
     if (expressions.size() == 0) {
       return createGlobalRead("nil", objectMemory, getSource(coord));
     } else if (expressions.size() == 1)  {
@@ -511,10 +513,10 @@ public class Parser {
     return createSequence(expressions, getSource(coord));
   }
 
-  private ExpressionNode result(final MethodGenerationContext mgenc) throws ParseError {
+  private ExpressionWithTagsNode result(final MethodGenerationContext mgenc) throws ParseError {
     SourceCoordinate coord = getCoordinate();
 
-    ExpressionNode exp = expression(mgenc);
+    ExpressionWithTagsNode exp = expression(mgenc);
     accept(Period, StatementSeparatorTag.class);
 
     if (mgenc.isBlockMethod()) {
@@ -524,7 +526,7 @@ public class Parser {
     }
   }
 
-  private ExpressionNode expression(final MethodGenerationContext mgenc) throws ParseError {
+  private ExpressionWithTagsNode expression(final MethodGenerationContext mgenc) throws ParseError {
     peekForNextSymbolFromLexer();
 
     if (nextSym == Assign) {
@@ -534,11 +536,11 @@ public class Parser {
     }
   }
 
-  private ExpressionNode assignation(final MethodGenerationContext mgenc) throws ParseError {
+  private ExpressionWithTagsNode assignation(final MethodGenerationContext mgenc) throws ParseError {
     return assignments(mgenc);
   }
 
-  private ExpressionNode assignments(final MethodGenerationContext mgenc) throws ParseError {
+  private ExpressionWithTagsNode assignments(final MethodGenerationContext mgenc) throws ParseError {
     SourceCoordinate coord = getCoordinate();
 
     if (!isIdentifier(sym)) {
@@ -550,7 +552,7 @@ public class Parser {
 
     peekForNextSymbolFromLexer();
 
-    ExpressionNode value;
+    ExpressionWithTagsNode value;
     if (nextSym == Assign) {
       value = assignments(mgenc);
     } else {
@@ -566,23 +568,23 @@ public class Parser {
     return v;
   }
   
-  private ExpressionNode cascadeMessages(final MethodGenerationContext mgenc, 
-      ExpressionNode firstMessage, ExpressionNode receiver,
+  private CascadeMessageSendNode cascadeMessages(final MethodGenerationContext mgenc, 
+      ExpressionWithTagsNode firstMessage, ExpressionWithTagsNode receiver,
       SourceCoordinate coord, SourceSection section) throws ParseError {
-    List<ExpressionNode> expressions = new ArrayList<ExpressionNode>();
+    List<ExpressionWithTagsNode> expressions = new ArrayList<ExpressionWithTagsNode>();
     expressions.add(firstMessage);
     while (accept(SemiColon, StatementSeparatorTag.class)) {
-      ExpressionNode message = messages(mgenc, receiver);
+      ExpressionWithTagsNode message = messages(mgenc, receiver);
       expressions.add(message);
     }
     return createCascadeMessageSend(receiver, expressions, section);
   }
 
-  private ExpressionNode evaluation(final MethodGenerationContext mgenc) throws ParseError {
-    ExpressionNode exp = primary(mgenc);
+  private ExpressionWithTagsNode evaluation(final MethodGenerationContext mgenc) throws ParseError {
+    ExpressionWithTagsNode exp = primary(mgenc);
     if (isIdentifier(sym) || sym == Keyword || sym == OperatorSequence
         || symIn(binaryOpSyms)) {
-      ExpressionNode receiver = exp;
+      ExpressionWithTagsNode receiver = exp;
       SourceCoordinate coord = getCoordinate();
       SourceSection section = getSource(coord);
       
@@ -595,7 +597,7 @@ public class Parser {
     return exp;
   }
 
-  private ExpressionNode primary(final MethodGenerationContext mgenc) throws ParseError {
+  private ExpressionWithTagsNode primary(final MethodGenerationContext mgenc) throws ParseError {
     switch (sym) {
       case Identifier:
       case Primitive: {
@@ -610,7 +612,7 @@ public class Parser {
         SourceCoordinate coord = getCoordinate();
         MethodGenerationContext bgenc = new MethodGenerationContext(mgenc.getHolder(), mgenc);
 
-        ExpressionNode blockBody = nestedBlock(bgenc);
+        ExpressionWithTagsNode blockBody = nestedBlock(bgenc);
 
         DynamicObject blockMethod = bgenc.assemble(blockBody, lastMethodsSourceSection);
         mgenc.addEmbeddedBlockMethod(blockMethod);
@@ -631,9 +633,9 @@ public class Parser {
     return identifier();
   }
 
-  private ExpressionNode messages(final MethodGenerationContext mgenc,
-      final ExpressionNode receiver) throws ParseError {
-    ExpressionNode msg;
+  private ExpressionWithTagsNode messages(final MethodGenerationContext mgenc,
+      final ExpressionWithTagsNode receiver) throws ParseError {
+    ExpressionWithTagsNode msg;
     if (isIdentifier(sym)) {
       msg = unaryMessage(receiver);
 
@@ -681,8 +683,8 @@ public class Parser {
         getSource(coord));
   }
 
-  private ExpressionNode binaryOperand(final MethodGenerationContext mgenc) throws ParseError {
-    ExpressionNode operand = primary(mgenc);
+  private ExpressionWithTagsNode binaryOperand(final MethodGenerationContext mgenc) throws ParseError {
+    ExpressionWithTagsNode operand = primary(mgenc);
 
     // a binary operand can receive unaryMessages
     // Example: 2 * 3 asString
@@ -693,10 +695,10 @@ public class Parser {
     return operand;
   }
 
-  private ExpressionNode keywordMessage(final MethodGenerationContext mgenc,
-      final ExpressionNode receiver) throws ParseError {
+  private ExpressionWithTagsNode keywordMessage(final MethodGenerationContext mgenc,
+      final ExpressionWithTagsNode receiver) throws ParseError {
     SourceCoordinate coord = getCoordinate();
-    List<ExpressionNode> arguments = new ArrayList<ExpressionNode>();
+    List<ExpressionWithTagsNode> arguments = new ArrayList<ExpressionWithTagsNode>();
     StringBuffer         kw        = new StringBuffer();
 
     arguments.add(receiver);
@@ -761,7 +763,7 @@ public class Parser {
       } else if ("to:do:".equals(msgStr) &&
           arguments.get(2) instanceof LiteralNode) {
         Local loopIdx = mgenc.addLocal("i:" + source.getCharIndex());
-        ExpressionNode inlinedBody = ((LiteralNode) arguments.get(2)).inline(mgenc, loopIdx);
+        ExpressionWithTagsNode inlinedBody = ((LiteralNode) arguments.get(2)).inline(mgenc, loopIdx);
         inlinedBody.markAsLoopBody();
         return IntToDoInlinedLiteralsNodeGen.create(inlinedBody, loopIdx.getSlot(),
             arguments.get(2), source, arguments.get(0), arguments.get(1));
@@ -772,8 +774,8 @@ public class Parser {
         source);
   }
 
-  private ExpressionNode formula(final MethodGenerationContext mgenc) throws ParseError {
-    ExpressionNode operand = binaryOperand(mgenc);
+  private ExpressionWithTagsNode formula(final MethodGenerationContext mgenc) throws ParseError {
+    ExpressionWithTagsNode operand = binaryOperand(mgenc);
 
     while (sym == OperatorSequence || symIn(binaryOpSyms)) {
       operand = binaryMessage(mgenc, operand);
@@ -781,9 +783,9 @@ public class Parser {
     return operand;
   }
 
-  private ExpressionNode nestedTerm(final MethodGenerationContext mgenc) throws ParseError {
+  private ExpressionWithTagsNode nestedTerm(final MethodGenerationContext mgenc) throws ParseError {
     expect(NewTerm, DelimiterOpeningTag.class);
-    ExpressionNode exp = expression(mgenc);
+    ExpressionWithTagsNode exp = expression(mgenc);
     expect(EndTerm, DelimiterClosingTag.class);
     return exp;
   }
@@ -949,7 +951,7 @@ public class Parser {
     return s;
   }
 
-  private ExpressionNode nestedBlock(final MethodGenerationContext mgenc) throws ParseError {
+  private ExpressionWithTagsNode nestedBlock(final MethodGenerationContext mgenc) throws ParseError {
     SourceCoordinate coord = getCoordinate();
     expect(NewBlock, DelimiterOpeningTag.class);
     
@@ -968,7 +970,7 @@ public class Parser {
 
     mgenc.setSignature(objectMemory.symbolFor(blockSig));
 
-    ExpressionNode expressions = blockContents(mgenc);
+    ExpressionWithTagsNode expressions = blockContents(mgenc);
 
     lastMethodsSourceSection = getSource(coord);
 
@@ -988,7 +990,7 @@ public class Parser {
     } while (sym == Colon);
   }
 
-  private ExpressionNode variableRead(final MethodGenerationContext mgenc,
+  private ExpressionWithTagsNode variableRead(final MethodGenerationContext mgenc,
                                       final String variableName,
                                       final SourceSection source) {
     // we need to handle super special here
@@ -1019,8 +1021,8 @@ public class Parser {
     return mgenc.getGlobalRead(varName, source);
   }
 
-  private ExpressionNode variableWrite(final MethodGenerationContext mgenc,
-      final String variableName, final ExpressionNode exp, final SourceSection source) {
+  private ExpressionWithTagsNode variableWrite(final MethodGenerationContext mgenc,
+      final String variableName, final ExpressionWithTagsNode exp, final SourceSection source) {
     Local variable = mgenc.getLocal(variableName);
     if (variable != null) {
       return mgenc.getLocalWriteNode(variableName, exp, source);

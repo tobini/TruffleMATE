@@ -3,6 +3,7 @@ package som.interpreter;
 import som.interpreter.nodes.ContextualNode;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.SOMNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.nodes.Node;
@@ -12,10 +13,10 @@ import com.oracle.truffle.api.nodes.NodeVisitor;
 
 public final class SplitterForLexicallyEmbeddedCode implements NodeVisitor {
 
-  public static ExpressionNode doInline(
-      final ExpressionNode body,
+  public static ExpressionWithTagsNode doInline(
+      final ExpressionWithTagsNode body,
       final LexicalScope inlinedCurrentScope) {
-    ExpressionNode inlinedBody = NodeUtil.cloneNode(body);
+    ExpressionWithTagsNode inlinedBody = NodeUtil.cloneNode(body);
 
     return NodeVisitorUtil.applyVisitor(inlinedBody,
         new SplitterForLexicallyEmbeddedCode(inlinedCurrentScope));

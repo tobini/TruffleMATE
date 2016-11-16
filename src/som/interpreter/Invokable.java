@@ -4,6 +4,7 @@ import som.compiler.MethodGenerationContext;
 import som.compiler.Variable.Local;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.MateReturnNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.Universe;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
@@ -19,15 +20,15 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class Invokable extends RootNode implements MateNode{
 
-  @Child protected ExpressionNode expressionOrSequence;
+  @Child protected ExpressionWithTagsNode expressionOrSequence;
   
-  protected final ExpressionNode uninitializedBody;
+  protected final ExpressionWithTagsNode uninitializedBody;
   @CompilationFinal protected DynamicObject belongsToMethod;
 
   public Invokable(final SourceSection sourceSection,
       final FrameDescriptor frameDescriptor,
-      final ExpressionNode expressionOrSequence,
-      final ExpressionNode uninitialized,
+      final ExpressionWithTagsNode expressionOrSequence,
+      final ExpressionWithTagsNode uninitialized,
       DynamicObject method) {
     super(SomLanguage.class, sourceSection, frameDescriptor);
     this.uninitializedBody = this.mateifyUninitializedNode(uninitialized);
@@ -41,7 +42,7 @@ public abstract class Invokable extends RootNode implements MateNode{
   }
 
   public abstract Invokable cloneWithNewLexicalContext(final LexicalScope outerContext);
-  public ExpressionNode inline(final MethodGenerationContext mgenc,
+  public ExpressionWithTagsNode inline(final MethodGenerationContext mgenc,
       final Local[] locals) {
     return InlinerForLexicallyEmbeddedMethods.doInline(uninitializedBody, mgenc,
         locals, getSourceSection().getCharIndex());
@@ -75,11 +76,11 @@ public abstract class Invokable extends RootNode implements MateNode{
     }
   }
   
-  private ExpressionNode mateifyUninitializedNode(ExpressionNode uninitialized){
+  private ExpressionWithTagsNode mateifyUninitializedNode(ExpressionWithTagsNode uninitialized){
     if (!(Universe.getCurrent().vmReflectionEnabled()) || uninitialized.asMateNode() == null) {
         return uninitialized;
     } else {
-      return (ExpressionNode)uninitialized.asMateNode();
+      return (ExpressionWithTagsNode)uninitialized.asMateNode();
     }
   }
   

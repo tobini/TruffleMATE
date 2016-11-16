@@ -6,6 +6,7 @@ import java.io.IOException;
 import som.interpreter.SomLanguage;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vm.Universe;
@@ -96,7 +97,7 @@ public abstract class FilePluginPrims {
     @NodeChild(value = "count", type = ExpressionNode.class),
   })
   @ImportStatic(ArrayType.class)
-  public abstract static class ReadIntoFilePrim extends ExpressionNode {
+  public abstract static class ReadIntoFilePrim extends ExpressionWithTagsNode {
     public ReadIntoFilePrim() { super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Read Into File")); }
     
     private final ValueProfile storageType = ValueProfile.createClassProfile();

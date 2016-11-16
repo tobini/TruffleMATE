@@ -1,6 +1,6 @@
 package som.interpreter;
 
-import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeVisitor;
@@ -10,14 +10,14 @@ public final class NodeVisitorUtil {
 
   private static class DummyParent extends Node {
     private DummyParent() { super(); }
-    @Child private ExpressionNode child;
+    @Child private ExpressionWithTagsNode child;
 
-    private void adopt(final ExpressionNode child) {
+    private void adopt(final ExpressionWithTagsNode child) {
         this.child = insert(child);
     }
   }
 
-  public static ExpressionNode applyVisitor(final ExpressionNode body,
+  public static ExpressionWithTagsNode applyVisitor(final ExpressionWithTagsNode body,
       final NodeVisitor visitor) {
     DummyParent dummyParent = new DummyParent();
     dummyParent.adopt(body);

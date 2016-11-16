@@ -13,6 +13,7 @@ import som.interpreter.nodes.NonLocalVariableNode.NonLocalVariableReadNode;
 import som.interpreter.nodes.NonLocalVariableNode.NonLocalVariableWriteNode;
 import som.interpreter.nodes.NonLocalVariableNodeFactory.NonLocalVariableReadNodeGen;
 import som.interpreter.nodes.NonLocalVariableNodeFactory.NonLocalVariableWriteNodeGen;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -108,10 +109,10 @@ public abstract class UninitializedVariableNode extends ContextualNode {
   }
 
   public static class UninitializedVariableWriteNode extends UninitializedVariableNode {
-    @Child protected ExpressionNode exp;
+    @Child protected ExpressionWithTagsNode exp;
 
     public UninitializedVariableWriteNode(final Local variable,
-        final int contextLevel, final ExpressionNode exp,
+        final int contextLevel, final ExpressionWithTagsNode exp,
         final SourceSection source) {
       super(variable, contextLevel, source);
       this.exp = exp;

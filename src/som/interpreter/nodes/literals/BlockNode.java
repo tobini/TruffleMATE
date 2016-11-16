@@ -7,12 +7,13 @@ import som.interpreter.InlinerForLexicallyEmbeddedMethods;
 import som.interpreter.Invokable;
 import som.interpreter.Method;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
-import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.Universe;
 import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.MethodLayoutImpl;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
+
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -93,7 +94,7 @@ public class BlockNode extends LiteralNode {
   }
 
   @Override
-  public ExpressionNode inline(final MethodGenerationContext mgenc,
+  public ExpressionWithTagsNode inline(final MethodGenerationContext mgenc,
       final Local... blockArguments) {
     // self doesn't need to be passed
     assert SInvokable.getNumberOfArguments(blockMethod) - 1 == blockArguments.length;

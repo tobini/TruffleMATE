@@ -23,7 +23,6 @@ package som.interpreter.nodes.literals;
 
 import som.compiler.MethodGenerationContext;
 import som.compiler.Variable.Local;
-import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import tools.highlight.Tags.LiteralTag;
@@ -52,7 +51,7 @@ public abstract class LiteralNode extends ExpressionWithTagsNode
     return executeGeneric(frame);
   }
 
-  public ExpressionNode inline(final MethodGenerationContext mgenc,
+  public ExpressionWithTagsNode inline(final MethodGenerationContext mgenc,
       final Local... blockArguments) {
     return this;
   }

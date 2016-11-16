@@ -207,24 +207,16 @@ public final class MessageSendNode {
         case  4: return specializeQuaternary(arguments, level);
       }
 
-      return makeGenericSend();
+      return replace(makeGenericSend());
     }
 
     protected abstract PreevaluatedExpression makeSuperSend();
 
     protected GenericMessageSendNode makeGenericSend() {
-      Universe.insertInstrumentationWrapper(this);
-      ExpressionNode rcvr = unwrapIfNecessary(argumentNodes[0]);
-      rcvr.markAsVirtualInvokeReceiver();
-      GenericMessageSendNode send = new GenericMessageSendNode(selector,
+      return new GenericMessageSendNode(selector,
           argumentNodes,
           new UninitializedDispatchNode(this.sourceSection, selector),
           getSourceSection());
-      replace(send);
-      Universe.insertInstrumentationWrapper(send);
-      assert unwrapIfNecessary(argumentNodes[0]) == rcvr : "for some reason these are not the same anymore. race?";
-      Universe.insertInstrumentationWrapper(argumentNodes[0]);
-      return send;
     }
     
     protected <T extends EagerPrimitive> T makeEagerPrim(T prim) {
@@ -266,7 +258,7 @@ public final class MessageSendNode {
                 argumentNodes[0], AbsPrimFactory.create(null)));
           }
       }
-      return makeGenericSend();
+      return replace(makeGenericSend());
     }
 
     protected PreevaluatedExpression specializeBinary(final Object[] arguments, ExecutionLevel level) {
@@ -477,7 +469,7 @@ public final class MessageSendNode {
 
       }
 
-      return makeGenericSend();
+      return replace(makeGenericSend());
     }
 
     protected PreevaluatedExpression specializeTernary(final Object[] arguments, ExecutionLevel level) {
@@ -530,7 +522,7 @@ public final class MessageSendNode {
               InstVarAtPutPrimFactory.create(
                   argumentNodes[0], argumentNodes[1], argumentNodes[2])));
       }
-      return makeGenericSend();
+      return replace(makeGenericSend());
     }
 
     protected PreevaluatedExpression specializeQuaternary(
@@ -543,7 +535,7 @@ public final class MessageSendNode {
                   (SBlock) arguments[3], level, argumentNodes[0], argumentNodes[1],
                   argumentNodes[2], argumentNodes[3])));
       }
-      return makeGenericSend();
+      return replace(makeGenericSend());
     }
   }
 
@@ -680,7 +672,7 @@ public final class MessageSendNode {
   }
   
   public static class CascadeMessageSendNode
-      extends ExpressionNode {
+      extends ExpressionWithTagsNode {
     @Child private ExpressionNode receiver;
     final @Children private ExpressionWithReceiver[] messages;
     

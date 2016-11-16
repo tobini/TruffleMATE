@@ -6,6 +6,7 @@ import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.SOMNode;
 import som.interpreter.nodes.UninitializedVariableNode.UninitializedVariableReadNode;
 import som.interpreter.nodes.UninitializedVariableNode.UninitializedVariableWriteNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.nodes.Node;
@@ -16,11 +17,11 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public class InlinerForLexicallyEmbeddedMethods implements NodeVisitor {
 
-  public static ExpressionNode doInline(
-      final ExpressionNode body, final MethodGenerationContext mgenc,
+  public static ExpressionWithTagsNode doInline(
+      final ExpressionWithTagsNode body, final MethodGenerationContext mgenc,
       final Local[] blockArguments,
       final int blockStartIdx) {
-    ExpressionNode inlinedBody = NodeUtil.cloneNode(body);
+    ExpressionWithTagsNode inlinedBody = NodeUtil.cloneNode(body);
 
     return NodeVisitorUtil.applyVisitor(inlinedBody,
         new InlinerForLexicallyEmbeddedMethods(mgenc, blockArguments, blockStartIdx));
@@ -74,7 +75,7 @@ public class InlinerForLexicallyEmbeddedMethods implements NodeVisitor {
   }
 
   public UninitializedVariableWriteNode getLocalWrite(final Object slotIdentifier,
-      final ExpressionNode valExp,
+      final ExpressionWithTagsNode valExp,
       final SourceSection source) {
     String inlinedId = getEmbeddedSlotId(slotIdentifier);
     mgenc.addLocalIfAbsent(inlinedId);

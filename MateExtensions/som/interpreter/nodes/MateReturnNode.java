@@ -2,13 +2,15 @@ package som.interpreter.nodes;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.BranchProfile;
+
 import som.interpreter.SArguments;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.matenodes.MateAbstractReflectiveDispatch.MateAbstractStandardDispatch;
 import som.matenodes.MateAbstractSemanticNodes.MateAbstractSemanticsLevelNode;
 import som.matenodes.MateBehavior;
 import som.vm.constants.ReflectiveOp;
 
-public class MateReturnNode extends ExpressionNode implements MateBehavior {
+public class MateReturnNode extends ExpressionWithTagsNode implements MateBehavior {
   @Child MateAbstractSemanticsLevelNode   semanticCheck;
   @Child MateAbstractStandardDispatch     reflectiveDispatch;
   @Child ExpressionNode                   expression;

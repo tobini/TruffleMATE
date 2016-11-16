@@ -6,7 +6,7 @@ import static som.interpreter.SNodeFactory.createSuperRead;
 import static som.interpreter.SNodeFactory.createVariableWrite;
 import static som.interpreter.SNodeFactory.createThisContext;
 import static som.interpreter.TruffleCompiler.transferToInterpreterAndInvalidate;
-import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
@@ -38,10 +38,10 @@ public abstract class Variable {
     return isReadOutOfContext;
   }
 
-  public abstract ExpressionNode getReadNode(final int contextLevel,
+  public abstract ExpressionWithTagsNode getReadNode(final int contextLevel,
       final SourceSection source);
 
-  public final ExpressionNode getSuperReadNode(final int contextLevel,
+  public final ExpressionWithTagsNode getSuperReadNode(final int contextLevel,
       final SSymbol holderClass, final boolean classSide,
       final SourceSection source) {
     isRead = true;
@@ -51,7 +51,7 @@ public abstract class Variable {
     return createSuperRead(contextLevel, holderClass, classSide, source);
   }
   
-  public final ExpressionNode getThisContextNode(final SourceSection source) {
+  public final ExpressionWithTagsNode getThisContextNode(final SourceSection source) {
     return createThisContext(source);
   }
 
@@ -68,7 +68,7 @@ public abstract class Variable {
     }
 
     @Override
-    public ExpressionNode getReadNode(final int contextLevel,
+    public ExpressionWithTagsNode getReadNode(final int contextLevel,
         final SourceSection source) {
       transferToInterpreterAndInvalidate("Variable.getReadNode");
       isRead = true;
@@ -92,7 +92,7 @@ public abstract class Variable {
     }
 
     @Override
-    public ExpressionNode getReadNode(final int contextLevel,
+    public ExpressionWithTagsNode getReadNode(final int contextLevel,
         final SourceSection source) {
       transferToInterpreterAndInvalidate("Variable.getReadNode");
       isRead = true;
@@ -129,8 +129,8 @@ public abstract class Variable {
       return super.isAccessedOutOfContext() || isWrittenOutOfContext;
     }
 
-    public ExpressionNode getWriteNode(final int contextLevel,
-        final ExpressionNode valueExpr, final SourceSection source) {
+    public ExpressionWithTagsNode getWriteNode(final int contextLevel,
+        final ExpressionWithTagsNode valueExpr, final SourceSection source) {
       transferToInterpreterAndInvalidate("Variable.getWriteNode");
       isWritten = true;
       if (contextLevel > 0) {

@@ -30,6 +30,7 @@ import som.interpreter.nodes.UninitializedVariableNode.UninitializedVariableWrit
 import som.interpreter.nodes.literals.BlockNode;
 import som.interpreter.nodes.literals.BlockNode.BlockNodeWithContext;
 import som.interpreter.nodes.nary.ExpressionWithReceiver;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.ObjectMemory;
 import som.vmobjects.SSymbol;
 
@@ -42,7 +43,7 @@ import com.oracle.truffle.api.source.SourceSection;
 public final class SNodeFactory {
 
   public static CatchNonLocalReturnNode createCatchNonLocalReturn(
-      final ExpressionNode methodBody, final FrameSlot frameOnStackMarker) {
+      final ExpressionWithTagsNode methodBody, final FrameSlot frameOnStackMarker) {
     return new CatchNonLocalReturnNode(methodBody, frameOnStackMarker);
   }
 
@@ -69,7 +70,7 @@ public final class SNodeFactory {
     return new UninitializedVariableReadNode(variable, contextLevel, source);
   }
 
-  public static ExpressionNode createArgumentRead(final Argument variable,
+  public static ExpressionWithTagsNode createArgumentRead(final Argument variable,
       final int contextLevel, final SourceSection source) {
     if (contextLevel == 0) {
       return new LocalArgumentReadNode(variable.index, source);
@@ -78,7 +79,7 @@ public final class SNodeFactory {
     }
   }
 
-  public static ExpressionNode createSuperRead(final int contextLevel,
+  public static ExpressionWithTagsNode createSuperRead(final int contextLevel,
         final SSymbol holderClass, final boolean classSide, final SourceSection source) {
     if (contextLevel == 0) {
       return new LocalSuperReadNode(holderClass, classSide, source);
@@ -89,7 +90,7 @@ public final class SNodeFactory {
 
   public static ContextualNode createVariableWrite(final Local variable,
         final int contextLevel,
-        final ExpressionNode exp, final SourceSection source) {
+        final ExpressionWithTagsNode exp, final SourceSection source) {
     return new UninitializedVariableWriteNode(variable, contextLevel, exp, source);
   }
 
@@ -98,7 +99,7 @@ public final class SNodeFactory {
     return LocalVariableWriteNodeGen.create(varSlot, source, exp);
   }
 
-  public static SequenceNode createSequence(final List<ExpressionNode> exps,
+  public static SequenceNode createSequence(final List<ExpressionWithTagsNode> exps,
       final SourceSection source) {
     return new SequenceNode(exps.toArray(new ExpressionNode[0]), source);
   }
@@ -122,8 +123,8 @@ public final class SNodeFactory {
     return MessageSendNode.create(msg, exprs.toArray(new ExpressionNode[0]), source);
   }
   
-  public static CascadeMessageSendNode createCascadeMessageSend(final ExpressionNode receiver,
-      final List<ExpressionNode> messages, final SourceSection source) {
+  public static CascadeMessageSendNode createCascadeMessageSend(final ExpressionWithTagsNode receiver,
+      final List<ExpressionWithTagsNode> messages, final SourceSection source) {
       return new CascadeMessageSendNode(receiver, messages.toArray(new ExpressionWithReceiver[0]), source);
   }
   

@@ -28,7 +28,7 @@ package som.primitives;
 import som.compiler.MethodGenerationContext;
 import som.interpreter.Primitive;
 import som.interpreter.nodes.ArgumentReadNode.LocalArgumentReadNode;
-import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.primitives.MethodPrimsFactory.InvokeOnPrimFactory;
 import som.primitives.arrays.PutAllNodeFactory;
 import som.primitives.arrays.ToArgumentsArrayNodeGen;
@@ -62,18 +62,18 @@ public abstract class Primitives {
   public abstract void installPrimitives();
 
   public static DynamicObject constructPrimitive(final SSymbol signature,
-      final NodeFactory<? extends ExpressionNode> nodeFactory,
+      final NodeFactory<? extends ExpressionWithTagsNode> nodeFactory,
       final Universe universe, final DynamicObject holder) {
     CompilerAsserts.neverPartOfCompilation("constructPrimitive");
     int numArgs = signature.getNumberOfSignatureArguments();
 
     MethodGenerationContext mgen = new MethodGenerationContext(null);
-    ExpressionNode[] args = new ExpressionNode[numArgs];
+    ExpressionWithTagsNode[] args = new ExpressionWithTagsNode[numArgs];
     for (int i = 0; i < numArgs; i++) {
       args[i] = new LocalArgumentReadNode(i, null);
     }
 
-    ExpressionNode primNode;
+    ExpressionWithTagsNode primNode;
     switch (numArgs) {
       case 1:
         primNode = nodeFactory.createNode(args[0]);
@@ -107,7 +107,7 @@ public abstract class Primitives {
     }
 
     Primitive primMethodNode = new Primitive(primNode, mgen.getCurrentLexicalScope().getFrameDescriptor(),
-        (ExpressionNode) primNode.deepCopy(), null);
+        (ExpressionWithTagsNode) primNode.deepCopy(), null);
     DynamicObject primitive = Universe.newMethod(signature, primMethodNode, true, new DynamicObject[0]);
     primMethodNode.setMethod(primitive);
     return primitive;
@@ -117,16 +117,16 @@ public abstract class Primitives {
     CompilerAsserts.neverPartOfCompilation("constructEmptyPrimitive");
     MethodGenerationContext mgen = new MethodGenerationContext(null);
 
-    ExpressionNode primNode = EmptyPrim.create(new LocalArgumentReadNode(0, null));
+    ExpressionWithTagsNode primNode = EmptyPrim.create(new LocalArgumentReadNode(0, null));
     Primitive primMethodNode = new Primitive(primNode, mgen.getCurrentLexicalScope().getFrameDescriptor(),
-        (ExpressionNode) primNode.deepCopy(), null);
+        (ExpressionWithTagsNode) primNode.deepCopy(), null);
     DynamicObject method = Universe.newMethod(signature, primMethodNode, true, new DynamicObject[0]);
     primMethodNode.setMethod(method);
     return method;
   }
 
   protected final void installInstancePrimitive(final String selector,
-      final NodeFactory<? extends ExpressionNode> nodeFactory) {
+      final NodeFactory<? extends ExpressionWithTagsNode> nodeFactory) {
     SSymbol signature = universe.symbolFor(selector);
     DynamicObject prim = constructPrimitive(signature, nodeFactory, universe, holder);
 
@@ -135,7 +135,7 @@ public abstract class Primitives {
   }
 
   protected final void installClassPrimitive(final String selector,
-      final NodeFactory<? extends ExpressionNode> nodeFactory) {
+      final NodeFactory<? extends ExpressionWithTagsNode> nodeFactory) {
     SSymbol signature = universe.symbolFor(selector);
     DynamicObject prim = constructPrimitive(signature, nodeFactory, universe, holder);
 

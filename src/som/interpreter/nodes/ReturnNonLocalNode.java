@@ -171,7 +171,7 @@ public final class ReturnNonLocalNode extends ContextualNode {
     }
   }
 
-  public static final class CatchNonLocalReturnNode extends ExpressionNode {
+  public static final class CatchNonLocalReturnNode extends ExpressionWithTagsNode {
     @Child protected ExpressionNode methodBody;
     private final BranchProfile nonLocalReturnHandler;
     private final BranchProfile doCatch;

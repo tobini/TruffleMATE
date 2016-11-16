@@ -21,7 +21,7 @@
  */
 package som.interpreter;
 
-import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.LoopNode;
@@ -36,9 +36,9 @@ public final class Method extends Invokable {
   private final LexicalScope currentLexicalScope;
 
   public Method(final SourceSection sourceSection,
-                final ExpressionNode expressions,
+                final ExpressionWithTagsNode expressions,
                 final LexicalScope currentLexicalScope,
-                final ExpressionNode uninitialized,
+                final ExpressionWithTagsNode uninitialized,
                 final DynamicObject method) {
     super(sourceSection, currentLexicalScope.getFrameDescriptor(),
         expressions, uninitialized, method);
@@ -58,7 +58,7 @@ public final class Method extends Invokable {
     FrameDescriptor inlinedFrameDescriptor = getFrameDescriptor().copy();
     LexicalScope    inlinedCurrentScope = new LexicalScope(
         inlinedFrameDescriptor, outerScope);
-    ExpressionNode  inlinedBody = SplitterForLexicallyEmbeddedCode.doInline(
+    ExpressionWithTagsNode  inlinedBody = SplitterForLexicallyEmbeddedCode.doInline(
         uninitializedBody, inlinedCurrentScope);
     Method clone = new Method(getSourceSection(), inlinedBody,
         inlinedCurrentScope, uninitializedBody, this.belongsToMethod);
@@ -69,9 +69,9 @@ public final class Method extends Invokable {
       final InlinerForLexicallyEmbeddedMethods inliner) {
     LexicalScope currentAdaptedScope = new LexicalScope(
         getFrameDescriptor().copy(), inliner.getCurrentLexicalScope());
-    ExpressionNode adaptedBody = InlinerAdaptToEmbeddedOuterContext.doInline(
+    ExpressionWithTagsNode adaptedBody = InlinerAdaptToEmbeddedOuterContext.doInline(
         uninitializedBody, inliner, currentAdaptedScope);
-    ExpressionNode uninitAdaptedBody = NodeUtil.cloneNode(adaptedBody);
+    ExpressionWithTagsNode uninitAdaptedBody = NodeUtil.cloneNode(adaptedBody);
 
     Method clone = new Method(getSourceSection(), adaptedBody,
         currentAdaptedScope, uninitAdaptedBody, this.belongsToMethod);
@@ -82,9 +82,9 @@ public final class Method extends Invokable {
       final InlinerAdaptToEmbeddedOuterContext inliner) {
     LexicalScope currentAdaptedScope = new LexicalScope(
         getFrameDescriptor().copy(), inliner.getCurrentLexicalScope());
-    ExpressionNode adaptedBody = InlinerAdaptToEmbeddedOuterContext.doInline(
+    ExpressionWithTagsNode adaptedBody = InlinerAdaptToEmbeddedOuterContext.doInline(
         uninitializedBody, inliner, currentAdaptedScope);
-    ExpressionNode uninitAdaptedBody = NodeUtil.cloneNode(adaptedBody);
+    ExpressionWithTagsNode uninitAdaptedBody = NodeUtil.cloneNode(adaptedBody);
 
     Method clone = new Method(getSourceSection(),
         adaptedBody, currentAdaptedScope, uninitAdaptedBody, this.belongsToMethod);

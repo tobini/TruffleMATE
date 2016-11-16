@@ -45,6 +45,7 @@ import som.interpreter.nodes.FieldNode.FieldReadNode;
 import som.interpreter.nodes.FieldNode.FieldWriteNode;
 import som.interpreter.nodes.GlobalNode;
 import som.interpreter.nodes.ReturnNonLocalNode;
+import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.primitives.Primitives;
 import som.vm.Universe;
 import som.vm.constants.Nil;
@@ -160,7 +161,7 @@ public final class MethodGenerationContext {
     }
   }
 
-  public DynamicObject assemble(ExpressionNode body, final SourceSection sourceSection) {
+  public DynamicObject assemble(ExpressionWithTagsNode body, final SourceSection sourceSection) {
     if (primitive) {
       return Primitives.constructEmptyPrimitive(signature);
     }
@@ -176,7 +177,7 @@ public final class MethodGenerationContext {
 
     Method truffleMethod =
         new Method(getSourceSectionForMethod(sourceSection),
-            body, currentScope, (ExpressionNode) body.deepCopy(), null);
+            body, currentScope, (ExpressionWithTagsNode) body.deepCopy(), null);
 
     DynamicObject method = Universe.newMethod(signature, truffleMethod, false,
         embeddedBlockMethods.toArray(new DynamicObject[0]));
@@ -289,25 +290,25 @@ public final class MethodGenerationContext {
     return null;
   }
 
-  public ExpressionNode getSuperReadNode(final SourceSection source) {
+  public ExpressionWithTagsNode getSuperReadNode(final SourceSection source) {
     Variable self = getVariable("self");
     return self.getSuperReadNode(getOuterSelfContextLevel(),
         holderGenc.getName(), holderGenc.isClassSide(), source);
   }
   
-  public ExpressionNode getThisContextNode(final SourceSection source) {
+  public ExpressionWithTagsNode getThisContextNode(final SourceSection source) {
     Variable self = getVariable("self");
     return self.getThisContextNode(source);
   }
 
-  public ExpressionNode getLocalReadNode(final String variableName,
+  public ExpressionWithTagsNode getLocalReadNode(final String variableName,
       final SourceSection source) {
     Variable variable = getVariable(variableName);
     return variable.getReadNode(getContextLevel(variableName), source);
   }
 
-  public ExpressionNode getLocalWriteNode(final String variableName,
-      final ExpressionNode valExpr, final SourceSection source) {
+  public ExpressionWithTagsNode getLocalWriteNode(final String variableName,
+      final ExpressionWithTagsNode valExpr, final SourceSection source) {
     Local variable = getLocal(variableName);
     return variable.getWriteNode(getContextLevel(variableName), valExpr, source);
   }
