@@ -4,13 +4,14 @@ TruffleMate - A Reflective Execution Environment implemented using Oracle's Truf
 Introduction
 ------------
 
-Mate is an approach for building Virtual Machines that expose their whole 
-structure and behavior to the language level [Mate].
+Mate is an approach for building Virtual Machines that expose their whole structure and behavior to the language level [Mate].
 A [MOP] then enables to adapt reflectively the Virtual Machine behavior at run time.
 TruffleMate is an implementation of the Mate approach in Truffle that started as a branch from the [TruffleSOM] VM.
 
 This repository contains an extension to the [Truffle][T]-based implementation of SOM, including
-SOM's standard library, a number of examples and the [Mate v1 Metaobject protocol][M]. 
+SOM's standard library, a number of examples and the [Mate v1 Metaobject protocol][M].
+
+Moreover, TruffleMATE implements an [optimization model][OPT] for making the VM not only reflective, but also efficient, presenting similar performance results than standard VMs when considering peak performance.
 
 Obtaining and Running TruffleMate
 --------------------------------
@@ -88,3 +89,4 @@ https://travis-ci.org/charig/TruffleMATE.png)](https://travis-ci.org/charig/Truf
  [RS]:  http://dx.doi.org/10.1016/j.cl.2005.02.003
  [T]:   http://www.christianwimmer.at/Publications/Wuerthinger12a/
  [M]:   http://dl.acm.org/citation.cfm?id=2814241
+ [OPT]: hthttp://dl.acm.org/citation.cfm?id=2989234
