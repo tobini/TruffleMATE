@@ -1,7 +1,6 @@
 package som.interpreter;
 
 import som.interpreter.nodes.ContextualNode;
-import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.SOMNode;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 

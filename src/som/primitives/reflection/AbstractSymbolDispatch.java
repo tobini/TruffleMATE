@@ -8,7 +8,6 @@ import som.interpreter.nodes.PreevaluatedExpression;
 import som.primitives.arrays.ToArgumentsArrayNode;
 import som.primitives.arrays.ToArgumentsArrayNodeGen;
 import som.vm.constants.ExecutionLevel;
-import som.vm.constants.MateClasses;
 import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.SArray;
 import som.vmobjects.SClass;
@@ -67,14 +66,14 @@ public abstract class AbstractSymbolDispatch extends Node {
     DynamicObject invokable = SClass.lookupInvokable(Types.getClassOf(receiver), selector);
 
     /*Todo: Analyze what is the best to do here with the Mate arguments*/
-    Object[] arguments = { MateClasses.STANDARD_ENVIRONMENT, SArguments.getExecutionLevel(frame), receiver };
+    Object[] arguments = { receiver };
     CallTarget target;
     if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta){
       target = InvokableLayoutImpl.INSTANCE.getCallTargetMeta(invokable);
     } else {
       target = InvokableLayoutImpl.INSTANCE.getCallTarget(invokable);
     }
-    return call.call(frame, target, arguments);
+    return call.call(frame, target, SArguments.createSArguments(SArguments.getEnvironment(frame), ExecutionLevel.Base, arguments));
   }
 
   @Specialization(contains = "doCached")
@@ -91,6 +90,6 @@ public abstract class AbstractSymbolDispatch extends Node {
     } else {
       target = InvokableLayoutImpl.INSTANCE.getCallTarget(invokable);
     }
-    return call.call(frame, target, arguments);
+    return call.call(frame, target, SArguments.createSArguments(SArguments.getEnvironment(frame), ExecutionLevel.Base, arguments));
   }
 }
