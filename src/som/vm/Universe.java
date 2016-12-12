@@ -52,9 +52,6 @@ import som.vmobjects.SObjectLayoutImpl;
 import som.vmobjects.SReflectiveObject;
 import som.vmobjects.SReflectiveObjectLayoutImpl;
 import som.vmobjects.SSymbol;
-import tools.debugger.WebDebugger;
-import tools.dym.DynamicMetrics;
-import tools.highlight.Highlight;
 import tools.highlight.Tags;
 import tools.language.StructuralProbe;
 
@@ -134,9 +131,6 @@ public class Universe extends ExecutionContext {
   
   private static void startExecution(final Builder builder,
       final VMOptions vmOptions) {
-    if (vmOptions.webDebuggerEnabled) {
-      builder.onEvent(onExec).onEvent(onHalted);
-    }
     engine = builder.build();
 
     try {
@@ -148,27 +142,6 @@ public class Universe extends ExecutionContext {
         profiler.setEnabled(vmOptions.profilingEnabled);
       }
       //instruments.get(Highlight.ID).setEnabled(vmOptions.highlightingEnabled);
-
-      if (VmSettings.TRUFFLE_DEBUGGER_ENABLED) {
-        debugger = Debugger.find(engine);
-      }
-
-      if (vmOptions.webDebuggerEnabled) {
-        assert debugger != null;
-        Instrument webDebuggerInst = instruments.get(WebDebugger.ID);
-        webDebuggerInst.setEnabled(true);
-
-        webDebugger = webDebuggerInst.lookup(WebDebugger.class);
-        //webDebugger.startServer(debugger);
-      }
-
-      if (vmOptions.dynamicMetricsEnabled) {
-        assert VmSettings.DYNAMIC_METRICS;
-        Instrument dynM = instruments.get(DynamicMetrics.ID);
-        dynM.setEnabled(true);
-        structuralProbe = dynM.lookup(StructuralProbe.class);
-        assert structuralProbe != null : "Initialization of DynamicMetrics tool incomplete";
-      }
 
       engine.eval(SomLanguage.START);
       engine.dispose();
@@ -414,28 +387,9 @@ public class Universe extends ExecutionContext {
   public DynamicObject getFalseObject()  { return objectMemory.getFalseObject(); }
   public DynamicObject getSystemObject() { return objectMemory.getSystemObject(); }
   
-  private static final EventConsumer<ExecutionEvent> onExec =
-      new EventConsumer<ExecutionEvent>(ExecutionEvent.class) {
-    @Override
-    protected void on(final ExecutionEvent event) {
-      WebDebugger.reportExecutionEvent(event);
-    }
-  };
-
-  private static final EventConsumer<SuspendedEvent> onHalted =
-      new EventConsumer<SuspendedEvent>(SuspendedEvent.class) {
-    @Override
-    protected void on(final SuspendedEvent e) {
-      WebDebugger.reportSuspendedEvent(e);
-    }
-  };
   
   public static void reportSyntaxElement(final Class<? extends Tags> type,
       final SourceSection source) {
-    Highlight.reportNonAstSyntax(type, source);
-    if (webDebugger != null) {
-      WebDebugger.reportSyntaxElement(type, source);
-    }
   }
   
   public static void insertInstrumentationWrapper(final Node node) {
@@ -478,8 +432,6 @@ public class Universe extends ExecutionContext {
   private final ObjectMemory objectMemory;
   @CompilationFinal private static StructuralProbe structuralProbe;
   
-  @CompilationFinal private static Debugger    debugger;
-  @CompilationFinal private static WebDebugger webDebugger;
   private final VMOptions options;
   
   @CompilationFinal private Assumption mateActivated;

@@ -7,9 +7,3 @@
 [submodule "libs/mxtool"]
 	path = libs/mxtool
 	url = https://github.com/charig/mx.git
-[submodule "libs/websocket"]
-	path = libs/websocket
-	url = https://github.com/smarr/Java-WebSocket.git
-[submodule "libs/json"]
-	path = libs/json
-	url = https://github.com/smarr/minimal-json.git
