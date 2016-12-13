@@ -3,7 +3,23 @@ Description on the Content of the Experiments and Instructions for Runnning Them
 
 Inmmutability 
 -------------
-The experiment in the paper is described in Sections 6.2.1 and 6.2.2.
+The metaobjects for realizing both kinds of immutability are described in the paper in Sections 6.2.1 and 6.2.2.
+
+Since the metaobject for reference immutability contains the metaobject for the more simpler object immutability we provide only experimentation for reference immutability. To make the experimentation more complete we also provide an implementation of reference immutability based on [Delegation Proxies](http://dl.acm.org/citation.cfm?id=2577081).
+
+In the example we walk through an (immutable) linked-list of Points and intend to modify the x value of each. To assess the propagation of the immutability property, we also try to modify the x value of the n next elements of the list, being n a customizable parameter. 
+
+The base class describing the experiment is [SumKeys](https://github.com/charig/SOM/blob/papers/JSS2016/Examples/Benchmarks/Mate/Immutability/SumKeys.som). This class runs the example allowing the modifications to the list elements. [ReadonlySumKeys](https://github.com/charig/SOM/blob/papers/JSS2016/Examples/Benchmarks/Mate/Immutability/ReadonlySumKeys.som) and [DelegationProxiesSumKeys](https://github.com/charig/SOM/blob/papers/JSS2016/Examples/Benchmarks/Mate/Immutability/DelegationProxiesSumKeys.som) 
+run the experiments with *[handles](http://dl.acm.org/citation.cfm?id=1894393)* implemented with metaobjects and with delegation proxies respectively.
+
+The [folder](https://github.com/charig/SOM/blob/papers/JSS2016/Examples/Benchmarks/Immutability/) contains additional files describing the metaobjects and auxiliary classes. 
+
+Finally, the experiment based on metaobjects runs with:
+      
+      ./som -G --mate -activateMate -cp Smalltalk:Smalltalk/Mate/:Smalltalk/Mate/MOP:Examples/Benchmarks:Examples/Benchmarks/Mate:Examples/Benchmarks/Mate/Immutability:Examples/Benchmarks/Mate/Immutability/DelegationProxies:Examples/Benchmarks/Mate/Immutability/Handles BenchmarkHarness ReadonlySumKeys 1 0 1
+      
+Changing *ReadonlySumKeys* for *SumKeys* or *DelegationProxiesSumKeys* run the experiment with the aforementioned alternatives.       
+
 
 Profiling
 ---------
