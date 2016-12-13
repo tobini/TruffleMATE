@@ -39,7 +39,7 @@ distributed under the MIT License. Please see the LICENSE file for details.
 Running the experiments
 -------------------------
 
-[Click here](URL_to_wiki) for a detailed description of every benchmark and instructions on how to run them
+[Click here](Documentation/Experiments.md) for a detailed description of every benchmark and instructions on how to run them
 
 Build Status
 ------------
