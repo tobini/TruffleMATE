@@ -1,5 +1,5 @@
-Description on the Content of the Experiments and Instructions for Runnning Them
-================================================================================
+What They Do, and How to Run the Experiments 
+=============================================
 
 Inmmutability 
 -------------
