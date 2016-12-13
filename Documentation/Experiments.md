@@ -1,7 +1,7 @@
 What They Do, and How to Run the Experiments 
 =============================================
 
-General instructions:
+General Instructions
 ---------------------
 
 The command for running all the experiments always include the -G option. This runs TruffleMate in interpreted mode. We strongly recommend to run the experiments with just in time compilation enabled. To run in this mode, TruffleMate depends on the [Graal VM](http://www.oracle.com/technetwork/oracle-labs/program-languages/overview/index-2301583.html). We suggest to download the last precompiled binaries from the official oracle site and then configure TruffleMate's [executable script](https://github.com/charig/TruffleMATE/blob/papers/JSS2016/som) so that it points to the right binary. Then just remove the -G option from every command.   
