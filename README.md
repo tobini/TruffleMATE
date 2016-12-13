@@ -12,9 +12,6 @@ Obtaining and Running TruffleMate
 To checkout the code:
 
     git clone https://github.com/charig/TruffleMate.git
-
-Then, this branch must be checked out:
-    
     git checkout papers/JSS2016
 
 Then, TruffleMate can be build with Ant:
@@ -42,6 +39,7 @@ distributed under the MIT License. Please see the LICENSE file for details.
 Running the experiments
 -------------------------
 
+[Click here](URL_to_wiki) for a detailed description of every benchmark and instructions on how to run them
 
 Build Status
 ------------
