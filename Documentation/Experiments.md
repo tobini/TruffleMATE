@@ -6,7 +6,7 @@ General Instructions
 
 The command for running all the experiments always include the -G option. This runs TruffleMate in interpreted mode. We strongly recommend to run the experiments with just in time compilation enabled. To run in this mode, TruffleMate depends on the [Graal VM](http://www.oracle.com/technetwork/oracle-labs/program-languages/overview/index-2301583.html). We suggest to download the last precompiled binaries from the official oracle site and then configure TruffleMate's [executable script](https://github.com/charig/TruffleMATE/blob/papers/JSS2016/som) so that it points to the right binary. Then just remove the -G option from every command.
 
-The number of iterations each benchmark is run is customizable. Nota that the benchmarks just output the time it takes to the machine to ran them. However, each benchmark verifies the result (see the method *verifyResult*) and throws an error in case the results is different from the expected one.   
+The number of iterations each benchmark is run is customizable. Nota that the benchmarks just output the time it takes to the machine to run them. However, each benchmark verifies the result (see the method *verifyResult*) and throws an error in case the results is different from the expected one.   
 
 Inmmutability 
 -------------
