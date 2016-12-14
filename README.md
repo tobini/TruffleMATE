@@ -21,11 +21,12 @@ Then, TruffleMate can be build with Ant:
 
 Afterwards, the tests can be executed with:
 
-    ./som -G -cp Smalltalk:TestSuite TestHarness
+    ./som -G -cp Smalltalk:TestSuite TestHarness (Mate disabled mode)
+    ./som -G --mate -activateMate -cp Smalltalk:TestSuite:Smalltalk/Mate:Smalltalk/Mate/MOP TestHarness (Mate enabled)
    
 A simple Hello World program is executed with:
 
-    ./som -G -cp Smalltalk:Examples Hello
+    ./som -G --mate -activateMate -cp Smalltalk:TestSuite:Smalltalk/Mate:Smalltalk/Mate/MOP:Examples Hello
 
 The --mate -activateMate options runs the system with the Mate MOP enabled. Note that the classpath must be also extended with the MOP classes found under Smalltalk/MATE. The -G runs TruffleMATE in interpreter mode. For running in combination with GRAAL install graal and remove the -G option.
 
