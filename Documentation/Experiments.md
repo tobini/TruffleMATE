@@ -4,7 +4,7 @@ What They Do, and How to Run the Experiments
 General Instructions
 ---------------------
 
-The command for running all the experiments always include the -G option. This runs TruffleMate in interpreted mode. We strongly recommend to run the experiments with just in time compilation enabled. To run in this mode, TruffleMate depends on the [Graal VM](http://www.oracle.com/technetwork/oracle-labs/program-languages/overview/index-2301583.html). We suggest to download the last precompiled binaries from the official oracle site and then configure TruffleMate's [executable script](https://github.com/charig/TruffleMATE/blob/papers/JSS2016/som) so that it points to the right binary. Then just remove the -G option from every command.
+The command for running all the experiments always includes the -G option. This runs TruffleMate in interpreted mode. We strongly recommend to run the experiments with just in time compilation enabled. To do so, TruffleMate requires the installation of the [Graal compiler](http://www.oracle.com/technetwork/oracle-labs/program-languages/overview/index-2301583.html). We suggest to download the last binaries from the official oracle site and then configure TruffleMate's [executable script](https://github.com/charig/TruffleMATE/blob/papers/JSS2016/som) so that it points to the right binary. Then just remove the -G option from every command.
 
 The number of iterations each benchmark is run is customizable. Nota that the benchmarks just output the time it takes to the machine to run them. However, each benchmark verifies the result (see the method *verifyResult*) and throws an error in case the results is different from the expected one.   
 
@@ -23,7 +23,7 @@ The [folder](https://github.com/charig/SOM/blob/papers/JSS2016/Examples/Benchmar
 
 Finally, the experiment based on metaobjects runs with:
       
-      ./som -G --mate -activateMate -cp Smalltalk:Smalltalk/Mate/:Smalltalk/Mate/MOP:Examples/Benchmarks:Examples/Benchmarks/Mate:Examples/Benchmarks/Mate/Immutability:Examples/Benchmarks/Mate/Immutability/DelegationProxies:Examples/Benchmarks/Mate/Immutability/Handles BenchmarkHarness ReadonlySumKeys 1 0 1
+      ./som -G --mate -activateMate -cp Smalltalk:Smalltalk/Mate/:Smalltalk/Mate/MOP:Examples/Benchmarks:Examples/Benchmarks/Mate/Immutability:Examples/Benchmarks/Mate/Immutability/DelegationProxies:Examples/Benchmarks/Mate/Immutability/Handles BenchmarkHarness ReadonlySumKeys 1 0 1
       
 Changing *ReadonlySumKeys* for *SumKeys* or *DelegationProxiesSumKeys* run the experiment with the aforementioned alternatives.       
 
@@ -55,4 +55,6 @@ Do not forget to download the movielens file and change the path in the *loadMov
 
 Hash-based vs. Array-based Layouts
 ----------------------------------
-The experiment in the paper is described in Section 6.3.2
+The metaobject for realizing a hash-based layout is described in the paper in Section 6.3.2.
+
+
