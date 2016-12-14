@@ -11,7 +11,8 @@ Obtaining and Running TruffleMate
 
 To checkout the code:
 
-    git clone https://github.com/charig/TruffleMate.git
+    git clone https://github.com/charig/TruffleMate.git directoryName
+    cd directoryName
     git checkout papers/JSS2016
 
 Then, TruffleMate can be build with Ant:
