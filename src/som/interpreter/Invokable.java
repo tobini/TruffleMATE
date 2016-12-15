@@ -2,7 +2,6 @@ package som.interpreter;
 
 import som.compiler.MethodGenerationContext;
 import som.compiler.Variable.Local;
-import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.MateReturnNode;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.Universe;
