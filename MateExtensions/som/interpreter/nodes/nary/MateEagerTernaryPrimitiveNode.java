@@ -4,6 +4,7 @@ import som.interpreter.nodes.ExpressionNode;
 import som.matenodes.MateAbstractReflectiveDispatch.MateAbstractStandardDispatch;
 import som.matenodes.MateAbstractSemanticNodes.MateAbstractSemanticsLevelNode;
 import som.matenodes.MateBehavior;
+import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -27,9 +28,14 @@ public class MateEagerTernaryPrimitiveNode extends EagerTernaryPrimitiveNode imp
     Object rcvr = this.getReceiver().executeGeneric(frame);
     Object arg1 = this.getFirstArg().executeGeneric(frame);
     Object arg2 = this.getSecondArg().executeGeneric(frame);
-    Object value = this.doMateSemantics(frame, new Object[] {rcvr, arg1, arg2}, semanticsRedefined);
+    return this.doPreEvaluated(frame, new Object[] {rcvr, arg1, arg2});
+  }
+  
+  @Override
+  public Object doPreEvaluated(VirtualFrame frame, Object[] args) {
+    Object value = this.doMateSemantics(frame, args, semanticsRedefined);
     if (value == null){
-     value = executeEvaluated(frame, rcvr, arg1, arg2);
+     value = executeEvaluated(frame, args[0], args[1], args[2]);
     }
     return value;
   }
@@ -52,5 +58,10 @@ public class MateEagerTernaryPrimitiveNode extends EagerTernaryPrimitiveNode imp
   @Override
   public void setMateDispatch(MateAbstractStandardDispatch node) {
     reflectiveDispatch = node;
+  }
+  
+  @Override
+  public ReflectiveOp reflectiveOperation(){
+    return primitive.reflectiveOperation();
   }
 }
