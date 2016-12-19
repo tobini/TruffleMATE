@@ -57,4 +57,10 @@ Hash-based vs. Array-based Layouts
 ----------------------------------
 The metaobject for realizing a hash-based layout is described in the paper in Section 6.3.2.
 
+In this experiment we show how to change the layout of objects on-the-fly. Concretely, for a [Person](https://github.com/charig/SOM/blob/papers/JSS2016/Examples/Benchmarks/Mate/Layout/Person.som) class with 10 fields, we create 20 instances and fill only 3 of those fields. Afterwards, for only 10 of those 20 instances, we change the layout so that it only stores 6 fields and behaves in a hash-based manner. Accordingly, we also attach a [metaobject](https://github.com/charig/SOM/blob/papers/JSS2016/Examples/Benchmarks/Mate/Layout/HashFieldsSemanticsMO.som) to these 10 instances providing the required hash-based behavior for field accessing.
 
+The [folder](https://github.com/charig/SOM/blob/papers/JSS2016/Examples/Benchmarks/Mate/Layout/) contains the [base class](https://github.com/charig/SOM/blob/papers/JSS2016/Examples/Benchmarks/Mate/Layout/HashBasedLayout.som) for the experiment, along with the Person class and the aforementioned metaobject. 
+
+To run the experiment:
+
+      ./som -G --mate -activateMate -cp Smalltalk:Smalltalk/Mate/:Smalltalk/Mate/MOP:Examples/Benchmarks:Examples/Benchmarks/Mate:Examples/Benchmarks/Mate/Layout BenchmarkHarness HashBasedLayout 1 0 1
