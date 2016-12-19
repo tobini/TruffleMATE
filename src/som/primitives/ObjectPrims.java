@@ -54,7 +54,7 @@ public final class ObjectPrims {
     }
     
     public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.LayoutReadField;
+      return ReflectiveOp.LayoutPrimReadField;
     }
   }
 
@@ -87,7 +87,7 @@ public final class ObjectPrims {
     }
     
     public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.LayoutWriteField;
+      return ReflectiveOp.LayoutPrimWriteField;
     }
   }
 

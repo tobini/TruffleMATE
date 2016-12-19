@@ -177,17 +177,17 @@ public class Universe extends ExecutionContext {
   
   public void mateify(DynamicObject clazz) {
     int countOfInvokables = SClass.getNumberOfInstanceInvokables(clazz);
-    MateifyVisitor visitor = new MateifyVisitor();
     for (int i = 0; i < countOfInvokables; i++){
-      DynamicObject method = SClass.getInstanceInvokable(clazz, i);
-      Invokable node = InvokableLayoutImpl.INSTANCE.getInvokable(method);
-      node.accept(visitor);
+      this.mateifyMethod(SClass.getInstanceInvokable(clazz, i));
     }
   }
   
   public void mateifyMethod(DynamicObject method) {
+    this.mateifyNode(InvokableLayoutImpl.INSTANCE.getInvokable(method));
+  }
+  
+  public void mateifyNode(Node node) {
     MateifyVisitor visitor = new MateifyVisitor();
-    Invokable node = InvokableLayoutImpl.INSTANCE.getInvokable(method);
     node.accept(visitor);
   }
   

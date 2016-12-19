@@ -27,7 +27,6 @@ import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.interpreter.objectstorage.FieldAccessorNode;
 import som.interpreter.objectstorage.FieldAccessorNode.ReadFieldNode;
 import som.interpreter.objectstorage.FieldAccessorNode.WriteFieldNode;
-import som.vm.constants.ReflectiveOp;
 import tools.dym.Tags.FieldRead;
 import tools.dym.Tags.FieldWrite;
 
@@ -67,10 +66,6 @@ public abstract class FieldNode extends ExpressionWithTagsNode {
       return executeEvaluated((DynamicObject) arguments[0]);
     }*/
     
-    public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.ExecutorReadField;
-    }
-
     @Override
     public ExpressionNode asMateNode() {
       return MateFieldReadNodeGen.create(this, this.getSelf());
@@ -110,11 +105,6 @@ public abstract class FieldNode extends ExpressionWithTagsNode {
         final Object[] arguments) {
       return executeEvaluated((DynamicObject) arguments[0], arguments[1]);
     }*/
-    
-    @Override
-    public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.ExecutorWriteField;
-    }
     
     @Override
     public ExpressionNode asMateNode() {

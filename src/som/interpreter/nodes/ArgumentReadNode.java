@@ -9,7 +9,6 @@ import som.interpreter.SArguments;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
-import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SSymbol;
 import tools.dym.Tags.LocalArgRead;
 import tools.highlight.Tags.ArgumentTag;
@@ -54,10 +53,6 @@ public abstract class ArgumentReadNode {
         final InlinerForLexicallyEmbeddedMethods inliner) {
       replace(inliner.getReplacementForLocalArgument(argumentIndex,
           getSourceSection()));
-    }
-    
-    public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.ExecutorLocalArg;
     }
     
     @Override
@@ -130,10 +125,6 @@ public abstract class ArgumentReadNode {
       }
     }
     
-    public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.ExecutorNonLocalArg;
-    }
-
     @Override
     public Node asMateNode() {
       return new MateArgumentReadNode.MateNonLocalArgumentReadNode(this);
@@ -173,10 +164,6 @@ public abstract class ArgumentReadNode {
     @Override
     public boolean isClassSide() {
       return classSide;
-    }
-    
-    public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.ExecutorLocalSuperArg;
     }
     
     @Override
@@ -228,10 +215,6 @@ public abstract class ArgumentReadNode {
     @Override
     public boolean isClassSide() {
       return classSide;
-    }
-    
-    public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.ExecutorNonLocalSuperArg;
     }
     
     @Override

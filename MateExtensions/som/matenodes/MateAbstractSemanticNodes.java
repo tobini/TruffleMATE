@@ -212,6 +212,10 @@ public abstract class MateAbstractSemanticNodes extends Node {
     public NodeCost getCost() {
       return NodeCost.NONE;
     }
+    
+    public ReflectiveOp reflectiveOperation(){
+      return this.environment.reflectiveOperation;
+    }
   }  
   
   public static abstract class MateSemanticsMetalevelNode extends MateAbstractSemanticsLevelNode {

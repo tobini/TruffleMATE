@@ -22,14 +22,12 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeCost;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
-import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class MateAbstractReflectiveDispatch extends Node {
 
   protected final static int INLINE_CACHE_SIZE = 6;
   
-  public MateAbstractReflectiveDispatch(final SourceSection source) {
-    //super(source);
+  public MateAbstractReflectiveDispatch() {
     super();
   }
 
@@ -44,25 +42,13 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     return node;
   }
 
-  public abstract static class MateDispatchFieldAccessor extends
-      MateAbstractReflectiveDispatch {
-
-    public MateDispatchFieldAccessor(final SourceSection source) {
-      super(source);
-    }
-  }
-  
   @Override
   public NodeCost getCost() {
     return NodeCost.NONE;
   }
-  
+
   public abstract static class MateAbstractStandardDispatch extends
       MateAbstractReflectiveDispatch {
-
-    public MateAbstractStandardDispatch(SourceSection source) {
-      super(source);
-    }
 
     public abstract Object executeDispatch(final VirtualFrame frame,
         DynamicObject method, Object subject, Object[] arguments);
@@ -71,10 +57,6 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
   public abstract static class MateDispatchFieldRead extends
       MateAbstractStandardDispatch {
 
-    public MateDispatchFieldRead(SourceSection source) {
-      super(source);
-    }
-    
     @Specialization(guards = "cachedMethod==method", limit = "INLINE_CACHE_SIZE")
     public Object doMateNode(final VirtualFrame frame, final DynamicObject method,
         final Object subject, final Object[] arguments,
@@ -96,16 +78,30 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     }
   }
   
-  public abstract static class MateDispatchFieldWrite extends
-      MateDispatchFieldRead {
-  
-    public MateDispatchFieldWrite(SourceSection source) {
-      super(source);
-    }
+  public abstract static class MateDispatchPrimFieldRead extends 
+      MateDispatchFieldRead{
     
     @Override
     protected Object[] computeArgumentsForMetaDispatch(VirtualFrame frame, Object[] arguments) {
+      return new Object[]{SArguments.getEnvironment(frame), ExecutionLevel.Meta, arguments[0], ((long)arguments[1]) - 1};
+    }
+  }
+  
+  public abstract static class MateDispatchFieldWrite extends
+      MateDispatchFieldRead {
+  
+    @Override
+    protected Object[] computeArgumentsForMetaDispatch(VirtualFrame frame, Object[] arguments) {
       return new Object[]{SArguments.getEnvironment(frame), ExecutionLevel.Meta, arguments[0], arguments[1], arguments[2]};
+    }
+  }
+  
+  public abstract static class MateDispatchPrimFieldWrite extends
+      MateDispatchFieldWrite {
+    
+    @Override
+    protected Object[] computeArgumentsForMetaDispatch(VirtualFrame frame, Object[] arguments) {
+      return new Object[]{SArguments.getEnvironment(frame), ExecutionLevel.Meta, arguments[0], (long)(arguments[1]) - 1, arguments[2]};
     }
   }
 
@@ -115,8 +111,7 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     private final SSymbol    selector;
     @Child MateMethodActivationNode activationNode;
 
-    public MateDispatchMessageLookup(SourceSection source, SSymbol sel) {
-      super(source);
+    public MateDispatchMessageLookup(SSymbol sel) {
       selector = sel;
       activationNode = new MateMethodActivationNode();
     }
@@ -147,10 +142,10 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
   }
   
   public abstract static class MateDispatchSuperMessageLookup extends MateDispatchMessageLookup{
-    ISuperReadNode superNode;
+    @Child private ISuperReadNode superNode;
     
-    public MateDispatchSuperMessageLookup(SourceSection source, SSymbol sel, ISuperReadNode node) {
-      super(source, sel);
+    public MateDispatchSuperMessageLookup(SSymbol sel, ISuperReadNode node) {
+      super(sel);
       superNode = node;
     }
 
@@ -164,8 +159,8 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
   public abstract static class MateCachedDispatchMessageLookup extends
     MateDispatchMessageLookup {
 
-    public MateCachedDispatchMessageLookup(SourceSection source, SSymbol sel) {
-      super(source, sel);
+    public MateCachedDispatchMessageLookup(SSymbol sel) {
+      super(sel);
     }
     
     @Specialization(guards = {"cachedMethod==method"}, insertBefore="doMateNode")
@@ -257,10 +252,10 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
   }
   
   public abstract static class MateCachedDispatchSuperMessageLookup extends MateCachedDispatchMessageLookup{
-    ISuperReadNode superNode;
+    @Child private ISuperReadNode superNode;
     
-    public MateCachedDispatchSuperMessageLookup(SourceSection source, SSymbol sel, ISuperReadNode node) {
-      super(source, sel);
+    public MateCachedDispatchSuperMessageLookup(SSymbol sel, ISuperReadNode node) {
+      super(sel);
       superNode = node;
     }
 
@@ -272,10 +267,6 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
   
   public abstract static class MateActivationDispatch extends
       MateAbstractReflectiveDispatch {
-
-    public MateActivationDispatch(SourceSection source) {
-      super(source);
-    }
 
     public abstract Object executeDispatch(final VirtualFrame frame,
         DynamicObject method, DynamicObject methodToActivate, Object[] arguments);
