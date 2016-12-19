@@ -9,6 +9,7 @@ import som.primitives.reflection.IndexDispatch;
 import som.vm.Universe;
 import som.vm.constants.Globals;
 import som.vm.constants.Nil;
+import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SClass;
 import som.vmobjects.SObject;
@@ -51,6 +52,10 @@ public final class ObjectPrims {
       long idx     = (long) firstArg;
       return doSObject(rcvr, idx);
     }
+    
+    public ReflectiveOp reflectiveOperation(){
+      return ReflectiveOp.LayoutPrimReadField;
+    }
   }
 
   @GenerateNodeFactory
@@ -79,6 +84,10 @@ public final class ObjectPrims {
       DynamicObject rcvr = (DynamicObject) receiver;
       long idx     = (long) firstArg;
       return doSObject(rcvr, idx, secondArg);
+    }
+    
+    public ReflectiveOp reflectiveOperation(){
+      return ReflectiveOp.LayoutPrimWriteField;
     }
   }
 

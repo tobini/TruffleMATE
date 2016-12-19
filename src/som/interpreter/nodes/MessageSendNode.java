@@ -63,7 +63,6 @@ import som.vm.Universe;
 import som.vm.constants.Classes;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.MateClasses;
-import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SArray;
 import som.vmobjects.SBlock;
 import som.vmobjects.SSymbol;
@@ -120,7 +119,7 @@ public final class MessageSendNode {
     public ExpressionNode getReceiver() {
       return argumentNodes[0];
     }
-
+    
     @Override
     public Object executeGeneric(final VirtualFrame frame) {
       Object[] arguments = evaluateArguments(frame);
@@ -149,11 +148,6 @@ public final class MessageSendNode {
       return arguments;
     }
 
-    @Override
-    public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.MessageLookup;
-    }
-    
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
       if (tag == CallTag.class) {

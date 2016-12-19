@@ -2,10 +2,8 @@ package som.interpreter;
 
 import som.compiler.MethodGenerationContext;
 import som.compiler.Variable.Local;
-import som.interpreter.nodes.MateReturnNode;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.Universe;
-
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.ExecutionContext;
 import com.oracle.truffle.api.RootCallTarget;
@@ -30,7 +28,11 @@ public abstract class Invokable extends RootNode implements MateNode{
       final ExpressionWithTagsNode uninitialized,
       DynamicObject method) {
     super(SomLanguage.class, sourceSection, frameDescriptor);
-    this.uninitializedBody = this.mateifyUninitializedNode(uninitialized);
+    if (Universe.getCurrent().vmReflectionEnabled()){
+      this.uninitializedBody = this.mateifyUninitializedNode(uninitialized);
+    } else {
+      this.uninitializedBody = uninitialized;
+    }
     this.expressionOrSequence = expressionOrSequence;
     this.belongsToMethod = method;
   }
@@ -69,18 +71,18 @@ public abstract class Invokable extends RootNode implements MateNode{
   
   public void wrapIntoMateNode() {
     if (this.asMateNode() != null) this.replace(this.asMateNode());
-    if (!(this.expressionOrSequence instanceof MateReturnNode)){
+    /*if (!(this.expressionOrSequence instanceof MateReturnNode)){
       this.expressionOrSequence.replace(new MateReturnNode(this.expressionOrSequence));
       uninitializedBody.accept(new MateifyVisitor());
-    }
+    }*/
   }
   
   private ExpressionWithTagsNode mateifyUninitializedNode(ExpressionWithTagsNode uninitialized){
-    if (!(Universe.getCurrent().vmReflectionEnabled()) || uninitialized.asMateNode() == null) {
-        return uninitialized;
-    } else {
-      return (ExpressionWithTagsNode)uninitialized.asMateNode();
+    ExpressionWithTagsNode node = (ExpressionWithTagsNode) uninitialized.asMateNode();
+    if (node != null){
+      return node;
     }
+    return uninitialized;
   }
   
   public void setMethod(DynamicObject method) {

@@ -23,7 +23,7 @@ public class SMateEnvironment extends SObject {
       case ExecutorLocalArg: case ExecutorReadLocal: case ExecutorWriteLocal:
         field = Semantics_IDX;
         break;
-      case LayoutReadField: case LayoutWriteField: 
+      case LayoutReadField: case LayoutWriteField: case LayoutPrimReadField: case LayoutPrimWriteField: 
         field = Layout_IDX;
         break;
       default:
@@ -62,10 +62,10 @@ public class SMateEnvironment extends SObject {
       case ExecutorWriteLocal:
         selector = Universe.getCurrent().symbolFor("writeLocal:inFrame:");
         break;
-      case LayoutReadField: 
+      case LayoutReadField: case LayoutPrimReadField: 
         selector = Universe.getCurrent().symbolFor("read:");
         break;
-      case LayoutWriteField: 
+      case LayoutWriteField: case LayoutPrimWriteField: 
         selector = Universe.getCurrent().symbolFor("write:value:");
         break;
         

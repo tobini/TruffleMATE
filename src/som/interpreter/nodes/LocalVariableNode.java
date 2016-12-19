@@ -5,7 +5,6 @@ import som.compiler.Variable.Local;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.constants.Nil;
-import som.vm.constants.ReflectiveOp;
 import tools.dym.Tags.LocalVarRead;
 import tools.dym.Tags.LocalVarWrite;
 import tools.highlight.Tags.LocalVariableTag;
@@ -104,10 +103,6 @@ public abstract class LocalVariableNode extends ExpressionWithTagsNode {
 
     protected final boolean isUninitialized(final VirtualFrame frame) {
       return slot.getKind() == FrameSlotKind.Illegal;
-    }
-    
-    public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.ExecutorReadLocal;
     }
     
     @Override
@@ -214,10 +209,6 @@ public abstract class LocalVariableNode extends ExpressionWithTagsNode {
     public final void replaceWithIndependentCopyForInlining(final SplitterForLexicallyEmbeddedCode inliner) {
       CompilerAsserts.neverPartOfCompilation("replaceWithIndependentCopyForInlining");
       throw new RuntimeException("Should not be part of an uninitalized tree. And this should only be done with uninitialized trees.");
-    }
-    
-    public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.ExecutorWriteLocal;
     }
     
     @Override

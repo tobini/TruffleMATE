@@ -27,7 +27,7 @@ public class MateMethodActivationNode extends Node {
   
   public MateMethodActivationNode(){
     semanticCheck = MateSemanticCheckNode.createForFullCheck(this.getSourceSection(), ReflectiveOp.MessageActivation);
-    reflectiveDispatch = MateActivationDispatchNodeGen.create(this.getSourceSection());
+    reflectiveDispatch = MateActivationDispatchNodeGen.create();
     methodDispatch = new UninitializedMethodDispatchNode();
   }
   

@@ -1,55 +1,31 @@
 package som.interpreter.objectstorage;
 
 import som.interpreter.objectstorage.FieldAccessorNode.ReadFieldNode;
-import som.matenodes.MateAbstractReflectiveDispatch.MateAbstractStandardDispatch;
-import som.matenodes.MateAbstractSemanticNodes.MateAbstractSemanticsLevelNode;
-import som.matenodes.MateBehavior;
+import som.matenodes.IntercessionHandling;
 import som.vm.Universe;
+import som.vm.constants.ReflectiveOp;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.profiles.BranchProfile;
 
 
-public final class MateLayoutFieldReadNode extends ReadFieldNode implements MateBehavior {
-  @Child private MateAbstractSemanticsLevelNode semanticCheck;
-  @Child private MateAbstractStandardDispatch   reflectiveDispatch;
-  @Child private ReadFieldNode                  read;
-  private final BranchProfile semanticsRedefined = BranchProfile.create();
+public final class MateLayoutFieldReadNode extends ReadFieldNode {
+  @Child private IntercessionHandling ih;
+  @Child private ReadFieldNode read;
   
   public MateLayoutFieldReadNode(final ReadFieldNode node) {
     super(node.getFieldIndex());
-    this.initializeMateSemantics(this.getSourceSection(), this.reflectiveOperation());
-    this.initializeMateDispatchForFieldRead(this.getSourceSection());
+    ih = IntercessionHandling.createForOperation(ReflectiveOp.LayoutReadField);
     read = node;
+    this.adoptChildren();
   }
 
   public Object read(final VirtualFrame frame, final DynamicObject receiver) {
-    Object value = this.doMateSemantics(frame, new Object[] {receiver, (long)this.getFieldIndex()}, semanticsRedefined);
+    Object value = ih.doMateSemantics(frame, new Object[] {receiver, (long)this.getFieldIndex()});
     if (value == null){
      value = read.executeRead(receiver);
     }
     return value;
-  }
-
-  @Override
-  public MateAbstractSemanticsLevelNode getMateNode() {
-    return semanticCheck;
-  }
-
-  @Override
-  public MateAbstractStandardDispatch getMateDispatch() {
-    return reflectiveDispatch;
-  }
-  
-  @Override
-  public void setMateNode(MateAbstractSemanticsLevelNode node) {
-    semanticCheck = node;
-  }
-
-  @Override
-  public void setMateDispatch(MateAbstractStandardDispatch node) {
-    reflectiveDispatch = node;
   }
 
   @Override

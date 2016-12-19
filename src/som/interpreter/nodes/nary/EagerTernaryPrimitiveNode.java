@@ -29,11 +29,13 @@ public class EagerTernaryPrimitiveNode extends EagerPrimitive {
     this.argument1 = argument1;
     this.argument2 = argument2;
     this.primitive = primitive;
+    this.adoptChildren();
   }
 
   public ExpressionNode getReceiver(){return receiver;}
-  public ExpressionNode getFirstArg(){return argument1;}
-  public ExpressionNode getSecondArg(){return argument2;}
+  protected ExpressionNode getFirstArg(){return argument1;}
+  protected ExpressionNode getSecondArg(){return argument2;}
+  protected TernaryExpressionNode getPrimitive(){return primitive;}
   
   @Override
   public Object executeGenericWithReceiver(final VirtualFrame frame, Object receiver) {

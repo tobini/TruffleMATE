@@ -3,8 +3,6 @@ package som.interpreter.nodes.nary;
 import som.instrumentation.FixedSizeExpressionWrapperFactory;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.PreevaluatedExpression;
-import som.vm.constants.ReflectiveOp;
-
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.instrumentation.Instrumentable;
@@ -33,9 +31,5 @@ public abstract class UnaryExpressionNode extends ExpressionWithTagsNode
     Object[] arguments = new Object[1];
     arguments[0] = this.getReceiver().executeGeneric(frame);
     return arguments; 
-  }
-  
-  public ReflectiveOp reflectiveOperation(){
-    return ReflectiveOp.MessageLookup;
   }
 }

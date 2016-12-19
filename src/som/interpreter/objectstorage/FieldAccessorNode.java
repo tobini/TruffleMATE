@@ -3,7 +3,6 @@ package som.interpreter.objectstorage;
 
 import som.interpreter.MateNode;
 import som.vm.constants.Nil;
-import som.vm.constants.ReflectiveOp;
 import som.interpreter.objectstorage.FieldAccessorNodeFactory.ReadFieldNodeGen;
 import som.interpreter.objectstorage.FieldAccessorNodeFactory.WriteFieldNodeGen;
 
@@ -41,8 +40,6 @@ public abstract class FieldAccessorNode extends Node implements MateNode {
     return fieldIndex;
   }
 
-  public abstract ReflectiveOp reflectiveOperation();
-  
   protected Location getLocation(final DynamicObject obj) {
     Property property = obj.getShape().getProperty(fieldIndex);
     if (property != null) {
@@ -108,11 +105,6 @@ public abstract class FieldAccessorNode extends Node implements MateNode {
       //CompilerAsserts.neverPartOfCompilation("readFieldUncached");
       return receiver.get(fieldIndex, Nil.nilObject);
     }
-
-    @Override
-    public ReflectiveOp reflectiveOperation(){
-        return ReflectiveOp.LayoutReadField;
-    }
   }
 
   public abstract static class WriteFieldNode extends FieldAccessorNode {
@@ -160,11 +152,6 @@ public abstract class FieldAccessorNode extends Node implements MateNode {
       return value;
     }
     
-    @Override
-    public ReflectiveOp reflectiveOperation(){
-      return ReflectiveOp.LayoutWriteField;
-    }
-
     @Specialization(guards = "self.updateShape()")
     public final Object updateObjectShapeAndRespecialize(
         final DynamicObject self, final Object value) {

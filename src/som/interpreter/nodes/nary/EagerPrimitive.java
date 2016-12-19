@@ -2,6 +2,7 @@ package som.interpreter.nodes.nary;
 
 import som.interpreter.nodes.OperationNode;
 import som.interpreter.nodes.PreevaluatedExpression;
+import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -31,5 +32,9 @@ public abstract class EagerPrimitive extends ExpressionWithTagsNode
    @Override
   public String getOperation() {
     return selector.getString();
+  }
+   
+  public ReflectiveOp reflectiveOperation(){
+    return ReflectiveOp.MessageLookup;
   }
 }

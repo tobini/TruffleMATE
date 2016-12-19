@@ -25,11 +25,13 @@ public class EagerBinaryPrimitiveNode extends EagerPrimitive {
     this.receiver  = receiver;
     this.argument  = argument;
     this.primitive = primitive;
+    this.adoptChildren();
   }
 
   public ExpressionNode getReceiver(){
     return receiver;
   }
+  protected BinaryExpressionNode getPrimitive(){return primitive;}
 
   @Override
   public Object executeGenericWithReceiver(final VirtualFrame frame, Object receiver) {

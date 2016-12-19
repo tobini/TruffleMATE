@@ -4,57 +4,33 @@ import som.interpreter.nodes.FieldNode.FieldReadNode;
 import som.interpreter.nodes.FieldNode.FieldWriteNode;
 import som.interpreter.objectstorage.MateLayoutFieldReadNode;
 import som.interpreter.objectstorage.MateLayoutFieldWriteNode;
-import som.matenodes.MateAbstractReflectiveDispatch.MateAbstractStandardDispatch;
-import som.matenodes.MateAbstractSemanticNodes.MateAbstractSemanticsLevelNode;
-import som.matenodes.MateBehavior;
+import som.matenodes.IntercessionHandling;
+import som.vm.constants.ReflectiveOp;
 
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.profiles.BranchProfile;
 
 
 public abstract class MateFieldNodes {
-  public static abstract class MateFieldReadNode extends FieldReadNode implements MateBehavior {
-    @Child MateAbstractSemanticsLevelNode   semanticCheck;
-    @Child MateAbstractStandardDispatch     reflectiveDispatch;
-    private final BranchProfile semanticsRedefined = BranchProfile.create();
+  public static abstract class MateFieldReadNode extends FieldReadNode {
+    @Child private IntercessionHandling ih;
     
     public MateFieldReadNode(FieldReadNode node) {
       super(node.read.getFieldIndex(), node.getSourceSection());
-      this.initializeMateSemantics(this.getSourceSection(), this.reflectiveOperation());
-      this.initializeMateDispatchForFieldRead(this.getSourceSection());
+      ih = IntercessionHandling.createForOperation(ReflectiveOp.ExecutorReadField);
       read = new MateLayoutFieldReadNode(read);
+      this.adoptChildren();
     }
     
     @Override
     @Specialization
     public Object executeEvaluated(final VirtualFrame frame, final DynamicObject obj) {
-      Object value = this.doMateSemantics(frame, new Object[] {obj, (long) this.read.getFieldIndex()}, semanticsRedefined);
+      Object value = ih.doMateSemantics(frame, new Object[] {obj, (long) this.read.getFieldIndex()});
       if (value == null){
        value = ((MateLayoutFieldReadNode)read).read(frame, obj);
       }
       return value;
-    }
-    
-    @Override
-    public MateAbstractSemanticsLevelNode getMateNode() {
-      return semanticCheck;
-    }
-
-    @Override
-    public MateAbstractStandardDispatch getMateDispatch() {
-      return reflectiveDispatch;
-    }
-    
-    @Override
-    public void setMateNode(MateAbstractSemanticsLevelNode node) {
-      semanticCheck = node;
-    }
-
-    @Override
-    public void setMateDispatch(MateAbstractStandardDispatch node) {
-      reflectiveDispatch = node;
     }
     
     @Override
@@ -63,43 +39,21 @@ public abstract class MateFieldNodes {
     }
   }
   
-  public static abstract class MateFieldWriteNode extends FieldWriteNode implements MateBehavior {
-    @Child MateAbstractSemanticsLevelNode   semanticCheck;
-    @Child MateAbstractStandardDispatch     reflectiveDispatch;
-    private final BranchProfile semanticsRedefined = BranchProfile.create();
+  public static abstract class MateFieldWriteNode extends FieldWriteNode {
+    @Child private IntercessionHandling ih;
     
     public MateFieldWriteNode(FieldWriteNode node) {
       super(node.write.getFieldIndex(), node.getSourceSection());
-      this.initializeMateSemantics(this.getSourceSection(), this.reflectiveOperation());
-      this.initializeMateDispatchForFieldWrite(this.getSourceSection());
+      ih = IntercessionHandling.createForOperation(ReflectiveOp.ExecutorWriteField);
       write = new MateLayoutFieldWriteNode(write);
+      this.adoptChildren();
     }
 
-    @Override
-    public MateAbstractSemanticsLevelNode getMateNode() {
-      return semanticCheck;
-    }
-
-    @Override
-    public MateAbstractStandardDispatch getMateDispatch() {
-      return reflectiveDispatch;
-    }
-    
-    @Override
-    public void setMateNode(MateAbstractSemanticsLevelNode node) {
-      semanticCheck = node;
-    }
-
-    @Override
-    public void setMateDispatch(MateAbstractStandardDispatch node) {
-      reflectiveDispatch = node;
-    }
-    
     @Override
     @Specialization
     public final Object executeEvaluated(final VirtualFrame frame,
         final DynamicObject self, final Object value) {
-      Object val = this.doMateSemantics(frame, new Object[] {self, (long) this.write.getFieldIndex(), value}, semanticsRedefined);
+      Object val = ih.doMateSemantics(frame, new Object[] {self, (long) this.write.getFieldIndex(), value});
       if (val == null){
        val = ((MateLayoutFieldWriteNode)write).write(frame, self, value);
       }

@@ -21,6 +21,7 @@
  */
 package som.interpreter.nodes;
 
+import com.oracle.truffle.api.nodes.NodeInterface;
 import com.oracle.truffle.api.object.DynamicObject;
 
 import som.vm.Universe;
@@ -28,7 +29,7 @@ import som.vmobjects.SClass;
 import som.vmobjects.SObject;
 import som.vmobjects.SSymbol;
 
-public interface ISuperReadNode {
+public interface ISuperReadNode extends NodeInterface{
   SSymbol getHolderClass();
   boolean isClassSide();
   

@@ -92,6 +92,21 @@ public final class MatePrims {
   }
   
   @GenerateNodeFactory
+  public abstract static class MateInstallClassInShapePrim extends BinaryExpressionNode {
+    public MateInstallClassInShapePrim() {
+      super(Source.newBuilder("Install class in Shape").internal().name("mate install class in shape").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    }
+
+    @Specialization
+    public final SShape doSObject(SShape shape, DynamicObject klass) {
+      return new SShape(
+          shape.getShape().changeType(
+              ((SReflectiveObjectType)shape.getShape().getObjectType()).setKlass(klass)));
+    }
+  }
+
+  
+  @GenerateNodeFactory
   public abstract static class MateUpdateShapeForInstancesPrim extends BinaryExpressionNode {
     public MateUpdateShapeForInstancesPrim() {
       super(Source.newBuilder("Update Class Instances Shape").internal().name("update shape for instances").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));

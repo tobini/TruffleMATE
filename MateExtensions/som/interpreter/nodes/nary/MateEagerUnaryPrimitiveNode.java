@@ -1,54 +1,45 @@
 package som.interpreter.nodes.nary;
 
 import som.interpreter.nodes.ExpressionNode;
-import som.matenodes.MateAbstractReflectiveDispatch.MateAbstractStandardDispatch;
-import som.matenodes.MateAbstractSemanticNodes.MateAbstractSemanticsLevelNode;
-import som.matenodes.MateBehavior;
+import som.matenodes.IntercessionHandling;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.profiles.BranchProfile;
 
 
-public class MateEagerUnaryPrimitiveNode extends EagerUnaryPrimitiveNode implements MateBehavior {
-  @Child MateAbstractSemanticsLevelNode   semanticCheck;
-  @Child MateAbstractStandardDispatch     reflectiveDispatch;
-  private final BranchProfile semanticsRedefined = BranchProfile.create();
+public class MateEagerUnaryPrimitiveNode extends EagerUnaryPrimitiveNode {
+  @Child private IntercessionHandling messageSend;
+  @Child private IntercessionHandling primitiveActivation;
   
   public MateEagerUnaryPrimitiveNode(SSymbol selector, ExpressionNode receiver,
       UnaryExpressionNode primitive) {
     super(selector, receiver, primitive);
-    this.initializeMateSemantics(this.getSourceSection(), this.reflectiveOperation());
-    this.initializeMateDispatchForMessages(this.getSourceSection(), this.getSelector());
+    messageSend = IntercessionHandling.createForMessageLookup(this.getSelector());
+    primitiveActivation = IntercessionHandling.createForOperation(this.getPrimitive().reflectiveOperation());
+    this.adoptChildren();
   }
 
   @Override
   public Object executeGeneric(final VirtualFrame frame) {
     Object rcvr = this.getReceiver().executeGeneric(frame);
-    Object value = this.doMateSemantics(frame, new Object[] {rcvr}, semanticsRedefined);
-    if (value == null){
-     value = executeEvaluated(frame, rcvr);
-    }
-    return value;
-  }
-
-  @Override
-  public MateAbstractSemanticsLevelNode getMateNode() {
-    return semanticCheck;
-  }
-
-  @Override
-  public MateAbstractStandardDispatch getMateDispatch() {
-    return reflectiveDispatch;
+    return this.doPreEvaluated(frame, new Object[] {rcvr});
   }
   
   @Override
-  public void setMateNode(MateAbstractSemanticsLevelNode node) {
-    semanticCheck = node;
+  public Object doPreEvaluated(VirtualFrame frame, Object[] args) {
+    Object value = messageSend.doMateSemantics(frame, args);
+    if (value == null){
+     value = executeEvaluated(frame, args[0]);
+    }
+    return value;
   }
-
+  
   @Override
-  public void setMateDispatch(MateAbstractStandardDispatch node) {
-    reflectiveDispatch = node;
+  public Object executeEvaluated(final VirtualFrame frame, final Object receiver) {
+    Object value = primitiveActivation.doMateSemantics(frame, new Object[]{receiver});
+    if (value == null){
+     value = super.executeEvaluated(frame, receiver);
+    }
+    return value;
   }
 }

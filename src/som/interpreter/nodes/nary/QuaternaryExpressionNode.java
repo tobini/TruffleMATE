@@ -2,8 +2,6 @@ package som.interpreter.nodes.nary;
 
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.PreevaluatedExpression;
-import som.vm.constants.ReflectiveOp;
-
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -43,10 +41,6 @@ public abstract class QuaternaryExpressionNode extends ExpressionWithTagsNode
     arguments[2] = this.getSecondArg().executeGeneric(frame);
     arguments[3] = this.getThirdArg().executeGeneric(frame);
     return arguments; 
-  }
-  
-  public ReflectiveOp reflectiveOperation(){
-    return ReflectiveOp.MessageLookup;
   }
   
   //Weird, I need this method because if they do not exist eager classes do not compile

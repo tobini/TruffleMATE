@@ -2,13 +2,10 @@ package som.interpreter.nodes.nary;
 
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.PreevaluatedExpression;
-import som.vm.constants.ReflectiveOp;
-
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.source.SourceSection;
-
 
 @NodeChildren({
   @NodeChild(value = "receiver",  type = ExpressionNode.class),
@@ -30,7 +27,7 @@ public abstract class TernaryExpressionNode extends ExpressionWithTagsNode
       final Object receiver, final Object firstArg, final Object secondArg);
 
   @Override
-  public final Object doPreEvaluated(final VirtualFrame frame,
+  public Object doPreEvaluated(final VirtualFrame frame,
       final Object[] arguments) {
     return executeEvaluated(frame, arguments[0], arguments[1], arguments[2]);
   }
@@ -41,10 +38,6 @@ public abstract class TernaryExpressionNode extends ExpressionWithTagsNode
     arguments[1] = this.getFirstArg().executeGeneric(frame);
     arguments[2] = this.getSecondArg().executeGeneric(frame);
     return arguments; 
-  }
-  
-  public ReflectiveOp reflectiveOperation(){
-    return ReflectiveOp.MessageLookup;
   }
   
   //Weird, I need this method because if they do not exist eager classes do not compile

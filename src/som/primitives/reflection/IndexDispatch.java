@@ -5,6 +5,7 @@ import som.interpreter.nodes.dispatch.DispatchChain;
 import som.interpreter.objectstorage.FieldAccessorNode;
 import som.interpreter.objectstorage.FieldAccessorNode.ReadFieldNode;
 import som.interpreter.objectstorage.FieldAccessorNode.WriteFieldNode;
+import som.vm.constants.Nil;
 import som.vmobjects.SClass;
 import som.vmobjects.SObject;
 
@@ -164,7 +165,9 @@ public abstract class IndexDispatch extends Node implements DispatchChain {
 
     @Override
     public Object executeDispatch(final DynamicObject obj, final int index) {
-      return obj.get(index);
+      /*The nil as default value is needed for the case when the object has not been still initialized. 
+        See ReadFieldNode when location == null*/
+      return obj.get(index, Nil.nilObject);
     }
 
     @Override
