@@ -17,7 +17,7 @@ public class SShape extends SAbstractObject {
   
   public SShape(int fieldsCount){
     Shape newShape = SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(Nil.nilObject, Nil.nilObject).getShape();
-    for (int i = 1; i <= fieldsCount; i ++){
+    for (int i = 0; i < fieldsCount; i++){
       newShape = newShape.defineProperty(i, Nil.nilObject, 0);
     }
     mockShape = newShape; 
