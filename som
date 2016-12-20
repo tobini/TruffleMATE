@@ -7,17 +7,17 @@ BASE_DIR    = os.path.dirname(os.path.realpath(__file__))
 GRAAL_HOME  = os.getenv('GRAAL_HOME',  None)
 GRAAL_FLAGS = os.getenv('GRAAL_FLAGS', None)
 
-GRAAL_LOCATIONS = ['/home/smarr/Projects/SOM/graal/jvmci',
+if sys.argv[0].endswith('oficial'):
+	GRAAL_LOCATIONS = [BASE_DIR + '/../graalvm-0.12-re/bin/']
+	java_bin  = 'javao'
+else:
+	GRAAL_LOCATIONS = ['/home/smarr/Projects/SOM/graal/jvmci',
                    '/Users/smarr/Projects/SOM/graal/jvmci',
                    '/Users/guidochari/Documents/Projects/graal-compiler/jvmci',
                    BASE_DIR + '/../GraalBasic/jvmci']
+   	java_bin  = 'java'
+   	
 
-if sys.argv[0].endswith('oficial'):
-    GRAAL_LOCATIONS.insert(0, BASE_DIR + '/../graalvm-0.12-dk')
-    JAVA_BIN  = '/jre/bin/javao'
-else:
-    JAVA_BIN  = '/bin/java'
-    
 JDK_VERSIONS = ['jdk1.8.0_65', 'jdk1.8.0_60', 'jdk1.8.0_45', 'jdk1.8.0_45-internal', 'jdk1.8.0_40', 'jdk1.8.0_25']
 
 parser = argparse.ArgumentParser(
@@ -118,11 +118,13 @@ if args.interpreter:
     java_bin = "java"
 else:
     # determine graal binary
+    
     if GRAAL_HOME:
         graal_home = GRAAL_HOME
     else:
         graal_home = None
         for d in GRAAL_LOCATIONS:
+            print d
             if os.path.isdir(d):
                 graal_home = d
                 break
@@ -131,7 +133,7 @@ else:
             sys.exit(1)
 
     if sys.argv[0].endswith('oficial'):
-        java_bin = graal_home + JAVA_BIN
+        java_bin = graal_home + java_bin
     else:
         java_bin = graal_home
         for v in JDK_VERSIONS:
@@ -149,7 +151,7 @@ SOM_ARGS = ['-Xbootclasspath/a:'
              + BASE_DIR + '/libs/truffle/mxbuild/dists/truffle-api.jar',
             "som.vm.Universe"]
 
-if GRAAL_FLAGS:
+if GRAAL_FLAGS and not args.interpreter:
     flags = [GRAAL_FLAGS]
 else:
     flags = []
