@@ -231,46 +231,49 @@ public abstract class MateAbstractSemanticNodes extends Node {
   }
     
   public static abstract class MateSemanticsBaselevelNode extends MateAbstractSemanticsLevelNode {
-    @Child MateGlobalSemanticCheckNode      global;
-    @Child MateEnvironmentSemanticCheckNode environment;
-    @Child MateObjectSemanticCheckNode      object;
-    final BranchProfile executeObjectSemantics = BranchProfile.create();
+    private final ReflectiveOp reflectiveOperation;
     
     public MateSemanticsBaselevelNode(MateEnvironmentSemanticCheckNode env, 
         MateObjectSemanticCheckNode obj, MateGlobalSemanticCheckNode globalCheck) {
       super();
-      environment = env;
-      object = obj;
-      global = globalCheck;
+      reflectiveOperation = env.reflectiveOperation;
     }
     
-    @Specialization(assumptions = "getGlobalSemanticsDeactivatedAssumption()")
-    public DynamicObject executeLocalSemanticsCheck(final VirtualFrame frame,
-        Object[] arguments){
-      DynamicObject value = environment.executeGeneric(frame);
-      if (value == null){  
-        executeObjectSemantics.enter();
-        return object.executeGeneric(frame, arguments[0]);
-      } 
-      return value;
-    }
-    
-    @Specialization(assumptions = "getGlobalSemanticsActivatedAssumption()")
-    public DynamicObject executeGlobalSemanticsCheck(final VirtualFrame frame,
-        Object[] arguments){
-      DynamicObject value = global.executeGeneric(frame);
-      if (value == null){  
-        return this.executeLocalSemanticsCheck(frame, arguments);
-      } 
-      return value;
-    }
-    
-    public static Assumption getGlobalSemanticsDeactivatedAssumption() {
-      return Universe.getCurrent().getGlobalSemanticsDeactivatedAssumption();
-    }
-    
-    public static Assumption getGlobalSemanticsActivatedAssumption() {
-      return Universe.getCurrent().getGlobalSemanticsActivatedAssumption();
+    @Specialization
+    protected DynamicObject executeGeneric(final VirtualFrame frame,
+        Object[] arguments) {
+      DynamicObject env;
+      DynamicObject method;
+      if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Base){
+        //Check for metaobject at global scope
+        if (Universe.getCurrent().getGlobalSemanticsActivatedAssumption().isValid()){
+          env = Universe.getCurrent().getGlobalSemantics();
+          if (env != Nil.nilObject){
+            method = SMateEnvironment.methodImplementing(env, reflectiveOperation);
+            if (method != null){  
+              return method; 
+            }
+          }
+        }
+        //Check for metaobject at method scope
+        env = SArguments.getEnvironment(frame);
+        method = null;
+        if (env != Nil.nilObject){
+          method = SMateEnvironment.methodImplementing(env, this.reflectiveOperation);
+          if (method != null){  
+            return method; 
+          }
+        }
+        //Check for metaobject at object scope
+        if (arguments[0] instanceof DynamicObject && SReflectiveObject.isSReflectiveObject(((DynamicObject)arguments[0]))){  
+          env = SReflectiveObject.getEnvironment(((DynamicObject)arguments[0]));
+          if (env != Nil.nilObject){
+            method = SMateEnvironment.methodImplementing(env, reflectiveOperation);
+          }
+          return method;
+        }
+      }
+      return null;
     }
   }
 }

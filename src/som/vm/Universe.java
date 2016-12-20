@@ -87,7 +87,8 @@ public class Universe extends ExecutionContext {
     mateDeactivated = this.getTruffleRuntime().createAssumption();
     mateActivated = null;
     globalSemanticsDeactivated = this.getTruffleRuntime().createAssumption();
-    globalSemanticsActivated = null;
+    globalSemanticsActivated = this.getTruffleRuntime().createAssumption();
+    globalSemanticsActivated.invalidate();
     globalSemantics = null;
     
     if (ObjectMemory.last == null){
