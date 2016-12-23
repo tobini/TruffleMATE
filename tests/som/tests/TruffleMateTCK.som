@@ -1,0 +1,3 @@
+TruffleMateTCK = (
+	sum: anInt and: anotherInt = (^anInt + anotherInt)
+)
