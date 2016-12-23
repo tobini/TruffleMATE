@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import som.compiler.Parser.ParseError;
-import som.interpreter.SomLanguage;
 import som.vm.ObjectMemory;
 import som.vm.Universe;
 import som.vmobjects.SClass;
@@ -44,25 +43,24 @@ import com.oracle.truffle.api.source.Source;
 public final class SourcecodeCompiler {
 
   @TruffleBoundary
-  public static DynamicObject compileClass(final String path, final String filename,
-      final DynamicObject systemClass, final ObjectMemory memory, final StructuralProbe structuralProbe)
-      throws IOException {
-    String fname = path + File.separator + filename + ".som";
-    File file = new File(fname);
-    Source source = Source.newBuilder(file.getCanonicalFile()).
-        name(file.getPath()).
-        mimeType(SomLanguage.MIME_TYPE).
-        build();
+  public static DynamicObject compileClass(Source source, final DynamicObject systemClass, 
+      final ObjectMemory memory, final StructuralProbe structuralProbe) {
     
-    Parser parser = new Parser(new FileReader(fname), new File(fname).length(), source, memory, structuralProbe);
+    Parser parser;
+    try{
+      parser = new Parser(new FileReader(source.getPath()), new File(source.getPath()).length(), source, memory, structuralProbe);
+    } catch (IOException ex){
+      throw new IllegalStateException("File name " + ex.getMessage()
+          + " does not exist ");
+    }
 
     DynamicObject result = compile(parser, systemClass, memory, structuralProbe);
 
     SSymbol cname = SClass.getName(result);
     String cnameC = cname.getString();
 
-    if (filename != cnameC) {
-      throw new IllegalStateException("File name " + file
+    if (source.getName() != cnameC) {
+      throw new IllegalStateException("File name " + source.getName()
           + " does not match class name " + cnameC);
     }
 

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import som.vm.ObjectMemory;
+import som.vm.Universe;
 import som.vm.constants.Classes;
 import som.vmobjects.SArray;
 import som.vmobjects.SClass;
@@ -121,7 +122,7 @@ public final class ClassGenerationContext {
     String ccname = name.getString() + " class";
 
     // Load the super class
-    DynamicObject superClass = objectMemory.loadClass(superName, null);
+    DynamicObject superClass = Universe.getCurrent().loadClass(superName);
 
     // Allocate the class of the resulting class
     DynamicObject resultClass = SClass.createSClass(Classes.metaclassClass, objectMemory.symbolFor(ccname), SObject.getSOMClass(superClass), 

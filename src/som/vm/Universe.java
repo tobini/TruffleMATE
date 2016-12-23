@@ -27,6 +27,7 @@ package som.vm;
 
 import static som.vm.constants.Classes.systemClass;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -74,6 +75,7 @@ import com.oracle.truffle.api.instrumentation.InstrumentationHandler;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.vm.EventConsumer;
 import com.oracle.truffle.api.vm.PolyglotEngine;
@@ -82,23 +84,26 @@ import com.oracle.truffle.api.vm.PolyglotEngine.Instrument;
 
 public class Universe extends ExecutionContext {
   public Universe(final String[] args) throws IOException {
+    if (current != null){
+      current.validUniverse.invalidate();
+    }
     current = this;
-    this.truffleRuntime = Truffle.getRuntime();
-    this.avoidExit    = false;
-    this.lastExitCode = 0;
+    truffleRuntime = Truffle.getRuntime();
+    avoidExit    = false;
+    lastExitCode = 0;
     options = new VMOptions(args);
     mateDeactivated = this.getTruffleRuntime().createAssumption();
     mateActivated = null;
     globalSemanticsDeactivated = this.getTruffleRuntime().createAssumption();
     globalSemanticsActivated = null;
     globalSemantics = null;
+    validUniverse = this.getTruffleRuntime().createAssumption();
     
     if (ObjectMemory.last == null){
       objectMemory = new ObjectMemory(options.classPath, structuralProbe);
       objectMemory.initializeSystem();
     } else {
       objectMemory = ObjectMemory.last;
-      objectMemory.setClassPath(options.classPath);    
     }
     if (options.showUsage) {
       VMOptions.printUsageAndExit();
@@ -177,8 +182,9 @@ public class Universe extends ExecutionContext {
     }
     System.exit(Universe.getCurrent().lastExitCode);
   }
+  
   public Object execute(final String className, final String selector) {
-    DynamicObject clazz = objectMemory.loadClass(symbolFor(className), null);
+    DynamicObject clazz = loadClass(symbolFor(className));
 
     // Lookup the initialize invokable on the system class
     DynamicObject initialize = SClass.lookupInvokable(SObject.getSOMClass(clazz),
@@ -269,7 +275,28 @@ public class Universe extends ExecutionContext {
   }
   
   public DynamicObject loadClass(final SSymbol name) {
-    return objectMemory.loadClass(name, null);
+    DynamicObject result = (DynamicObject) getGlobal(name);
+    if (result != null) { return result; }
+    return this.loadClass(getSourceForClassName(name));
+  }
+  
+  public Source getSourceForClassName(final SSymbol name){
+    File file = new File(resolveClassFilePath(name.getString()));
+    try {
+      return Source.newBuilder(file).mimeType(
+          SomLanguage.MIME_TYPE).name(name.getString()).build();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (RuntimeException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return null;
+  }
+  
+  public DynamicObject loadClass(final Source source) {
+    return objectMemory.loadClass(source, null, true);
   }
 
   @TruffleBoundary
@@ -390,6 +417,10 @@ public class Universe extends ExecutionContext {
   public Assumption getGlobalSemanticsActivatedAssumption(){
     return this.globalSemanticsActivated;
   }
+  
+  public Assumption getValidUniverseAssumption(){
+    return this.validUniverse;
+  }
 
   public DynamicObject getGlobalSemantics(){
     return this.globalSemantics;
@@ -407,6 +438,23 @@ public class Universe extends ExecutionContext {
       this.getMateActivatedAssumption().invalidate();
     }
     mateDeactivated = this.getTruffleRuntime().createAssumption();
+  }
+  
+  public String resolveClassFilePath(String className) throws IllegalStateException{
+    for (String cpEntry : options.classPath) {
+      // Load the class from a file and return the loaded class
+      String fname = cpEntry + File.separator + className + ".som";
+      File file = new File(fname);
+      if(file.exists() && !file.isDirectory()) { 
+          return fname;
+      }
+    }
+    throw new IllegalStateException(className
+          + " class could not be loaded. "
+          + "It is likely that the class path has not been initialized properly. "
+          + "Please set system property 'system.class.path' or "
+          + "pass the '-cp' command-line parameter.");
+
   }
   
   public DynamicObject getTrueObject()   { return objectMemory.getTrueObject(); }
@@ -487,4 +535,5 @@ public class Universe extends ExecutionContext {
   @CompilationFinal private Assumption globalSemanticsActivated;
   @CompilationFinal private Assumption globalSemanticsDeactivated;
   @CompilationFinal private DynamicObject globalSemantics;
+  @CompilationFinal private Assumption validUniverse;
 }

@@ -52,6 +52,7 @@ import com.oracle.truffle.api.instrumentation.StandardTags.RootTag;
 import com.oracle.truffle.api.instrumentation.StandardTags.StatementTag;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.Source;
 
 @TruffleLanguage.Registration(name = "TruffleMate", version = "0.1.0", mimeType = SomLanguage.MIME_TYPE)
@@ -86,6 +87,20 @@ public class SomLanguage extends TruffleLanguage<Universe> {
     return Source.newBuilder(text).internal().name(name).mimeType(SomLanguage.MIME_TYPE).build();
   }
   
+  private static final class ParseResult extends RootNode {
+    private final DynamicObject klass;
+
+    ParseResult(final DynamicObject klassArg) {
+      super(SomLanguage.class, null, null);
+      this.klass = klassArg;
+    }
+
+    @Override
+    public DynamicObject execute(final VirtualFrame frame) {
+      return klass;
+    }
+  }
+  
   @Override
   protected Universe createContext(final Env env) {
     Universe vm;
@@ -116,7 +131,6 @@ public class SomLanguage extends TruffleLanguage<Universe> {
     public Object execute(final VirtualFrame frame) {
       Universe vm = contextNode.executeFindContext();
       return vm.execute();
-      //return Nil.nilObject;
     }
   }
   
@@ -131,11 +145,10 @@ public class SomLanguage extends TruffleLanguage<Universe> {
       return createStartCallTarget();
     }
 
-    /*Universe vm = createNewFindContextNode().executeFindContext();
-    MixinDefinition moduleDef = vm.loadModule(code);
-    ParseResult result = new ParseResult(moduleDef.instantiateModuleClass());
-    return Truffle.getRuntime().createCallTarget(result);*/
-    return Truffle.getRuntime().createCallTarget(null);
+    Universe vm = createNewFindContextNode().executeFindContext();
+    DynamicObject klass = vm.loadClass(code);
+    ParseResult result = new ParseResult(klass);
+    return Truffle.getRuntime().createCallTarget(result);
   }
 
   @Override

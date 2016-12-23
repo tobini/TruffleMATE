@@ -285,7 +285,7 @@ public class Parser {
 
     // Load the super class, if it is not nil (break the dependency cycle)
     if (!superName.getString().equals("nil")) {
-      DynamicObject superClass = objectMemory.loadClass(superName, null);
+      DynamicObject superClass = Universe.getCurrent().loadClass(superName);
       if (superClass == null) {
         throw new ParseError("Super class " + superName.getString() +
             " could not be loaded", NONE, this);

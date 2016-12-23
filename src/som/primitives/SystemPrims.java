@@ -10,6 +10,8 @@ import som.vm.constants.Nil;
 import som.vmobjects.SClass;
 import som.vmobjects.SSymbol;
 
+import com.oracle.truffle.api.Assumption;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -25,17 +27,35 @@ public final class SystemPrims {
   @GenerateNodeFactory
   public abstract static class BinarySystemNode extends BinaryExpressionNode {
     protected final Universe universe;
-    protected BinarySystemNode() { super(null); this.universe = Universe.getCurrent(); }
+    protected BinarySystemNode() { 
+      super(null); 
+      this.universe = Universe.getCurrent(); 
+    }
   }
 
   @ImportStatic(SystemPrims.class)
   public abstract static class LoadPrim extends BinarySystemNode {
-    @Specialization(guards = "receiverIsSystemObject(receiver)")
-    public final Object doSObject(final DynamicObject receiver, final SSymbol argument) {
-      DynamicObject result = universe.loadClass(argument);
+    @Specialization(guards = "receiverIsSystemObject(receiver)", assumptions="cachedAssumption")
+    public final Object doSObject(final DynamicObject receiver, final SSymbol argument,
+        @Cached("currentUniverse()") final Universe currentUniverse,
+        @Cached("getAssumption(currentUniverse)") final Assumption cachedAssumption) {
+      DynamicObject result = currentUniverse.loadClass(argument);
       return result != null ? result : Nil.nilObject;
     }
+    
+    /*This may be the best to do for all system primitives since the universe may change.
+     * It is mandatory for this primitive because the classpath changes, for instance, between test classes 
+     */
+    public static Universe currentUniverse(){
+      return Universe.getCurrent();
+    }
+    
+    public static Assumption getAssumption(Universe uni){
+      return uni.getValidUniverseAssumption();
+    }
   }
+  
+  
 
   @ImportStatic(SystemPrims.class)
   public abstract static class ExitPrim extends BinarySystemNode {
