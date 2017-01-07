@@ -1,7 +1,6 @@
 package som.interpreter;
 
-import som.interpreter.nodes.nary.ExpressionWithTagsNode;
-
+import som.interpreter.nodes.ExpressionNode;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
@@ -14,9 +13,9 @@ import com.oracle.truffle.api.object.DynamicObject;
 
 public final class Primitive extends Invokable {
 
-  public Primitive(final ExpressionWithTagsNode primitive,
+  public Primitive(final ExpressionNode primitive,
       final FrameDescriptor frameDescriptor,
-      final ExpressionWithTagsNode uninitialized,
+      final ExpressionNode uninitialized,
       DynamicObject method) {
     super(null, frameDescriptor, primitive, uninitialized, method);
   }
@@ -25,9 +24,9 @@ public final class Primitive extends Invokable {
   public Invokable cloneWithNewLexicalContext(final LexicalScope outerContext) {
     assert outerContext == null;
     FrameDescriptor inlinedFrameDescriptor = getFrameDescriptor().copy();
-    LexicalScope  inlinedContext = new LexicalScope(inlinedFrameDescriptor,
+    LexicalScope inlinedContext = new LexicalScope(inlinedFrameDescriptor,
         outerContext);
-    ExpressionWithTagsNode inlinedBody = SplitterForLexicallyEmbeddedCode.doInline(uninitializedBody,
+    ExpressionNode inlinedBody = SplitterForLexicallyEmbeddedCode.doInline(uninitializedBody,
         inlinedContext);
     return new Primitive(inlinedBody, inlinedFrameDescriptor, uninitializedBody, this.belongsToMethod);
   }

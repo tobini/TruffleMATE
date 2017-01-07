@@ -75,7 +75,6 @@ import com.oracle.truffle.api.source.Source;
 public class SomLanguage extends TruffleLanguage<Universe> {
 
   public static final String MIME_TYPE = "application/x-mate-som";
-  public static final String PRIMITIVE_SOURCE_IDENTIFIER = "Primitives";
   public static final String CMD_ARGS  = "command-line-arguments";
   public static final String FILE_EXTENSION = "som";
   public static final String DOT_FILE_EXTENSION = "." + FILE_EXTENSION;

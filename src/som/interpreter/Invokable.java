@@ -2,8 +2,9 @@ package som.interpreter;
 
 import som.compiler.MethodGenerationContext;
 import som.compiler.Variable.Local;
-import som.interpreter.nodes.nary.ExpressionWithTagsNode;
+import som.interpreter.nodes.ExpressionNode;
 import som.vm.Universe;
+
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.ExecutionContext;
 import com.oracle.truffle.api.RootCallTarget;
@@ -17,15 +18,15 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class Invokable extends RootNode implements MateNode{
 
-  @Child protected ExpressionWithTagsNode expressionOrSequence;
+  @Child protected ExpressionNode expressionOrSequence;
   
-  protected final ExpressionWithTagsNode uninitializedBody;
+  protected final ExpressionNode uninitializedBody;
   @CompilationFinal protected DynamicObject belongsToMethod;
 
   public Invokable(final SourceSection sourceSection,
       final FrameDescriptor frameDescriptor,
-      final ExpressionWithTagsNode expressionOrSequence,
-      final ExpressionWithTagsNode uninitialized,
+      final ExpressionNode expressionOrSequence,
+      final ExpressionNode uninitialized,
       DynamicObject method) {
     super(SomLanguage.class, sourceSection, frameDescriptor);
     if (Universe.getCurrent().vmReflectionEnabled()){
@@ -43,7 +44,7 @@ public abstract class Invokable extends RootNode implements MateNode{
   }
 
   public abstract Invokable cloneWithNewLexicalContext(final LexicalScope outerContext);
-  public ExpressionWithTagsNode inline(final MethodGenerationContext mgenc,
+  public ExpressionNode inline(final MethodGenerationContext mgenc,
       final Local[] locals) {
     return InlinerForLexicallyEmbeddedMethods.doInline(uninitializedBody, mgenc,
         locals, getSourceSection().getCharIndex());
@@ -77,8 +78,8 @@ public abstract class Invokable extends RootNode implements MateNode{
     }*/
   }
   
-  private ExpressionWithTagsNode mateifyUninitializedNode(ExpressionWithTagsNode uninitialized){
-    ExpressionWithTagsNode node = (ExpressionWithTagsNode) uninitialized.asMateNode();
+  private ExpressionNode mateifyUninitializedNode(ExpressionNode uninitialized){
+    ExpressionNode node = (ExpressionNode) uninitialized.asMateNode();
     if (node != null){
       return node;
     }

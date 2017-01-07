@@ -2,8 +2,6 @@ package som.interpreter;
 
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.SOMNode;
-import som.interpreter.nodes.nary.ExpressionWithTagsNode;
-
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeUtil;
@@ -13,20 +11,20 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public class InlinerAdaptToEmbeddedOuterContext implements NodeVisitor {
 
-  public static ExpressionWithTagsNode doInline(final ExpressionWithTagsNode body,
+  public static ExpressionNode doInline(final ExpressionNode body,
       final InlinerForLexicallyEmbeddedMethods inliner,
       final LexicalScope currentLexicalScope) {
-    ExpressionWithTagsNode inlinedBody = NodeUtil.cloneNode(body);
+    ExpressionNode inlinedBody = NodeUtil.cloneNode(body);
 
     return NodeVisitorUtil.applyVisitor(inlinedBody,
         new InlinerAdaptToEmbeddedOuterContext(inliner, 1,
             currentLexicalScope));
   }
 
-  public static ExpressionWithTagsNode doInline(final ExpressionWithTagsNode body,
+  public static ExpressionNode doInline(final ExpressionNode body,
       final InlinerAdaptToEmbeddedOuterContext inliner,
       final LexicalScope currentLexicalScope) {
-    ExpressionWithTagsNode inlinedBody = NodeUtil.cloneNode(body);
+    ExpressionNode inlinedBody = NodeUtil.cloneNode(body);
 
     return NodeVisitorUtil.applyVisitor(inlinedBody,
         new InlinerAdaptToEmbeddedOuterContext(inliner.outerInliner,

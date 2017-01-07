@@ -17,11 +17,11 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public class InlinerForLexicallyEmbeddedMethods implements NodeVisitor {
 
-  public static ExpressionWithTagsNode doInline(
-      final ExpressionWithTagsNode body, final MethodGenerationContext mgenc,
+  public static ExpressionNode doInline(
+      final ExpressionNode body, final MethodGenerationContext mgenc,
       final Local[] blockArguments,
       final int blockStartIdx) {
-    ExpressionWithTagsNode inlinedBody = NodeUtil.cloneNode(body);
+    ExpressionNode inlinedBody = NodeUtil.cloneNode(body);
 
     return NodeVisitorUtil.applyVisitor(inlinedBody,
         new InlinerForLexicallyEmbeddedMethods(mgenc, blockArguments, blockStartIdx));

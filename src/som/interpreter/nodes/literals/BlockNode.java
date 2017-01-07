@@ -7,7 +7,7 @@ import som.interpreter.InlinerForLexicallyEmbeddedMethods;
 import som.interpreter.Invokable;
 import som.interpreter.Method;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
-import som.interpreter.nodes.nary.ExpressionWithTagsNode;
+import som.interpreter.nodes.ExpressionNode;
 import som.vm.Universe;
 import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.MethodLayoutImpl;
@@ -94,7 +94,7 @@ public class BlockNode extends LiteralNode {
   }
 
   @Override
-  public ExpressionWithTagsNode inline(final MethodGenerationContext mgenc,
+  public ExpressionNode inline(final MethodGenerationContext mgenc,
       final Local... blockArguments) {
     // self doesn't need to be passed
     assert SInvokable.getNumberOfArguments(blockMethod) - 1 == blockArguments.length;
