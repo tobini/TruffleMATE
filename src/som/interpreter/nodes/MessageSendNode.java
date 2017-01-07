@@ -2,68 +2,22 @@ package som.interpreter.nodes;
 
 import som.instrumentation.MessageSendNodeWrapper;
 import som.interpreter.SArguments;
-import som.interpreter.TypesGen;
 import som.interpreter.TruffleCompiler;
 import som.interpreter.nodes.dispatch.AbstractDispatchNode;
 import som.interpreter.nodes.dispatch.DispatchChain.Cost;
 import som.interpreter.nodes.dispatch.GenericDispatchNode;
 import som.interpreter.nodes.dispatch.SuperDispatchNode;
 import som.interpreter.nodes.dispatch.UninitializedDispatchNode;
-import som.interpreter.nodes.literals.BlockNode;
-import som.interpreter.nodes.nary.EagerPrimitive;
+import som.interpreter.nodes.nary.EagerlySpecializableNode;
 import som.interpreter.nodes.nary.ExpressionWithReceiver;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
-import som.interpreter.nodes.specialized.AndMessageNodeFactory;
-import som.interpreter.nodes.specialized.AndMessageNodeFactory.AndBoolMessageNodeFactory;
-import som.interpreter.nodes.specialized.IfMessageNodeGen;
-import som.interpreter.nodes.specialized.IfTrueIfFalseMessageNodeGen;
-import som.interpreter.nodes.specialized.IntDownToDoMessageNodeGen;
-import som.interpreter.nodes.specialized.IntToByDoMessageNodeGen;
-import som.interpreter.nodes.specialized.IntToDoMessageNodeGen;
-import som.interpreter.nodes.specialized.NotMessageNodeFactory;
-import som.interpreter.nodes.specialized.OrMessageNodeGen;
-import som.interpreter.nodes.specialized.OrMessageNodeGen.OrBoolMessageNodeGen;
 import som.interpreter.nodes.specialized.whileloops.WhileWithDynamicBlocksNode;
-import som.interpreter.nodes.specialized.whileloops.WhileWithStaticBlocksNode.WhileFalseStaticBlocksNode;
-import som.interpreter.nodes.specialized.whileloops.WhileWithStaticBlocksNode.WhileTrueStaticBlocksNode;
-import som.primitives.BlockPrimsFactory.ValueNonePrimFactory;
-import som.primitives.BlockPrimsFactory.ValueOnePrimFactory;
-import som.primitives.EqualsEqualsPrimFactory;
-import som.primitives.EqualsPrimFactory;
-import som.primitives.IntegerPrimsFactory.AbsPrimFactory;
-import som.primitives.IntegerPrimsFactory.LeftShiftPrimFactory;
-import som.primitives.IntegerPrimsFactory.ToPrimFactory;
-import som.primitives.IntegerPrimsFactory.UnsignedRightShiftPrimFactory;
-import som.primitives.LengthPrimFactory;
-import som.primitives.MethodPrimsFactory.InvokeOnPrimFactory;
-import som.primitives.ObjectPrimsFactory.InstVarAtPrimFactory;
-import som.primitives.ObjectPrimsFactory.InstVarAtPutPrimFactory;
-import som.primitives.UnequalsPrimFactory;
-import som.primitives.arithmetic.AdditionPrimFactory;
-import som.primitives.arithmetic.BitXorPrimFactory;
-import som.primitives.arithmetic.DividePrimFactory;
-import som.primitives.arithmetic.DoubleDivPrimFactory;
-import som.primitives.arithmetic.GreaterThanPrimFactory;
-import som.primitives.arithmetic.LessThanOrEqualPrimFactory;
-import som.primitives.arithmetic.LessThanPrimFactory;
-import som.primitives.arithmetic.LogicAndPrimFactory;
-import som.primitives.arithmetic.ModuloPrimFactory;
-import som.primitives.arithmetic.MultiplicationPrimFactory;
-import som.primitives.arithmetic.RemainderPrimFactory;
-import som.primitives.arithmetic.SubtractionPrimFactory;
-import som.primitives.arrays.AtPrimFactory;
-import som.primitives.arrays.AtPutPrimFactory;
-import som.primitives.arrays.DoIndexesPrimFactory;
-import som.primitives.arrays.DoPrimFactory;
-import som.primitives.arrays.NewPrimFactory;
-import som.primitives.arrays.PutAllNodeFactory;
-import som.primitives.arrays.ToArgumentsArrayNodeGen;
+import som.primitives.Primitives;
+import som.primitives.Primitives.Specializer;
 import som.vm.NotYetImplementedException;
 import som.vm.Universe;
-import som.vm.constants.Classes;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.MateClasses;
-import som.vmobjects.SArray;
 import som.vmobjects.SBlock;
 import som.vmobjects.SSymbol;
 import tools.dym.Tags.VirtualInvoke;
@@ -175,39 +129,35 @@ public final class MessageSendNode {
     @Override
     public final Object doPreEvaluated(final VirtualFrame frame,
         final Object[] arguments) {
-      return specialize(arguments, SArguments.getExecutionLevel(frame)).
+      return specialize(arguments, frame).
           doPreEvaluated(frame, arguments);
     }
 
-    private PreevaluatedExpression specialize(final Object[] arguments, ExecutionLevel level) {
+    protected PreevaluatedExpression specialize(final Object[] arguments, final VirtualFrame frame) {
       TruffleCompiler.transferToInterpreterAndInvalidate("Specialize Message Node");
-
-      // first option is a super send, super sends are treated specially because
-      // the receiver class is lexically determined
+      
       if (isSuperSend()) {
         return makeSuperSend();
       }
+      
+      Primitives prims = Universe.getCurrent().getPrimitives();
 
-      // We treat super sends separately for simplicity, might not be the
-      // optimal solution, especially in cases were the knowledge of the
-      // receiver class also allows us to do more specific things, but for the
-      // moment  we will leave it at this.
-      // TODO: revisit, and also do more specific optimizations for super sends.
+      Specializer<EagerlySpecializableNode> specializer = prims.getEagerSpecializer(selector,
+          arguments, argumentNodes);
 
-
-      // let's organize the specializations by number of arguments
-      // perhaps not the best, but one simple way to just get some order into
-      // the chaos.
-
-      switch (argumentNodes.length) {
-        case  1: return specializeUnary(arguments, level);
-        case  2: return specializeBinary(arguments, level);
-        case  3: return specializeTernary(arguments, level);
-        case  4: return specializeQuaternary(arguments, level);
+      //synchronized (getLock()) {
+      if (specializer != null) {
+        EagerlySpecializableNode newNode = specializer.create(arguments, argumentNodes, getSourceSection(), !specializer.noWrapper(), frame);
+        if (specializer.noWrapper()) {
+          return replace(newNode);
+        } else {
+          return makeEagerPrim(newNode);
+        }
       }
-
-      return replace(makeGenericSend());
+      return makeGenericSend();
+      //}
     }
+
 
     protected abstract PreevaluatedExpression makeSuperSend();
 
@@ -218,323 +168,15 @@ public final class MessageSendNode {
           getSourceSection());
     }
     
-    protected <T extends EagerPrimitive> T makeEagerPrim(T prim) {
+    private PreevaluatedExpression makeEagerPrim(final EagerlySpecializableNode prim) {
       Universe.insertInstrumentationWrapper(this);
-      replace(prim);
-      Universe.insertInstrumentationWrapper(prim);
+      PreevaluatedExpression result = replace(prim.wrapInEagerWrapper(prim, selector, argumentNodes));
+      Universe.insertInstrumentationWrapper((Node)result);
       for (ExpressionNode arg: argumentNodes){
-        SOMNode.unwrapIfNecessary(arg).markAsPrimitiveArgument();
+        unwrapIfNecessary(arg).markAsPrimitiveArgument();
         Universe.insertInstrumentationWrapper(arg);
       }
-      return prim;
-    }
-    
-    protected PreevaluatedExpression specializeUnary(final Object[] args, ExecutionLevel level) {
-      Object receiver = args[0];
-      switch (selector.getString()) {
-        // eagerly but cautious:
-        case "length":
-          if (receiver instanceof SArray) {
-            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
-                argumentNodes[0], LengthPrimFactory.create(getSourceSection(), null)));
-          }
-          break;
-        case "value":
-          if (receiver instanceof SBlock || receiver instanceof Boolean) {
-            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
-                argumentNodes[0], ValueNonePrimFactory.create(getSourceSection(), null)));
-          }
-          break;
-        case "not":
-          if (receiver instanceof Boolean) {
-            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
-                argumentNodes[0], NotMessageNodeFactory.create(getSourceSection(), null)));
-          }
-          break;
-        case "abs":
-          if (receiver instanceof Long) {
-            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector,
-                argumentNodes[0], AbsPrimFactory.create(null)));
-          }
-      }
-      return replace(makeGenericSend());
-    }
-
-    protected PreevaluatedExpression specializeBinary(final Object[] arguments, ExecutionLevel level) {
-      switch (selector.getString()) {
-        case "at:":
-          if (arguments[0] instanceof SArray) {
-            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1],
-                AtPrimFactory.create(null, null)));
-          }
-          break;
-        case "new:":
-          if (arguments[0] == Classes.arrayClass) {
-            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1],
-                NewPrimFactory.create(null, null)));
-          }
-          break;
-        case "instVarAt:":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector,
-              argumentNodes[0], argumentNodes[1],
-              InstVarAtPrimFactory.create(null, null)));
-        case "doIndexes:":
-          if (arguments[0] instanceof SArray) {
-            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1],
-                DoIndexesPrimFactory.create(getSourceSection(), null, null)));
-          }
-          break;
-        case "do:":
-          if (arguments[0] instanceof SArray) {
-            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1],
-                DoPrimFactory.create(getSourceSection(), null, null)));
-          }
-          break;
-        case "putAll:":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector,
-                argumentNodes[0], argumentNodes[1],
-                PutAllNodeFactory.create(getSourceSection(), null, null, LengthPrimFactory.create(getSourceSection(), null))));
-        case "whileTrue:": {
-          if (argumentNodes[1] instanceof BlockNode &&
-              argumentNodes[0] instanceof BlockNode) {
-            BlockNode argBlockNode = (BlockNode) argumentNodes[1];
-            SBlock    argBlock     = (SBlock)    arguments[1];
-            return replace(
-                AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                    argumentNodes[1],
-                    new WhileTrueStaticBlocksNode(
-                        (BlockNode) argumentNodes[0], argBlockNode,
-                        (SBlock) arguments[0],
-                        argBlock, getSourceSection(), level)));
-          }
-          break; // use normal send
-        }
-        case "whileFalse:":
-          if (argumentNodes[1] instanceof BlockNode &&
-              argumentNodes[0] instanceof BlockNode) {
-            BlockNode argBlockNode = (BlockNode) argumentNodes[1];
-            SBlock    argBlock     = (SBlock)    arguments[1];
-            return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1],
-                new WhileFalseStaticBlocksNode(
-                    (BlockNode) argumentNodes[0], argBlockNode,
-                    (SBlock) arguments[0], argBlock, getSourceSection(), level)));
-          }
-          break; // use normal send
-        case "and:":
-        case "&&":
-          if (arguments[0] instanceof Boolean) {
-            if (argumentNodes[1] instanceof BlockNode) {
-              return replace(AndMessageNodeFactory.create((SBlock) arguments[1],
-                  getSourceSection(), level, argumentNodes[0], argumentNodes[1]));
-            } else if (arguments[1] instanceof Boolean) {
-              return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                  argumentNodes[1],
-                  AndBoolMessageNodeFactory.create(
-                      getSourceSection(),
-                      argumentNodes[0], argumentNodes[1])));
-            }
-          }
-          break;
-        case "or:":
-        case "||":
-          if (arguments[0] instanceof Boolean) {
-            if (argumentNodes[1] instanceof BlockNode) {
-              return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                  argumentNodes[1],
-                  OrMessageNodeGen.create((SBlock) arguments[1],
-                      getSourceSection(), level,
-                      argumentNodes[0], argumentNodes[1])));
-            } else if (arguments[1] instanceof Boolean) {
-              return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                  argumentNodes[1],
-                  OrBoolMessageNodeGen.create(
-                      getSourceSection(),
-                      argumentNodes[0], argumentNodes[1])));
-            }
-          }
-          break;
-
-        case "value:":
-          if (arguments[0] instanceof SBlock) {
-            return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1],
-                ValueOnePrimFactory.create(getSourceSection(), null, null)));
-          }
-          break;
-
-        case "ifTrue:":
-          return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              IfMessageNodeGen.create(true, getSourceSection(),
-                  argumentNodes[0], argumentNodes[1])));
-        case "ifFalse:":
-          return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              IfMessageNodeGen.create(false, getSourceSection(),
-                  argumentNodes[0], argumentNodes[1])));
-        case "to:":
-          if (arguments[0] instanceof Long) {
-            return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1],
-                ToPrimFactory.create(null, null)));
-          }
-          break;
-
-        // TODO: find a better way for primitives, use annotation or something
-        case "<":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              LessThanPrimFactory.create(null, null)));
-        case "<=":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1], LessThanOrEqualPrimFactory.create(null, null)));
-        case ">":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              GreaterThanPrimFactory.create(null, null)));
-        case "+":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              AdditionPrimFactory.create(null, null)));
-        case "-":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              SubtractionPrimFactory.create(null, null)));
-        case "*":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              MultiplicationPrimFactory.create(null, null)));
-        case "=":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              EqualsPrimFactory.create(null, null)));
-        case "<>":
-          return replace(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              UnequalsPrimFactory.create(null, null)));
-        case "~=":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              UnequalsPrimFactory.create(null, null)));
-        case "==":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              EqualsEqualsPrimFactory.create(null, null)));
-        case "bitXor:":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              BitXorPrimFactory.create(null, null)));
-        case "//":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              DoubleDivPrimFactory.create(null, null)));
-        case "%":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              ModuloPrimFactory.create(null, null)));
-        case "rem:":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              RemainderPrimFactory.create(null, null)));
-        case "/":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              DividePrimFactory.create(null, null)));
-        case "&":
-          return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1],
-              LogicAndPrimFactory.create(null, null)));
-
-        // eagerly but cautious:
-        case "<<":
-          if (arguments[0] instanceof Long) {
-            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1],
-                LeftShiftPrimFactory.create(null, null)));
-          }
-          break;
-        case ">>>":
-          if (arguments[0] instanceof Long) {
-            return makeEagerPrim(AbstractMessageSendNode.specializationFactory.binaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1],
-                UnsignedRightShiftPrimFactory.create(null, null)));
-          }
-          break;
-
-      }
-
-      return replace(makeGenericSend());
-    }
-
-    protected PreevaluatedExpression specializeTernary(final Object[] arguments, ExecutionLevel level) {
-      switch (selector.getString()) {
-        case "at:put:":
-          if (arguments[0] instanceof SArray) {
-            return replace(AbstractMessageSendNode.specializationFactory.ternaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1], argumentNodes[2],
-                AtPutPrimFactory.create(null, null, null)));
-          }
-          break;
-        case "ifTrue:ifFalse:":
-          return replace(AbstractMessageSendNode.specializationFactory.ternaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1], argumentNodes[2],
-              IfTrueIfFalseMessageNodeGen.create(arguments[0],
-                  arguments[1], arguments[2], level, argumentNodes[0],
-                  argumentNodes[1], argumentNodes[2])));
-        case "to:do:":
-          if (TypesGen.isLong(arguments[0]) &&
-              (TypesGen.isLong(arguments[1]) ||
-                  TypesGen.isDouble(arguments[1])) &&
-              TypesGen.isSBlock(arguments[2])) {
-            return replace(AbstractMessageSendNode.specializationFactory.ternaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1], argumentNodes[2],
-                IntToDoMessageNodeGen.create(this,
-                    (SBlock) arguments[2], level, argumentNodes[0], argumentNodes[1],
-                    argumentNodes[2])));
-          }
-          break;
-        case "downTo:do:":
-          if (TypesGen.isLong(arguments[0]) &&
-              (TypesGen.isLong(arguments[1]) ||
-                  TypesGen.isDouble(arguments[1])) &&
-              TypesGen.isSBlock(arguments[2])) {
-            return replace(AbstractMessageSendNode.specializationFactory.ternaryPrimitiveFor(selector, argumentNodes[0],
-                argumentNodes[1], argumentNodes[2],
-                IntDownToDoMessageNodeGen.create(this,
-                    (SBlock) arguments[2], level, argumentNodes[0], argumentNodes[1],
-                    argumentNodes[2])));
-          }
-          break;
-
-        case "invokeOn:with:":
-          return replace(InvokeOnPrimFactory.create(
-              argumentNodes[0], argumentNodes[1], argumentNodes[2],
-              ToArgumentsArrayNodeGen.create(null, null)));
-        case "instVarAt:put:":
-          return replace(AbstractMessageSendNode.specializationFactory.ternaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1], argumentNodes[2],
-              InstVarAtPutPrimFactory.create(
-                  argumentNodes[0], argumentNodes[1], argumentNodes[2])));
-      }
-      return replace(makeGenericSend());
-    }
-
-    protected PreevaluatedExpression specializeQuaternary(
-        final Object[] arguments, ExecutionLevel level) {
-      switch (selector.getString()) {
-        case "to:by:do:":
-          return replace(AbstractMessageSendNode.specializationFactory.quaternaryPrimitiveFor(selector, argumentNodes[0],
-              argumentNodes[1], argumentNodes[2], argumentNodes[3],
-              IntToByDoMessageNodeGen.create(this,
-                  (SBlock) arguments[3], level, argumentNodes[0], argumentNodes[1],
-                  argumentNodes[2], argumentNodes[3])));
-      }
-      return replace(makeGenericSend());
+      return result;
     }
   }
 
@@ -572,7 +214,8 @@ public final class MessageSendNode {
 
     protected UninitializedSymbolSendNode(final SSymbol selector,
         final SourceSection source) {
-      super(selector, new ExpressionNode[0], source);
+      super(selector, new ExpressionNode[selector.getNumberOfSignatureArguments()], source);
+      //super(selector, new ExpressionNode[0], source);
     }
 
     @Override
@@ -587,14 +230,18 @@ public final class MessageSendNode {
       throw new NotYetImplementedException();
     }
 
+    /*
+     * There is a problem with the specialization of reflective nodes.
+     * TODO: fix! 
+     */
     @Override
-    protected PreevaluatedExpression specializeBinary(final Object[] arguments, ExecutionLevel level) {
-      switch (selector.getString()) {
+    protected PreevaluatedExpression specialize(final Object[] arguments, final VirtualFrame frame) {
+      /*switch (selector.getString()) {
         case "whileTrue:": {
           if (arguments[1] instanceof SBlock && arguments[0] instanceof SBlock) {
             SBlock argBlock = (SBlock) arguments[1];
             return replace(new WhileWithDynamicBlocksNode((SBlock) arguments[0],
-                argBlock, true, getSourceSection(), level));
+                argBlock, true, getSourceSection(), SArguments.getExecutionLevel(frame)));
           }
           break;
         }
@@ -602,16 +249,25 @@ public final class MessageSendNode {
           if (arguments[1] instanceof SBlock && arguments[0] instanceof SBlock) {
             SBlock    argBlock     = (SBlock)    arguments[1];
             return replace(new WhileWithDynamicBlocksNode(
-                (SBlock) arguments[0], argBlock, false, getSourceSection(), level));
+                (SBlock) arguments[0], argBlock, false, getSourceSection(), SArguments.getExecutionLevel(frame)));
           }
           break; // use normal send
       }
 
-      return super.specializeBinary(arguments, level);
+      return super.specialize(arguments, frame);*/
+      return this.makeGenericSend();
+    }
+    
+    @Override
+    protected GenericMessageSendNode makeGenericSend() {
+      // TODO: figure out what to do with reflective sends and how to instrument them.
+      GenericMessageSendNode send = new GenericMessageSendNode(selector,
+          argumentNodes,
+          new UninitializedDispatchNode(getSourceSection(), selector),
+          getSourceSection());
+      return replace(send);
     }
   }
-
-/// TODO: currently, we do not only specialize the given stuff above, but also what has been classified as 'value' sends in the OMOP branch. Is that a problem?
 
   @Instrumentable(factory = MessageSendNodeWrapper.class)
   public static class GenericMessageSendNode
