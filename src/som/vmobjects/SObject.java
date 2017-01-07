@@ -35,7 +35,6 @@ import com.oracle.truffle.api.object.dsl.Layout;
 
 
 public class SObject {
-  
   @Layout
   public interface SBasicObjectLayout {
     DynamicObject createSBasicObject();
@@ -43,14 +42,15 @@ public class SObject {
   
   @Layout
   public interface SObjectLayout {
-    DynamicObject createSObject(DynamicObjectFactory factory);
+    //DynamicObject createSObject(DynamicObjectFactory factory);
+    //DynamicObject getKlass(DynamicObjectFactory factory);
     DynamicObjectFactory createSObjectShape(DynamicObject klass);
-    DynamicObject getKlass(DynamicObjectFactory factory);
     DynamicObject getKlass(ObjectType objectType);
     DynamicObject getKlass(DynamicObject object);
     void setKlass(DynamicObject object, DynamicObject value);
     boolean isSObject(DynamicObject object);
     boolean isSObject(ObjectType objectType);
+    Object[] build();
   }
   
   //Only needed for system initialization
@@ -60,12 +60,6 @@ public class SObject {
     return SObjectLayoutImpl.INSTANCE.createSObjectShape(clazz);
   }
 
-  public static DynamicObject create(final DynamicObject instanceClass) {
-    CompilerAsserts.neverPartOfCompilation("Basic create without factory caching");
-    DynamicObjectFactory factory = SClass.getFactory(instanceClass);
-    return factory.newInstance();
-  }
-  
   public static boolean isSObject(final DynamicObject obj) {
     return SObjectLayoutImpl.INSTANCE.isSObject(obj);
   }
@@ -81,6 +75,10 @@ public class SObject {
 
   public static final int getNumberOfFields(final DynamicObject obj) {
     throw new NotYetImplementedException();
+  }
+  
+  public Object[] buildArguments() {
+    return SObjectLayoutImpl.INSTANCE.build();
   }
 }
 

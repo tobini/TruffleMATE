@@ -115,7 +115,7 @@ public class DynamicMetrics extends TruffleInstrument {
 
   public static boolean isTaggedWith(final Node node, final Class<?> tag) {
     assert instrumenter != null : "Initialization order/dependencies?";
-    return instrumenter.isTaggedWith(node, tag);
+    return instrumenter.queryTags(node).contains(tag);
   }
 
   public DynamicMetrics() {
@@ -235,7 +235,8 @@ public class DynamicMetrics extends TruffleInstrument {
     filters.tagIs(PrimitiveArgument.class);
 
     instrumenter.attachFactory(filters.build(), (final EventContext ctx) -> {
-      ExecutionEventNode parent = ctx.findDirectParentEventNode(factory);
+      //ExecutionEventNode parent = ctx.findDirectParentEventNode(factory);
+      ExecutionEventNode parent = null;
 
       if (parent == null) {
         return new LateReportResultNode(ctx, factory);
@@ -269,7 +270,8 @@ public class DynamicMetrics extends TruffleInstrument {
     filters.tagIs(CachedVirtualInvoke.class);
 
     instrumenter.attachFactory(filters.build(), (final EventContext ctx) -> {
-      ExecutionEventNode parent = ctx.findParentEventNode(virtInvokeFactory);
+      //ExecutionEventNode parent = ctx.findParentEventNode(virtInvokeFactory);
+      ExecutionEventNode parent = null;
       InstrumentableDirectCallNode disp = (InstrumentableDirectCallNode) ctx.getInstrumentedNode();
 
       if (parent == null) {
@@ -290,7 +292,8 @@ public class DynamicMetrics extends TruffleInstrument {
     filters.tagIs(CachedClosureInvoke.class);
 
     instrumenter.attachFactory(filters.build(), (final EventContext ctx) -> {
-      ExecutionEventNode parent = ctx.findParentEventNode(factory);
+      //ExecutionEventNode parent = ctx.findParentEventNode(factory);
+      ExecutionEventNode parent = null;
       InstrumentableBlockApplyNode disp = (InstrumentableBlockApplyNode) ctx.getInstrumentedNode();
 
       if (parent == null) {
@@ -384,7 +387,8 @@ public class DynamicMetrics extends TruffleInstrument {
     filters.tagIs(LoopBody.class);
 
     instrumenter.attachFactory(filters.build(), (final EventContext ctx) -> {
-      ExecutionEventNode parent = ctx.findDirectParentEventNode(loopProfileFactory);
+      //ExecutionEventNode parent = ctx.findDirectParentEventNode(loopProfileFactory);
+      ExecutionEventNode parent = null;
       assert parent != null : "Direct parent does not seem to be set up properly with event node and/or wrapping";
       LoopProfilingNode p = (LoopProfilingNode) parent;
       return new LoopIterationReportNode(p.getProfile());

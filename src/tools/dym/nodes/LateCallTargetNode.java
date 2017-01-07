@@ -21,7 +21,8 @@ public class LateCallTargetNode extends ExecutionEventNode {
   }
 
   private ExecutionEventNode specialize() {
-    ExecutionEventNode parent = ctx.findParentEventNode(factory);
+    //ExecutionEventNode parent = ctx.findParentEventNode(factory);
+    ExecutionEventNode parent = null;
     InstrumentableDirectCallNode disp = (InstrumentableDirectCallNode) ctx.getInstrumentedNode();
 
     if (parent == null) {

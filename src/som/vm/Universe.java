@@ -29,6 +29,7 @@ import static som.vm.constants.Classes.systemClass;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import som.VMOptions;
@@ -37,6 +38,7 @@ import som.interpreter.Invokable;
 import som.interpreter.MateifyVisitor;
 import som.interpreter.SomLanguage;
 import som.interpreter.TruffleCompiler;
+import som.primitives.Primitives;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.MateClasses;
 import som.vm.constants.Nil;
@@ -51,6 +53,8 @@ import som.vmobjects.SInvokable.SPrimitive;
 import som.vmobjects.SObject;
 import som.vmobjects.SObjectLayoutImpl;
 import som.vmobjects.SReflectiveObject;
+import som.vmobjects.SReflectiveObjectEnvInObj;
+import som.vmobjects.SReflectiveObjectEnvInObjLayoutImpl;
 import som.vmobjects.SReflectiveObjectLayoutImpl;
 import som.vmobjects.SSymbol;
 import tools.debugger.WebDebugger;
@@ -71,7 +75,6 @@ import com.oracle.truffle.api.debug.ExecutionEvent;
 import com.oracle.truffle.api.debug.SuspendedEvent;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.instrumentation.InstrumentableFactory.WrapperNode;
-import com.oracle.truffle.api.instrumentation.InstrumentationHandler;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
@@ -99,6 +102,10 @@ public class Universe extends ExecutionContext {
     globalSemantics = null;
     validUniverse = this.getTruffleRuntime().createAssumption();
     
+    if (options.vmReflectionActivated){
+      activatedMate();
+    }
+    
     if (ObjectMemory.last == null){
       objectMemory = new ObjectMemory(options.classPath, structuralProbe);
       objectMemory.initializeSystem();
@@ -108,9 +115,7 @@ public class Universe extends ExecutionContext {
     if (options.showUsage) {
       VMOptions.printUsageAndExit();
     }
-    if (options.vmReflectionActivated){
-      activatedMate();
-    }
+    
   }
   
   public static Universe getInitializedVM(String[] arguments) throws IOException {
@@ -144,42 +149,38 @@ public class Universe extends ExecutionContext {
     }
     engine = builder.build();
 
-    try {
-      Map<String, Instrument> instruments = engine.getInstruments();
-      Instrument profiler = instruments.get("profiler");
-      if (vmOptions.profilingEnabled && profiler == null) {
-        errorPrintln("Truffle profiler not available. Might be a class path issue");
-      } else if (profiler != null) {
-        profiler.setEnabled(vmOptions.profilingEnabled);
-      }
-      //instruments.get(Highlight.ID).setEnabled(vmOptions.highlightingEnabled);
-
-      if (VmSettings.TRUFFLE_DEBUGGER_ENABLED) {
-        debugger = Debugger.find(engine);
-      }
-
-      if (vmOptions.webDebuggerEnabled) {
-        assert debugger != null;
-        Instrument webDebuggerInst = instruments.get(WebDebugger.ID);
-        webDebuggerInst.setEnabled(true);
-
-        webDebugger = webDebuggerInst.lookup(WebDebugger.class);
-        //webDebugger.startServer(debugger);
-      }
-
-      if (vmOptions.dynamicMetricsEnabled) {
-        assert VmSettings.DYNAMIC_METRICS;
-        Instrument dynM = instruments.get(DynamicMetrics.ID);
-        dynM.setEnabled(true);
-        structuralProbe = dynM.lookup(StructuralProbe.class);
-        assert structuralProbe != null : "Initialization of DynamicMetrics tool incomplete";
-      }
-
-      engine.eval(SomLanguage.START);
-      engine.dispose();
-    } catch (IOException e) {
-      throw new RuntimeException("This should never happen", e);
+    Map<String, Instrument> instruments = engine.getInstruments();
+    Instrument profiler = instruments.get("profiler");
+    if (vmOptions.profilingEnabled && profiler == null) {
+      errorPrintln("Truffle profiler not available. Might be a class path issue");
+    } else if (profiler != null) {
+      profiler.setEnabled(vmOptions.profilingEnabled);
     }
+    //instruments.get(Highlight.ID).setEnabled(vmOptions.highlightingEnabled);
+
+    if (VmSettings.TRUFFLE_DEBUGGER_ENABLED) {
+      debugger = Debugger.find(engine);
+    }
+
+    if (vmOptions.webDebuggerEnabled) {
+      assert debugger != null;
+      Instrument webDebuggerInst = instruments.get(WebDebugger.ID);
+      webDebuggerInst.setEnabled(true);
+
+      webDebugger = webDebuggerInst.lookup(WebDebugger.class);
+      //webDebugger.startServer(debugger);
+    }
+
+    if (vmOptions.dynamicMetricsEnabled) {
+      assert VmSettings.DYNAMIC_METRICS;
+      Instrument dynM = instruments.get(DynamicMetrics.ID);
+      dynM.setEnabled(true);
+      structuralProbe = dynM.lookup(StructuralProbe.class);
+      assert structuralProbe != null : "Initialization of DynamicMetrics tool incomplete";
+    }
+
+    engine.eval(SomLanguage.START);
+    engine.dispose();
     System.exit(Universe.getCurrent().lastExitCode);
   }
   
@@ -226,7 +227,15 @@ public class Universe extends ExecutionContext {
   public TruffleRuntime getTruffleRuntime() {
     return truffleRuntime;
   }
-
+  
+  public ObjectMemory getObjectMemory() {
+    return objectMemory;
+  }
+  
+  public Primitives getPrimitives() {
+    return objectMemory.getPrimitives();
+  }
+  
   public void exit(final int errorCode) {
     TruffleCompiler.transferToInterpreter("exit");
     // Exit from the Java system
@@ -296,7 +305,7 @@ public class Universe extends ExecutionContext {
   }
   
   public DynamicObject loadClass(final Source source) {
-    return objectMemory.loadClass(source, null, true);
+    return objectMemory.loadClass(source, null);
   }
 
   @TruffleBoundary
@@ -362,8 +371,18 @@ public class Universe extends ExecutionContext {
   public DynamicObjectFactory getInstancesFactory(){
     if (options.vmReflectionEnabled){
       return SReflectiveObject.SREFLECTIVE_OBJECT_FACTORY;
+      //return SReflectiveObjectEnvInObj.SREFLECTIVE_OBJECT_ENVINOBJ_FACTORY;
     } else {
       return SObject.SOBJECT_FACTORY;
+    }
+  }
+  
+  public SObject getInstanceArgumentsBuilder(){
+    if (vmReflectionEnabled()){
+      //return new SReflectiveObjectEnvInObj();
+      return new SReflectiveObject();
+    } else {
+      return new SObject();
     }
   }
   
@@ -381,6 +400,7 @@ public class Universe extends ExecutionContext {
     DynamicObject dummyObjectForInitialization = SBasicObjectLayoutImpl.INSTANCE.createSBasicObject();
     if (options.vmReflectionEnabled){
       return SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(dummyObjectForInitialization, dummyObjectForInitialization).newInstance();
+      //return SReflectiveObjectEnvInObjLayoutImpl.INSTANCE.createSReflectiveObjectEnvInObjShape(dummyObjectForInitialization).newInstance(dummyObjectForInitialization);
     } else {
       return SObjectLayoutImpl.INSTANCE.createSObjectShape(dummyObjectForInitialization).newInstance();
     }
@@ -389,6 +409,7 @@ public class Universe extends ExecutionContext {
   public DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
     if (options.vmReflectionEnabled){
       return SReflectiveObject.createObjectShapeFactoryForClass(clazz);
+      //return SReflectiveObjectEnvInObj.createObjectShapeFactoryForClass(clazz);
     } else {
       return SObject.createObjectShapeFactoryForClass(clazz);
    }
@@ -493,7 +514,7 @@ public class Universe extends ExecutionContext {
       // TODO: a way to check whether the node needs actually wrapping?
       // String[] tags = node.getSourceSection().getTags();
       // if (tags != null && tags.length > 0) {
-      InstrumentationHandler.insertInstrumentationWrapper(node);
+      //InstrumentationHandler.insertInstrumentationWrapper(node);
       //}
     }
   }
@@ -512,6 +533,16 @@ public class Universe extends ExecutionContext {
     globalSemantics = environment;
   }
   
+  public boolean registerExport(final String name, final Object value) {
+    boolean wasExportedAlready = exports.containsKey(name);
+    exports.put(name, value);
+    return wasExportedAlready;
+  }
+
+  public Object getExport(final String name) {
+    return exports.get(name);
+  }
+  
   private final TruffleRuntime                  truffleRuntime;
   // TODO: this is not how it is supposed to be... it is just a hack to cope
   //       with the use of system.exit in SOM to enable testing
@@ -528,6 +559,9 @@ public class Universe extends ExecutionContext {
   @CompilationFinal private static Debugger    debugger;
   
   private final VMOptions options;
+  private final Map<String, Object> exports = new HashMap<>();
+  public static final Source emptySource = Source.newBuilder("").name("Empty Source for Primitives and...")
+      .mimeType(SomLanguage.MIME_TYPE).build();
   
   @CompilationFinal private Assumption mateActivated;
   @CompilationFinal private Assumption mateDeactivated;

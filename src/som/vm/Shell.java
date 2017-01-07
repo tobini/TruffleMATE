@@ -32,8 +32,6 @@ import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
-import som.vmobjects.SObject;
-
 import com.oracle.truffle.api.object.DynamicObject;
 
 public class Shell {
@@ -78,7 +76,7 @@ public class Shell {
         // If success
         if (myClass != null) {
           // Create and push a new instance of our class on the stack
-          myObject = SObject.create(myClass);
+          myObject = Universe.getCurrent().getObjectMemory().newObject(myClass);
 
           // Lookup the run: method
           DynamicObject shellMethod = SClass.lookupInvokable(

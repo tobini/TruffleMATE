@@ -21,7 +21,8 @@ public class LateClosureTargetNode extends ExecutionEventNode {
   }
 
   private ExecutionEventNode specialize() {
-    ExecutionEventNode parent = ctx.findParentEventNode(factory);
+    //ExecutionEventNode parent = ctx.findParentEventNode(factory);
+    ExecutionEventNode parent = null;
     InstrumentableBlockApplyNode disp = (InstrumentableBlockApplyNode) ctx.getInstrumentedNode();
 
     if (parent == null) {

@@ -24,14 +24,13 @@
 
 package som.vmobjects;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
-import som.primitives.Primitives;
 import som.vm.Universe;
 import som.vm.constants.Nil;
 import som.vmobjects.SInvokable.SPrimitive;
 import som.vmobjects.SReflectiveObject.SReflectiveObjectLayout;
+import som.vmobjects.SReflectiveObjectEnvInObj.SReflectiveObjectEnvInObjLayout;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -41,10 +40,13 @@ import com.oracle.truffle.api.profiles.ValueProfile;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
 import com.oracle.truffle.api.object.dsl.Layout;
 
+@SuppressWarnings("unused")
 public final class SClass {
   @Layout
+  //public interface SClassLayout extends SReflectiveObjectEnvInObjLayout {
   public interface SClassLayout extends SReflectiveObjectLayout {
-    DynamicObject createSClass(DynamicObjectFactory factory, SSymbol name, DynamicObject superclass, SArray instanceFields, SArray instanceInvokables, @SuppressWarnings("rawtypes") HashMap invokablesTable, DynamicObjectFactory instancesFactory);
+    DynamicObject createSClass(DynamicObjectFactory factory, DynamicObject environment, SSymbol name, DynamicObject superclass, SArray instanceFields, SArray instanceInvokables, @SuppressWarnings("rawtypes") HashMap invokablesTable, DynamicObjectFactory instancesFactory);
+    //DynamicObjectFactory createSClassShape(DynamicObject klass);
     DynamicObjectFactory createSClassShape(DynamicObject klass, DynamicObject environment);
     DynamicObject getSuperclass(DynamicObject object);
     SSymbol getName(DynamicObject object);
@@ -56,6 +58,7 @@ public final class SClass {
     void setInstancesFactoryUnsafe(DynamicObject object, DynamicObjectFactory value);
     void setInstanceFieldsUnsafe(DynamicObject object, SArray value);
     void setInstanceInvokablesUnsafe(DynamicObject object, SArray value);
+    void setNameUnsafe(DynamicObject object, SSymbol value); //Required for initialization of system classes
     void setSuperclassUnsafe(DynamicObject object, DynamicObject value);
     boolean isSClass(DynamicObject object);
     boolean isSClass(ObjectType objectType);
@@ -63,6 +66,7 @@ public final class SClass {
  
   //class which get's its own class set only later (to break up cyclic dependencies)
   private static final DynamicObjectFactory INIT_CLASS_FACTORY = SClassLayoutImpl.INSTANCE.createSClassShape(Nil.nilObject, Nil.nilObject);
+  //private static final DynamicObjectFactory INIT_CLASS_FACTORY = SClassLayoutImpl.INSTANCE.createSClassShape(Nil.nilObject);
   
   public static DynamicObject createSClass(DynamicObject klass, SSymbol name, DynamicObject superclass, SArray fields, SArray methods){
     return createSClass(klass, name, superclass, fields, methods, 
@@ -71,8 +75,10 @@ public final class SClass {
   }
   
   public static DynamicObject createSClass(DynamicObject klass, SSymbol name, DynamicObject superclass, SArray instanceFields, SArray instanceInvokables, HashMap<SSymbol, DynamicObject> invokablesTable, DynamicObjectFactory instancesFactory){
-    DynamicObject resultClass = SClassLayoutImpl.INSTANCE.createSClass(SClassLayoutImpl.INSTANCE.createSClassShape(klass, Nil.nilObject), 
-        name, superclass, instanceFields, instanceInvokables, invokablesTable, instancesFactory);
+    DynamicObject resultClass = SClassLayoutImpl.INSTANCE.createSClass(SClassLayoutImpl.INSTANCE.createSClassShape(klass, Nil.nilObject),
+    //DynamicObject resultClass = SClassLayoutImpl.INSTANCE.createSClass(SClassLayoutImpl.INSTANCE.createSClassShape(klass),
+        Nil.nilObject, name, superclass, instanceFields, instanceInvokables, invokablesTable, instancesFactory);
+        //name, superclass, instanceFields, instanceInvokables, invokablesTable, instancesFactory);
     setInstancesFactory(resultClass, Universe.getCurrent().createObjectShapeFactoryForClass(resultClass));
     for (Object invokable : instanceInvokables.getObjectStorage(null)){
       SInvokable.setHolder((DynamicObject)invokable,resultClass);
@@ -87,6 +93,7 @@ public final class SClass {
   public static DynamicObject createWithoutClass(SSymbol name) {
     CompilerAsserts.neverPartOfCompilation("Class creation");
     DynamicObject clazz =  INIT_CLASS_FACTORY.newInstance(
+        Nil.nilObject,                             // ENVIRONMENT
         name,                                      // NAME
         Nil.nilObject,                             // SUPERCLASS
         SArray.create(new Object[0]),              // INSTANCE_FIELDS
@@ -121,6 +128,10 @@ public final class SClass {
      * We should optimize NewPrim>>doByteSClass to enable again the neverPartOfCompilation 
      */
     return SClassLayoutImpl.INSTANCE.getName(classObj);
+  }
+  
+  public static void setName(final DynamicObject classObj, SSymbol value) {
+    SClassLayoutImpl.INSTANCE.setNameUnsafe(classObj, value);;
   }
 
   public static SArray getInstanceFields(final DynamicObject classObj) {
@@ -273,28 +284,5 @@ public final class SClass {
 
   public static boolean hasPrimitives(final DynamicObject classObj) {
     return includesPrimitives(classObj) || includesPrimitives(SObject.getSOMClass(classObj));
-  }
-
-  public static void loadPrimitives(final DynamicObject classObj, final boolean displayWarning) {
-    CompilerAsserts.neverPartOfCompilation("loadPrimitives");
-    // Compute the class name of the Java(TM) class containing the
-    // primitives
-    String className = "som.primitives." + getName(classObj).getString() + "Primitives";
-
-    // Try loading the primitives
-    try {
-      Class<?> primitivesClass = Class.forName(className);
-      try {
-        Constructor<?> ctor = primitivesClass.getConstructor(boolean.class);
-        ((Primitives) ctor.newInstance(displayWarning)).installPrimitivesIn(classObj);
-      } catch (Exception e) {
-        Universe.errorExit("Primitives class " + className
-            + " cannot be instantiated");
-      }
-    } catch (ClassNotFoundException e) {
-      if (displayWarning) {
-        Universe.println("Primitives class " + className + " not found");
-      }
-    }
   }
 }
