@@ -2,6 +2,8 @@ package som.interpreter.nodes.nary;
 
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.PreevaluatedExpression;
+import som.vmobjects.SSymbol;
+
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -13,15 +15,15 @@ import com.oracle.truffle.api.source.SourceSection;
   @NodeChild(value = "firstArg",  type = ExpressionNode.class),
   @NodeChild(value = "secondArg", type = ExpressionNode.class),
   @NodeChild(value = "thirdArg",  type = ExpressionNode.class)})
-public abstract class QuaternaryExpressionNode extends ExpressionWithTagsNode 
+public abstract class QuaternaryExpressionNode extends EagerlySpecializableNode 
     implements ExpressionWithReceiver, PreevaluatedExpression {
 
   public abstract ExpressionNode getFirstArg();
   public abstract ExpressionNode getSecondArg();
   public abstract ExpressionNode getThirdArg();
   
-  public QuaternaryExpressionNode(final SourceSection sourceSection) {
-    super(sourceSection);
+  public QuaternaryExpressionNode(final boolean eagerlyWrapped, final SourceSection sourceSection) {
+    super(eagerlyWrapped, sourceSection);
   }
 
   public abstract Object executeEvaluated(final VirtualFrame frame,
@@ -43,9 +45,11 @@ public abstract class QuaternaryExpressionNode extends ExpressionWithTagsNode
     return arguments; 
   }
   
-  //Weird, I need this method because if they do not exist eager classes do not compile
-  @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
-    return super.isTaggedWith(tag);
+  public EagerPrimitive wrapInEagerWrapper(
+      final EagerlySpecializableNode prim, final SSymbol selector,
+      final ExpressionNode[] arguments) {
+    return new EagerQuaternaryPrimitiveNode(selector, 
+        arguments[0], arguments[1], arguments[2], 
+        arguments[3], this);
   }
 }

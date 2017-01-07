@@ -2,7 +2,6 @@ package som.primitives;
 
 import java.math.BigInteger;
 
-import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.vm.constants.Globals;
 import som.vmobjects.SSymbol;
@@ -10,14 +9,19 @@ import som.vmobjects.SSymbol;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
+@Primitive(klass = "Integer", selector = "<>")
+@Primitive(klass = "Double", selector = "<>", eagerSpecializable = false)
+@Primitive(klass = "String", selector = "<>", eagerSpecializable = false)
+@Primitive(klass = "Integer", selector = "~=")
+@Primitive(klass = "Double", selector = "~=", eagerSpecializable = false)
+@Primitive(klass = "String", selector = "~=", eagerSpecializable = false)
 public abstract class UnequalsPrim extends BinaryExpressionNode {
-
-  public UnequalsPrim() {
-    super(Source.newBuilder("!=").internal().name("unequals").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  public UnequalsPrim(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
   }
 
   @Specialization

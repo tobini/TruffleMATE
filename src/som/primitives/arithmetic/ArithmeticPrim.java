@@ -10,8 +10,8 @@ import tools.dym.Tags.OpArithmetic;
 
 
 public abstract class ArithmeticPrim extends BinaryExpressionNode {
-  public ArithmeticPrim(SourceSection source) {
-    super(source);
+  public ArithmeticPrim(final boolean eagWrap, SourceSection source) {
+    super(eagWrap, source);
   }
   
   protected final Number reduceToLongIfPossible(final BigInteger result) {
@@ -23,7 +23,7 @@ public abstract class ArithmeticPrim extends BinaryExpressionNode {
   }
   
   @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
+  protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == OpArithmetic.class || tag == BasicPrimitiveOperation.class) {
       return true;
     } else {

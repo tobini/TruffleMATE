@@ -2,18 +2,19 @@ package som.primitives.arithmetic;
 
 import java.math.BigInteger;
 
-import som.interpreter.SomLanguage;
-
+import som.primitives.Primitive;
 import com.oracle.truffle.api.ExactMath;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
+@Primitive(klass = "Integer", selector = "-")
+@Primitive(klass = "Double", selector = "-", eagerSpecializable = false)
 public abstract class SubtractionPrim extends ArithmeticPrim {
-  public SubtractionPrim() {
-    super(Source.newBuilder("-").internal().name("substraction").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  public SubtractionPrim(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
   }
 
   @Specialization(rewriteOn = ArithmeticException.class)

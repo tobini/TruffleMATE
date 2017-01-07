@@ -2,17 +2,17 @@ package som.primitives.arithmetic;
 
 import java.math.BigInteger;
 
-import som.interpreter.SomLanguage;
-
+import som.primitives.Primitive;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
-public abstract class LogicAndPrim extends ArithmeticPrim {
-  public LogicAndPrim() {
-    super(Source.newBuilder("&").internal().name("logic and").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+@Primitive(klass = "Integer", selector = "&")
+public abstract class BitAndPrim extends ArithmeticPrim {
+  public BitAndPrim(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
   }
 
   @Specialization

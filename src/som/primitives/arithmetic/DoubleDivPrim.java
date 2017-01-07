@@ -2,20 +2,22 @@ package som.primitives.arithmetic;
 
 import java.math.BigInteger;
 
-import som.interpreter.SomLanguage;
+import som.primitives.Primitive;
 import som.vm.NotYetImplementedException;
 import som.vmobjects.SAbstractObject;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
+@Primitive(klass = "Integer", selector = "//")
+@Primitive(klass = "Double", selector = "//", eagerSpecializable = false)
 public abstract class DoubleDivPrim extends ArithmeticPrim {
-  public DoubleDivPrim() {
-    super(Source.newBuilder("/").internal().name("divide double").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  public DoubleDivPrim(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
   }
 
   @Specialization

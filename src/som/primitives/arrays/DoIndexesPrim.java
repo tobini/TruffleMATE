@@ -8,6 +8,7 @@ import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.primitives.BlockPrims.ValuePrimitiveNode;
 import som.primitives.LengthPrim;
 import som.primitives.LengthPrimFactory;
+import som.primitives.Primitive;
 import som.vmobjects.SArray;
 import som.vmobjects.SBlock;
 
@@ -22,19 +23,17 @@ import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
+@Primitive(klass = "Array", selector = "doIndexes:", 
+           receiverType = SArray.class, disabled = true)
 public abstract class DoIndexesPrim extends BinaryExpressionNode
     implements ValuePrimitiveNode {
   @Child private AbstractDispatchNode block;
   @Child private LengthPrim length;
 
-  public DoIndexesPrim() {
-    this(null);
-  }
-  
-  public DoIndexesPrim(SourceSection source) {
-    super(source);
+  public DoIndexesPrim(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
     block = new UninitializedValuePrimDispatchNode(this.sourceSection);
-    length = LengthPrimFactory.create(null, null);
+    length = LengthPrimFactory.create(false, null, null);
   }
 
   @Specialization

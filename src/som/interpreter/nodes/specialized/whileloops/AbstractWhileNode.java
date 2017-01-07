@@ -32,18 +32,18 @@ public abstract class AbstractWhileNode extends BinaryExpressionNode {
   @Override
   /*Analyze what is the best to do for this case*/
   public ExpressionNode getReceiver(){
-    return new IntegerLiteralNode(1,this.getSourceSection());
+    return new IntegerLiteralNode(1, this.getSourceSection());
   }
   
   @Override
   /*Analyze what is the best to do for this case*/
   public ExpressionNode getArgument(){
-    return new IntegerLiteralNode(1,this.getSourceSection());
+    return new IntegerLiteralNode(1, this.getSourceSection());
   }
 
   public AbstractWhileNode(final SBlock rcvr, final SBlock arg,
       final boolean predicateBool, final SourceSection source, ExecutionLevel level) {
-    super(source);
+    super(false, source);
 
     CallTarget callTargetCondition = SInvokable.getCallTarget(rcvr.getMethod(), level);
     conditionValueSend = Truffle.getRuntime().createDirectCallNode(
@@ -101,7 +101,7 @@ public abstract class AbstractWhileNode extends BinaryExpressionNode {
   }
   
   @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
+  protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == LoopNode.class) {
       return true;
     } else {

@@ -6,6 +6,7 @@ import som.interpreter.nodes.dispatch.AbstractDispatchNode;
 import som.interpreter.nodes.dispatch.UninitializedValuePrimDispatchNode;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.primitives.BlockPrims.ValuePrimitiveNode;
+import som.primitives.Primitive;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
@@ -25,22 +26,19 @@ import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
+@Primitive(klass = "Array", selector = "do:", 
+           receiverType = SArray.class, disabled = true)
 @ImportStatic(ArrayType.class)
 public abstract class DoPrim extends BinaryExpressionNode
   implements ValuePrimitiveNode {
   @Child private AbstractDispatchNode block;
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 
-  public DoPrim() {
-    super(null);
+  public DoPrim(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
     block = new UninitializedValuePrimDispatchNode(this.sourceSection);
   }
   
-  public DoPrim(final SourceSection source) {
-    super(source);
-    block = new UninitializedValuePrimDispatchNode(this.sourceSection);
-  }
-
   @Override
   public void adoptNewDispatchListHead(final AbstractDispatchNode node) {
     block = insert(node);

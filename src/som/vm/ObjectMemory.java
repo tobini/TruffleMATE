@@ -2,8 +2,10 @@ package som.vm;
 
 import static som.vm.constants.Classes.arrayClass;
 import static som.vm.constants.Classes.booleanClass;
+import static som.vm.constants.Classes.characterClass;
 import static som.vm.constants.Classes.classClass;
 import static som.vm.constants.Classes.doubleClass;
+import static som.vm.constants.Classes.falseClass;
 import static som.vm.constants.Classes.integerClass;
 import static som.vm.constants.Classes.metaclassClass;
 import static som.vm.constants.Classes.methodClass;
@@ -11,11 +13,9 @@ import static som.vm.constants.Classes.nilClass;
 import static som.vm.constants.Classes.objectClass;
 import static som.vm.constants.Classes.primitiveClass;
 import static som.vm.constants.Classes.stringClass;
-import static som.vm.constants.Classes.characterClass;
 import static som.vm.constants.Classes.symbolClass;
-import static som.vm.constants.Classes.trueClass;
-import static som.vm.constants.Classes.falseClass;
 import static som.vm.constants.Classes.systemClass;
+import static som.vm.constants.Classes.trueClass;
 import static som.vm.constants.MateClasses.contextClass;
 import static som.vm.constants.MateClasses.environmentMO;
 import static som.vm.constants.MateClasses.messageMO;
@@ -28,19 +28,22 @@ import java.util.HashMap;
 import som.compiler.Disassembler;
 import som.interpreter.nodes.MateMessageSpecializationsFactory;
 import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
+import som.primitives.Primitives;
 import som.vm.constants.Globals;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
-import som.vmobjects.SBlock;
 import som.vmobjects.SClass;
 import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObject;
+import som.vmobjects.SReflectiveObjectEnvInObj;
 import som.vmobjects.SSymbol;
 import tools.language.StructuralProbe;
 
+import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.object.DynamicObjectFactory;
 import com.oracle.truffle.api.source.Source;
 
 //This is a pseudo object memory because the objects are actually managed by the Truffle/Java memory manager
@@ -56,6 +59,9 @@ public class ObjectMemory {
   // Optimizations
   private final DynamicObject[] blockClasses;
   private final StructuralProbe structuralProbe;
+  private final static SObject layoutClass = Universe.getCurrent().getInstanceArgumentsBuilder();
+  
+  private final Primitives primitives;
   
   protected ObjectMemory(final String[] path, final StructuralProbe probe) {
     last = this;
@@ -63,6 +69,7 @@ public class ObjectMemory {
     symbolTable  = new HashMap<>();
     blockClasses = new DynamicObject[5];
     structuralProbe = probe;
+    primitives = new Primitives(this);
   }
   
   protected void initializeSystem() {
@@ -73,32 +80,34 @@ public class ObjectMemory {
     SClass.setSuperclass(metaclassClass, classClass);
     SClass.setSuperclass(SObject.getSOMClass(metaclassClass), SObject.getSOMClass(classClass));
     
+    initializeSystemClassName(); //Need to do this now because before there was no symbol table!
+    
     // Load methods and fields into the system classes
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(objectClass)), objectClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(classClass)), classClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(metaclassClass)), metaclassClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(nilClass)), nilClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(arrayClass)), arrayClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(methodClass)), methodClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(stringClass)), stringClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(characterClass)), characterClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(symbolClass)), symbolClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(integerClass)), integerClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(primitiveClass)), primitiveClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(doubleClass)), doubleClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(booleanClass)), booleanClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(trueClass)), trueClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(falseClass)), falseClass, true);
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(systemClass)), systemClass, true);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(objectClass)), objectClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(classClass)), classClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(metaclassClass)), metaclassClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(nilClass)), nilClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(arrayClass)), arrayClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(methodClass)), methodClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(stringClass)), stringClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(characterClass)), characterClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(symbolClass)), symbolClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(integerClass)), integerClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(primitiveClass)), primitiveClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(doubleClass)), doubleClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(booleanClass)), booleanClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(trueClass)), trueClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(falseClass)), falseClass);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(systemClass)), systemClass);
     
     // Load the generic block class
-    blockClasses[0] = loadClass(Universe.getCurrent().getSourceForClassName(symbolFor("Block")), null, true);
+    blockClasses[0] = loadClass(Universe.getCurrent().getSourceForClassName(symbolFor("Block")), null);
 
     // Setup the true and false objects
-    trueObject  = SObject.create(trueClass);
-    falseObject = SObject.create(falseClass);
+    trueObject  = newObject(trueClass);
+    falseObject = newObject(falseClass);
     // Load the system class and create an instance of it
-    systemObject = SObject.create(systemClass);
+    systemObject = newObject(systemClass);
 
     // Put special objects into the dictionary of globals
     setGlobal("nil",    nilObject);
@@ -120,20 +129,54 @@ public class ObjectMemory {
       Universe.errorExit("Initialization went wrong for class Blocks");
     }
     
-    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(contextClass)), contextClass, true);
+    loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(contextClass)), contextClass);
 
     if (Universe.getCurrent().vmReflectionEnabled()){
       //Setup the fields that were not possible to setup before to avoid cyclic initialization dependencies
       SReflectiveObject.setEnvironment(Nil.nilObject, Nil.nilObject);
+      //SReflectiveObjectEnvInObj.setEnvironment(Nil.nilObject, Nil.nilObject);
       
       // Load methods and fields into the Mate MOP.
-      loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(environmentMO)), environmentMO, true);
-      loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(operationalSemanticsMO)), operationalSemanticsMO, true);
-      loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(messageMO)), messageMO, true);
-      loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(shapeClass)), shapeClass, true);
+      loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(environmentMO)), environmentMO);
+      loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(operationalSemanticsMO)), operationalSemanticsMO);
+      loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(messageMO)), messageMO);
+      loadClass(Universe.getCurrent().getSourceForClassName(SClass.getName(shapeClass)), shapeClass);
       
       AbstractMessageSendNode.specializationFactory = new MateMessageSpecializationsFactory();
     }
+  }
+  
+  public void initializeSystemClassName(){
+    initializeSystemClassName(metaclassClass, "Metaclass");
+    initializeSystemClassName(objectClass, "Object");
+    initializeSystemClassName(nilClass, "Nil");
+    initializeSystemClassName(classClass, "Class");
+    initializeSystemClassName(arrayClass, "Array");
+    initializeSystemClassName(stringClass, "String");
+    initializeSystemClassName(characterClass, "Character");
+    initializeSystemClassName(symbolClass, "Symbol");
+    initializeSystemClassName(methodClass, "Method");
+    initializeSystemClassName(integerClass, "Integer");
+    initializeSystemClassName(primitiveClass, "Primitive");
+    initializeSystemClassName(doubleClass, "Double");
+    initializeSystemClassName(booleanClass, "Boolean");
+    initializeSystemClassName(trueClass, "True");
+    initializeSystemClassName(falseClass, "False");
+    initializeSystemClassName(systemClass, "System");
+    initializeSystemClassName(contextClass, "Context");
+    
+    if (Universe.getCurrent().vmReflectionEnabled()){
+      initializeSystemClassName(environmentMO, "EnvironmentMO");
+      initializeSystemClassName(operationalSemanticsMO, "OperationalSemanticsMO");
+      initializeSystemClassName(messageMO, "MessageMO");
+      initializeSystemClassName(shapeClass, "Shape");
+      initializeSystemClassName(contextClass, "Context");
+    }
+  }
+  
+  public void initializeSystemClassName(DynamicObject klass, String name){
+    SClass.setName(klass, symbolFor(name));
+    SClass.setName(SObject.getSOMClass(klass), symbolFor(name + " class"));
   }
   
   @TruffleBoundary
@@ -170,7 +213,7 @@ public class ObjectMemory {
     return result;
   }
   
-  public static DynamicObject newSystemClass(final DynamicObject superClass, final String name) {
+  public static DynamicObject newSystemClass(final DynamicObject superClass) {
     DynamicObject classClassSuperClass;
     if (superClass != Nil.nilObject) {
       classClassSuperClass = SObject.getSOMClass(superClass);
@@ -178,15 +221,15 @@ public class ObjectMemory {
       classClassSuperClass =  Nil.nilObject;
     }
     
-    DynamicObject classClass = SClass.createSClass(metaclassClass, Universe.getCurrent().symbolFor(name + " class"), classClassSuperClass, 
+    DynamicObject classClass = SClass.createSClass(metaclassClass, new SSymbol("Fake for initialization"), classClassSuperClass, 
         SArray.create(new Object[0]), SArray.create(new Object[0]));
-    return SClass.createSClass(classClass, Universe.getCurrent().symbolFor(name), superClass, SArray.create(new Object[0]), 
+    return SClass.createSClass(classClass, new SSymbol("Fake for initialization"), superClass, SArray.create(new Object[0]), 
         SArray.create(new Object[0]));
   }
   
   public static DynamicObject newMetaclassClass(String name) {
-    DynamicObject result = SClass.createWithoutClass(Universe.getCurrent().symbolFor(name));
-    SObject.setClass(result, SClass.createEmptyClass(result, Universe.getCurrent().symbolFor(name + " class")));
+    DynamicObject result = SClass.createWithoutClass(new SSymbol("Fake for initialization"));
+    SObject.setClass(result, SClass.createEmptyClass(result, new SSymbol("Fake for initialization")));
     return result;
   }
   
@@ -194,13 +237,14 @@ public class ObjectMemory {
    *  If systemClass is null a new class object is created, if not the methods are loaded into systemClass.
    *  Used mainly for system initialization.
    */
-  public DynamicObject loadClass(final Source source, final DynamicObject systemClass, boolean loadPrimitives) {
+  public DynamicObject loadClass(final Source source, final DynamicObject systemClass) {
     // Try loading the class from all different paths
     // Load the class from a file and return the loaded class
     DynamicObject result = som.compiler.SourcecodeCompiler.compileClass(source,
         systemClass, this, structuralProbe);
     setGlobal(source.getName(), result);
-    if (loadPrimitives) loadPrimitives(result, systemClass != null);
+    loadPrimitives(result);
+    loadPrimitives(SObject.getSOMClass(result));
     if (Universe.getCurrent().vmReflectionEnabled()){
       Universe.getCurrent().mateify(result);
       Universe.getCurrent().mateify(SObject.getSOMClass(result));
@@ -212,9 +256,11 @@ public class ObjectMemory {
     return result;
   }
 
-  private void loadPrimitives(final DynamicObject result, final boolean isSystemClass) {
-    if (SClass.hasPrimitives(result) || isSystemClass) {
-      SClass.loadPrimitives(result, !isSystemClass);
+  private void loadPrimitives(final DynamicObject result) {
+    if (primitives.getVMPrimitivesForClassNamed(SClass.getName(result)) != null){
+      for (DynamicObject prim : primitives.getVMPrimitivesForClassNamed(SClass.getName(result))){
+        SClass.addInstancePrimitive(result, prim, false);
+      }
     }
   }
   
@@ -225,11 +271,7 @@ public class ObjectMemory {
     assert getGlobal(name) == null;
 
     // Get the block class for blocks with the given number of arguments
-    DynamicObject result = loadClass(Universe.getCurrent().getSourceForClassName(name), null, false);
-
-    // Add the appropriate value primitive to the block class
-    SClass.addInstancePrimitive(result, SBlock.getEvaluationPrimitive(
-        numberOfArguments, Universe.getCurrent(), result), true);
+    DynamicObject result = loadClass(Universe.getCurrent().getSourceForClassName(name), null);
 
     // Insert the block class into the dictionary of globals
     setGlobal(name, result);
@@ -251,10 +293,19 @@ public class ObjectMemory {
     return result;
   }
   
+  public DynamicObject newObject(final DynamicObject instanceClass) {
+    CompilerAsserts.neverPartOfCompilation("Basic create without factory caching");
+    DynamicObjectFactory factory = SClass.getFactory(instanceClass);
+    return factory.newInstance(layoutClass.buildArguments());
+  }
+  
+  
   public DynamicObject getTrueObject()   { return trueObject; }
   public DynamicObject getFalseObject()  { return falseObject; }
   public DynamicObject getTrueClass()   { return trueClass; }
   public DynamicObject getFalseClass()  { return falseClass; }
   public DynamicObject getSystemObject() { return systemObject; }
   public DynamicObject getSystemClass() { return systemClass; }
+  
+  public Primitives getPrimitives() { return primitives; }
 }

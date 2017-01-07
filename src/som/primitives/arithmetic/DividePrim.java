@@ -2,19 +2,19 @@ package som.primitives.arithmetic;
 
 import java.math.BigInteger;
 
-import som.interpreter.SomLanguage;
+import som.primitives.Primitive;
 import som.vm.NotYetImplementedException;
-
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
+@Primitive(klass = "Integer", selector = "/")
 public abstract class DividePrim extends ArithmeticPrim {
-  public DividePrim() {
-    super(Source.newBuilder("/").internal().name("divide").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  public DividePrim(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
   }
 
   @Specialization

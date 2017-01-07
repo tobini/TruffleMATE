@@ -1,6 +1,5 @@
 package som.primitives;
 
-import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SArray;
@@ -18,10 +17,11 @@ import com.oracle.truffle.api.source.SourceSection;
 public class ClassPrims {
 
   @GenerateNodeFactory
+  @Primitive(klass = "Class", selector = "name", eagerSpecializable = false)
   @ImportStatic(SClass.class)
   public abstract static class NamePrim extends UnaryExpressionNode {
-    public NamePrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Name"));
+    public NamePrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @TruffleBoundary
@@ -33,14 +33,15 @@ public class ClassPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Class", selector = "superclass")
   @ImportStatic(SClass.class)
   public abstract static class SuperClassPrim extends UnaryExpressionNode {
-    public SuperClassPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Superclass"));
+    public SuperClassPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization(guards = "isSClass(receiver)")
-    public final Object doSClass(final DynamicObject receiver) {
+    public final DynamicObject doSClass(final DynamicObject receiver) {
       CompilerAsserts.neverPartOfCompilation("Class>>SuperClassPrim");
       return SClass.getSuperClass(receiver);
     }
@@ -48,10 +49,11 @@ public class ClassPrims {
 
   
   @GenerateNodeFactory
+  @Primitive(klass = "Class", selector = "methods")
   @ImportStatic(SClass.class)
   public abstract static class InstanceInvokablesPrim extends UnaryExpressionNode {
-    public InstanceInvokablesPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Instance Invokables"));
+    public InstanceInvokablesPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @TruffleBoundary
@@ -63,10 +65,11 @@ public class ClassPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Class", selector = "fields")
   @ImportStatic(SClass.class)
   public abstract static class InstanceFieldsPrim extends UnaryExpressionNode {
-    public InstanceFieldsPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Instance Fields"));
+    public InstanceFieldsPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization(guards = "isSClass(receiver)")

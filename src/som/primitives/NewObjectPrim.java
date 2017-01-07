@@ -1,8 +1,9 @@
 package som.primitives;
 
-import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
+import som.vm.Universe;
 import som.vmobjects.SClass;
+import som.vmobjects.SObject;
 import tools.dym.Tags.NewObject;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -17,9 +18,12 @@ import com.oracle.truffle.api.source.SourceSection;
 
 @GenerateNodeFactory
 @ImportStatic(SClass.class)
+@Primitive(klass = "Class", selector = "basicNew")
 public abstract class NewObjectPrim extends UnaryExpressionNode {
-  public NewObjectPrim() {
-    super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "New"));
+  private final static SObject layoutClass = Universe.getCurrent().getInstanceArgumentsBuilder(); 
+
+  public NewObjectPrim(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
   }
 
   @Specialization(guards = "receiver == cachedClass")
@@ -27,17 +31,17 @@ public abstract class NewObjectPrim extends UnaryExpressionNode {
       @Cached("receiver") final DynamicObject cachedClass,
       @Cached("getFactory(cachedClass)") final DynamicObjectFactory factory) {
     //The parameter is only valid for SReflectiveObjects
-    return factory.newInstance();
+    return factory.newInstance(layoutClass.buildArguments());
   }
 
   @TruffleBoundary
   @Specialization(contains = "cachedClass")
   public DynamicObject uncached(final DynamicObject receiver) {
-    return SClass.getFactory(receiver).newInstance();
+    return SClass.getFactory(receiver).newInstance(layoutClass.buildArguments());
   }
   
   @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
+  protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == NewObject.class) {
       return true;
     } else {
@@ -45,4 +49,3 @@ public abstract class NewObjectPrim extends UnaryExpressionNode {
     }
   }
 }
-

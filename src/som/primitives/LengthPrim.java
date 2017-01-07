@@ -1,6 +1,5 @@
 package som.primitives;
 
-import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
@@ -12,18 +11,20 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.profiles.ValueProfile;
-import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 @GenerateNodeFactory
 @ImportStatic(ArrayType.class)
+@Primitive(klass = "String", selector = "length", 
+           receiverType = {String.class, Array.class})
+@Primitive(klass = "Array", selector = "length", 
+           eagerSpecializable = false)
 public abstract class LengthPrim extends UnaryExpressionNode {
 
-  public LengthPrim(final SourceSection source) { super(source); }
-  public LengthPrim() { this(
-      //SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Length")
-      Source.newBuilder("length").internal().name("lengthName").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1)
-      ); }
+  public LengthPrim(final boolean eagerlyWrapped, final SourceSection source) { 
+    super(eagerlyWrapped, source); 
+  }
   
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 
@@ -80,7 +81,7 @@ public abstract class LengthPrim extends UnaryExpressionNode {
   }
   
   @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
+  protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == OpLength.class || tag == BasicPrimitiveOperation.class) {
       return true;
     } else {

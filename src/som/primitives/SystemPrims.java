@@ -15,6 +15,7 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.impl.FindContextNode;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -27,14 +28,19 @@ public final class SystemPrims {
   @GenerateNodeFactory
   public abstract static class BinarySystemNode extends BinaryExpressionNode {
     protected final Universe universe;
-    protected BinarySystemNode() { 
-      super(null); 
+    protected BinarySystemNode(final boolean eagWrap, final SourceSection source) { 
+      super(eagWrap, source); 
       this.universe = Universe.getCurrent(); 
     }
   }
 
   @ImportStatic(SystemPrims.class)
+  @Primitive(klass = "System", selector = "load:", eagerSpecializable = false)
   public abstract static class LoadPrim extends BinarySystemNode {
+    protected LoadPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
+    }
+
     @Specialization(guards = "receiverIsSystemObject(receiver)", assumptions="cachedAssumption")
     public final Object doSObject(final DynamicObject receiver, final SSymbol argument,
         @Cached("currentUniverse()") final Universe currentUniverse,
@@ -54,11 +60,14 @@ public final class SystemPrims {
       return uni.getValidUniverseAssumption();
     }
   }
-  
-  
 
   @ImportStatic(SystemPrims.class)
+  @Primitive(klass = "System", selector = "exit:", eagerSpecializable = false)
   public abstract static class ExitPrim extends BinarySystemNode {
+    protected ExitPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
+    }
+
     @Specialization(guards = "receiverIsSystemObject(receiver)")
     public final Object doSObject(final DynamicObject receiver, final long error) {
       universe.exit((int) error);
@@ -68,9 +77,13 @@ public final class SystemPrims {
 
   @ImportStatic(SystemPrims.class)
   @GenerateNodeFactory
+  @Primitive(klass = "System", selector = "global:put:", eagerSpecializable = false)
   public abstract static class GlobalPutPrim extends TernaryExpressionNode {
     private final Universe universe;
-    public GlobalPutPrim()  { this.universe = Universe.getCurrent(); }
+    public GlobalPutPrim(final boolean eagWrap, final SourceSection source)  { 
+      super(false, source);
+      this.universe = Universe.getCurrent();
+    }
 
     @Specialization(guards = "receiverIsSystemObject(receiver)")
     public final Object doSObject(final DynamicObject receiver, final SSymbol global,
@@ -81,7 +94,12 @@ public final class SystemPrims {
   }
 
   @ImportStatic(SystemPrims.class)
+  @Primitive(klass = "System", selector = "printString:", eagerSpecializable = false)
   public abstract static class PrintStringPrim extends BinarySystemNode {
+    protected PrintStringPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
+    }
+
     @Specialization(guards = "receiverIsSystemObject(receiver)")
     public final Object doSObject(final DynamicObject receiver, final String argument) {
       Universe.print(argument);
@@ -96,9 +114,10 @@ public final class SystemPrims {
 
   @ImportStatic(SystemPrims.class)
   @GenerateNodeFactory
+  @Primitive(klass = "System", selector = "printNewline", eagerSpecializable = false)
   public abstract static class PrintNewlinePrim extends UnaryExpressionNode {
-    public PrintNewlinePrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Print New Line"));
+    public PrintNewlinePrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization(guards = "receiverIsSystemObject(receiver)")
@@ -110,9 +129,10 @@ public final class SystemPrims {
 
   @ImportStatic(SystemPrims.class)
   @GenerateNodeFactory
+  @Primitive(klass = "System", selector = "fullGC", eagerSpecializable = false)
   public abstract static class FullGCPrim extends UnaryExpressionNode {
-    public FullGCPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Full GC"));
+    public FullGCPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization(guards = "receiverIsSystemObject(receiver)")
@@ -124,9 +144,10 @@ public final class SystemPrims {
 
   @ImportStatic(SystemPrims.class)
   @GenerateNodeFactory
+  @Primitive(klass = "System", selector = "time", eagerSpecializable = false)
   public abstract static class TimePrim extends UnaryExpressionNode {
-    public TimePrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Time"));
+    public TimePrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization(guards = "receiverIsSystemObject(receiver)")
@@ -137,9 +158,10 @@ public final class SystemPrims {
 
   @ImportStatic(SystemPrims.class)
   @GenerateNodeFactory
+  @Primitive(klass = "System", selector = "ticks", eagerSpecializable = false)
   public abstract static class TicksPrim extends UnaryExpressionNode {
-    public TicksPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Ticks"));
+    public TicksPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization(guards = "receiverIsSystemObject(receiver)")
@@ -147,11 +169,36 @@ public final class SystemPrims {
       return System.nanoTime() / 1000L - startMicroTime;
     }
   }
+
+  @ImportStatic(SystemPrims.class)
+  @GenerateNodeFactory
+  @Primitive(klass = "System", selector = "export:as:", eagerSpecializable = false)
+  public abstract static class ExportAsPrim extends TernaryExpressionNode {
+    @Child protected FindContextNode<Universe> findContext;
+
+    public ExportAsPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
+      findContext = SomLanguage.INSTANCE.createNewFindContextNode();
+    }
+
+    @Specialization(guards = "receiverIsSystemObject(obj)")
+    public final boolean doString(final DynamicObject obj, final DynamicObject method,final String name) {
+      Universe vm = findContext.executeFindContext();
+      vm.registerExport(name, obj);
+      return true;
+    }
+
+    @Specialization(guards = "receiverIsSystemObject(obj)")
+    public final boolean doSymbol(final DynamicObject obj, final DynamicObject method, final SSymbol name) {
+      return doString(obj, method, name.getString());
+    }
+  }
   
   @GenerateNodeFactory
+  @Primitive(klass = "System Class", selector = "current", eagerSpecializable = false)
   public abstract static class CurrentInstancePrim extends UnaryExpressionNode {
-    public CurrentInstancePrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Current system instance"));
+    public CurrentInstancePrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization

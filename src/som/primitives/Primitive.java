@@ -6,9 +6,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.oracle.truffle.api.dsl.NodeFactory;
+import som.primitives.Primitives.Specializer;
 
-import som.vm.Primitives.Specializer;
+import com.oracle.truffle.api.dsl.NodeFactory;
 
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,9 +17,9 @@ import som.vm.Primitives.Specializer;
 public @interface Primitive {
 
   /** Name of the selector, for which the primitive is to be installed. */
-  String primitive() default "";
+  String klass() default "";
 
-  /** Selector for eager replacement. */
+  /** Selector */
   String selector() default "";
 
   /**
@@ -32,6 +32,7 @@ public @interface Primitive {
    * The specializer is used to check when eager specialization is to be
    * applied and to construct the node.
    */
+  
   @SuppressWarnings("rawtypes")
   Class<? extends Specializer> specializer() default Specializer.class;
 
@@ -41,6 +42,9 @@ public @interface Primitive {
 
   /** Pass array of evaluated arguments to node constructor. */
   boolean requiresArguments() default false;
+  
+  /** Pass ExecutionLevel to node constructor. */
+  boolean requiresExecutionLevel() default false;
 
   /** Disabled for Dynamic Metrics. */
   boolean disabled() default false;
@@ -52,6 +56,12 @@ public @interface Primitive {
    * to handle all possible cases themselves.
    */
   boolean noWrapper() default false;
+  
+  boolean eagerSpecializable() default true;
+
+  /** Indicates if the primitive is only valid for Mate */
+  boolean mate() default false;
+
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target({ElementType.TYPE})

@@ -2,10 +2,12 @@ package som.primitives;
 
 import java.math.BigInteger;
 
-import som.interpreter.SomLanguage;
+import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
+import som.primitives.Primitives.Specializer;
 import som.primitives.arithmetic.ArithmeticPrim;
+import som.vm.Universe;
 import som.vm.constants.Classes;
 import som.vmobjects.SArray;
 import som.vmobjects.SSymbol;
@@ -14,19 +16,20 @@ import tools.dym.Tags.OpArithmetic;
 import tools.dym.Tags.StringAccess;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
+import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.profiles.BranchProfile;
-import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 
 public abstract class IntegerPrims {
 
   @GenerateNodeFactory
+  @Primitive(klass = "Integer", selector = "atRandom", receiverType = Long.class)
   public abstract static class RandomPrim extends UnaryExpressionNode {
-    public RandomPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Random"));
+    public RandomPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -36,9 +39,10 @@ public abstract class IntegerPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Integer", selector = "as32BitSignedValue", receiverType = Long.class)
   public abstract static class As32BitSignedValue extends UnaryExpressionNode {
-    public As32BitSignedValue() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "As32bit"));
+    public As32BitSignedValue(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -47,7 +51,7 @@ public abstract class IntegerPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpArithmetic.class) {
         return true;
       } else {
@@ -57,9 +61,10 @@ public abstract class IntegerPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Integer", selector = "as32BitUnsignedValue", receiverType = Long.class)
   public abstract static class As32BitUnsignedValue extends UnaryExpressionNode {
-    public As32BitUnsignedValue() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "As32BitUnsigned"));
+    public As32BitUnsignedValue(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -68,7 +73,7 @@ public abstract class IntegerPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpArithmetic.class) {
         return true;
       } else {
@@ -78,13 +83,28 @@ public abstract class IntegerPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Integer Class", selector = "fromString:", 
+      specializer = FromStringPrim.IsIntegerClass.class)
   public abstract static class FromStringPrim extends ArithmeticPrim {
-    public FromStringPrim() {
-      super(Source.newBuilder("FromString").internal().name("from string for integers").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public FromStringPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
-    protected final boolean receiverIsIntegerClass(final DynamicObject receiver) {
+    protected final static boolean receiverIsIntegerClass(final DynamicObject receiver) {
       return receiver == Classes.integerClass;
+    }
+    
+    public static class IsIntegerClass extends Specializer<ExpressionNode> {
+      public IsIntegerClass(final Primitive prim, final NodeFactory<ExpressionNode> fact) { super(prim, fact); }
+
+      @Override
+      public boolean matches(final Object[] args, final ExpressionNode[] argNodess) {
+        try{
+          return receiverIsIntegerClass((DynamicObject) args[0]);
+        } catch (ClassCastException e){
+          return false;
+        }
+      }
     }
 
     @Specialization(guards = "receiverIsIntegerClass(receiver)")
@@ -98,7 +118,7 @@ public abstract class IntegerPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == ComplexPrimitiveOperation.class) {
         return true;
       } else if (tag == StringAccess.class) {
@@ -110,9 +130,10 @@ public abstract class IntegerPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Integer", selector = "<<", receiverType = Long.class)
   public abstract static class LeftShiftPrim extends ArithmeticPrim {
-    public LeftShiftPrim() {
-      super(Source.newBuilder("<<").internal().name("left shift").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public LeftShiftPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     private final BranchProfile overflow = BranchProfile.create();
@@ -138,9 +159,10 @@ public abstract class IntegerPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Integer", selector = ">>>", receiverType = Long.class)
   public abstract static class UnsignedRightShiftPrim extends ArithmeticPrim {
-    public UnsignedRightShiftPrim() {
-      super(Source.newBuilder(">>").internal().name("unsigned right shift").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public UnsignedRightShiftPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -150,9 +172,11 @@ public abstract class IntegerPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Integer", selector = "max:", 
+             receiverType = Long.class, disabled = true)
   public abstract static class MaxIntPrim extends ArithmeticPrim {
-    public MaxIntPrim() {
-      super(Source.newBuilder("MaxInt").internal().name("max integer").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public MaxIntPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -162,9 +186,11 @@ public abstract class IntegerPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Integer", selector = "to:", 
+             receiverType = Long.class, disabled = true)
   public abstract static class ToPrim extends BinaryExpressionNode {
-    public ToPrim() {
-      super(Source.newBuilder("To for Arrays").internal().name("to").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public ToPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -178,7 +204,7 @@ public abstract class IntegerPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpArithmetic.class) {
         return true;
       } else {
@@ -188,9 +214,10 @@ public abstract class IntegerPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Integer", selector = "abs", receiverType = Long.class)
   public abstract static class AbsPrim extends UnaryExpressionNode {
-    public AbsPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Abs"));
+    public AbsPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -199,7 +226,7 @@ public abstract class IntegerPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpArithmetic.class) {
         return true;
       } else {

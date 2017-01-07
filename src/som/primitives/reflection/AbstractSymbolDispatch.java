@@ -6,7 +6,7 @@ import som.interpreter.nodes.MessageSendNode;
 import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import som.primitives.arrays.ToArgumentsArrayNode;
-import som.primitives.arrays.ToArgumentsArrayNodeGen;
+import som.primitives.arrays.ToArgumentsArrayNodeFactory;
 import som.vm.constants.ExecutionLevel;
 import som.vmobjects.InvokableLayoutImpl;
 import som.vmobjects.SArray;
@@ -20,10 +20,23 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 public abstract class AbstractSymbolDispatch extends Node {
   public static final int INLINE_CACHE_SIZE = 6;
+  
+  private final SourceSection sourceSection;
+
+  protected AbstractSymbolDispatch(final SourceSection source) {
+    super();
+    this.sourceSection = source;
+  }
+  
+  @Override
+  public final SourceSection getSourceSection() {
+    return sourceSection;
+  }
 
   public abstract Object executeDispatch(VirtualFrame frame, Object receiver,
       SSymbol selector, Object argsArr);
@@ -33,7 +46,7 @@ public abstract class AbstractSymbolDispatch extends Node {
   }
 
   public static final ToArgumentsArrayNode createArgArrayNode() {
-    return ToArgumentsArrayNodeGen.create(null, null);
+    return ToArgumentsArrayNodeFactory.getInstance().createNode(false, null, null);
   }
 
   @Specialization(limit = "INLINE_CACHE_SIZE", guards = {"selector == cachedSelector", "argsArr == null"})

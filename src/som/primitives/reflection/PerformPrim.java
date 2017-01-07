@@ -1,7 +1,7 @@
 package som.primitives.reflection;
 
-import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
+import som.primitives.Primitive;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
@@ -11,12 +11,13 @@ import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
+@Primitive(klass = "Object", selector = "perform:")
 public abstract class PerformPrim extends BinaryExpressionNode {
   @Child protected AbstractSymbolDispatch dispatch;
 
-  public PerformPrim() { 
-    super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Perform")); 
-    dispatch = AbstractSymbolDispatchNodeGen.create(); 
+  public PerformPrim(final boolean eagWrap, final SourceSection source) {
+    super(false, source);
+    dispatch = AbstractSymbolDispatchNodeGen.create(source); 
   }
 
   @Specialization

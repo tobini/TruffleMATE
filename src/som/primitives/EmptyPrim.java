@@ -9,7 +9,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 public final class EmptyPrim extends UnaryExpressionNode {
   
   private EmptyPrim(final ExpressionNode receiver) {
-    super(null);
+    super(false, null);
   }
 
   public EmptyPrim(final EmptyPrim node) { this(node.getReceiver()); }

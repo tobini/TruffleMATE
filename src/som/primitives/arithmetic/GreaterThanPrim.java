@@ -2,16 +2,16 @@ package som.primitives.arithmetic;
 
 import java.math.BigInteger;
 
-import som.interpreter.SomLanguage;
-
+import som.primitives.Primitive;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
 
 @GenerateNodeFactory
+@Primitive(selector = ">")
 public abstract class GreaterThanPrim extends ArithmeticPrim {
-  public GreaterThanPrim() {
-    super(Source.newBuilder(">=").internal().name("greater than").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  public GreaterThanPrim(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
   }
 
   @Specialization

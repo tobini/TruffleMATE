@@ -2,16 +2,18 @@ package som.interpreter.nodes.specialized;
 
 import som.interpreter.Invokable;
 import som.interpreter.SArguments;
-import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
+import som.primitives.Primitive;
 import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
+import som.interpreter.nodes.specialized.IntToDoMessageNode.ToDoSplzr;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
@@ -19,25 +21,23 @@ import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
-
+@Primitive(selector = "downTo:do:", noWrapper = true, disabled = true,
+           requiresExecutionLevel = true, requiresArguments = true,
+           specializer = ToDoSplzr.class)
+@GenerateNodeFactory
 public abstract class IntDownToDoMessageNode extends TernaryExpressionNode {
 
   private final DynamicObject blockMethod;
   @Child private DirectCallNode valueSend;
 
-  public IntDownToDoMessageNode(final ExpressionNode orignialNode,
-      final SBlock block, ExecutionLevel level) {
-    super(orignialNode.getSourceSection());
-    blockMethod = block.getMethod();
+  public IntDownToDoMessageNode(final boolean eagPrim, final SourceSection source,
+      final Object[] args, final ExecutionLevel level) {
+    super(false, source);
+    blockMethod = ((SBlock) args[2]).getMethod();
     valueSend = Truffle.getRuntime().createDirectCallNode(
                     SInvokable.getCallTarget(blockMethod, level));
-  }
-
-  public IntDownToDoMessageNode(final IntDownToDoMessageNode node) {
-    super(node.getSourceSection());
-    this.blockMethod = node.blockMethod;
-    this.valueSend   = node.valueSend;
   }
 
   protected final boolean isSameBlockLong(final SBlock block) {
@@ -100,7 +100,7 @@ public abstract class IntDownToDoMessageNode extends TernaryExpressionNode {
   }
   
   @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
+  protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == LoopNode.class) {
       return true;
     } else {

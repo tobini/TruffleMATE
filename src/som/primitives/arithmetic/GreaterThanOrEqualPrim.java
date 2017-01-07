@@ -9,27 +9,25 @@ import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
-@Primitive(klass = "Integer", selector = "<")
-@Primitive(klass = "Double", selector = "<", eagerSpecializable = false)
-public abstract class LessThanPrim extends ArithmeticPrim {
-  
-  public LessThanPrim(final boolean eagWrap, final SourceSection source) { 
+@Primitive(selector = ">=")
+public abstract class GreaterThanOrEqualPrim extends ArithmeticPrim {
+  public GreaterThanOrEqualPrim(final boolean eagWrap, final SourceSection source) { 
     super(eagWrap, source);
   }
   
   @Specialization
   public final boolean doLong(final long left, final long right) {
-    return left < right;
+    return left >= right;
   }
 
   @Specialization
   public final boolean doBigInteger(final BigInteger left, final BigInteger right) {
-    return left.compareTo(right) < 0;
+    return left.compareTo(right) >= 0;
   }
 
   @Specialization
   public final boolean doDouble(final double left, final double right) {
-    return left < right;
+    return left >= right;
   }
 
   @Specialization
@@ -49,6 +47,6 @@ public abstract class LessThanPrim extends ArithmeticPrim {
 
   @Specialization
   public final boolean doDouble(final double left, final long right) {
-    return doDouble(left, (double) right);
+    return doDouble(left, right);
   }
 }

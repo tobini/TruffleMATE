@@ -3,7 +3,6 @@ package som.primitives;
 import java.io.File;
 import java.io.IOException;
 
-import som.interpreter.SomLanguage;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
@@ -23,16 +22,16 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.profiles.ValueProfile;
-import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 
 public abstract class FilePluginPrims {
   
   @GenerateNodeFactory
+  @Primitive(klass = "FilePluginPrims", selector = "imageFile")
   public abstract static class ImageFilePrim extends UnaryExpressionNode {
-    public ImageFilePrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Image File Name"));
+    public ImageFilePrim(final boolean eagWrap, SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -42,7 +41,12 @@ public abstract class FilePluginPrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "StandardFileStream", selector = "primOpen:writable:")
   public abstract static class OpenFilePrim extends TernaryExpressionNode {
+    public OpenFilePrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
+    }
+
     @Specialization
     public Object doGeneric(DynamicObject receiver, String filename, Boolean writable) {
       SFile file = new SFile(new File(filename), writable);
@@ -54,10 +58,11 @@ public abstract class FilePluginPrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "StandardFileStream", selector = "primGetPosition:")
   public abstract static class GetPositionFilePrim extends BinaryExpressionNode {
     
-    public GetPositionFilePrim() {
-      super(Source.newBuilder("Get Position in File").internal().name("get position").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public GetPositionFilePrim(final boolean eagWrap, SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -67,7 +72,12 @@ public abstract class FilePluginPrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "StandardFileStream", selector = "primSetPosition:to:")
   public abstract static class SetPositionFilePrim extends TernaryExpressionNode {
+    public SetPositionFilePrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
+    }
+
     @Specialization
     @TruffleBoundary
     public long doGeneric(DynamicObject receiver, SFile file, long position) {
@@ -77,9 +87,10 @@ public abstract class FilePluginPrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "StandardFileStream", selector = "primSize:")
   public abstract static class SizeFilePrim extends BinaryExpressionNode {
-    public SizeFilePrim() {
-      super(Source.newBuilder("Size for Files").internal().name("size file").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public SizeFilePrim(final boolean eagWrap, SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -96,9 +107,12 @@ public abstract class FilePluginPrims {
     @NodeChild(value = "starting", type = ExpressionNode.class),
     @NodeChild(value = "count", type = ExpressionNode.class),
   })
+  @Primitive(klass = "StandardFileStream", selector = "primRead:into:startingAt:count:")
   @ImportStatic(ArrayType.class)
   public abstract static class ReadIntoFilePrim extends ExpressionWithTagsNode {
-    public ReadIntoFilePrim() { super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Read Into File")); }
+    public ReadIntoFilePrim(final boolean eagWrap, SourceSection source) { 
+      super(source); 
+    }
     
     private final ValueProfile storageType = ValueProfile.createClassProfile();
     
@@ -134,9 +148,10 @@ public abstract class FilePluginPrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "StandardFileStream", selector = "primAtEnd:")
   public abstract static class AtEndFilePrim extends BinaryExpressionNode {
-    public AtEndFilePrim() {
-      super(Source.newBuilder("At End for Files").internal().name("at end").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public AtEndFilePrim(final boolean eagWrap, SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -150,4 +165,3 @@ public abstract class FilePluginPrims {
     }
   }
 }
-

@@ -1,6 +1,5 @@
 package som.primitives;
 
-import som.interpreter.SomLanguage;
 import som.interpreter.Types;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
@@ -10,7 +9,6 @@ import som.vm.Universe;
 import som.vm.constants.Globals;
 import som.vm.constants.Nil;
 import som.vm.constants.ReflectiveOp;
-import som.vmobjects.SAbstractObject;
 import som.vmobjects.SClass;
 import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObject;
@@ -18,25 +16,25 @@ import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 public final class ObjectPrims {
   
   @GenerateNodeFactory
+  @Primitive(klass = "Object", selector = "instVarAt:")
   public abstract static class InstVarAtPrim extends BinaryExpressionNode {
 
     @Child private IndexDispatch dispatch;
 
-    public InstVarAtPrim() {
-      super(Source.newBuilder("Inst Var At").internal().name("inst var at").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public InstVarAtPrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
       dispatch = IndexDispatch.create();
     }
-    public InstVarAtPrim(final InstVarAtPrim node) { this(); }
-
+    
     @Specialization
     public final Object doSObject(final DynamicObject receiver, final long idx) {
       return dispatch.executeDispatch(receiver, (int) idx - 1);
@@ -59,15 +57,15 @@ public final class ObjectPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Object", selector = "instVarAt:put:", noWrapper = true)
   public abstract static class InstVarAtPutPrim extends TernaryExpressionNode {
     @Child private IndexDispatch dispatch;
 
-    public InstVarAtPutPrim() {
-      super();
+    public InstVarAtPutPrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
       dispatch = IndexDispatch.create();
     }
-    public InstVarAtPutPrim(final InstVarAtPutPrim node) { this(); }
-
+    
     @Specialization
     public final Object doSObject(final DynamicObject receiver, final long idx, final Object val) {
       dispatch.executeDispatch(receiver, (int) idx - 1, val);
@@ -92,9 +90,10 @@ public final class ObjectPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Object", selector = "instVarNamed:")
   public abstract static class InstVarNamedPrim extends BinaryExpressionNode {
-    public InstVarNamedPrim() {
-      super(Source.newBuilder("Inst Var Named").internal().name("inst var named").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public InstVarNamedPrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @TruffleBoundary
@@ -106,9 +105,10 @@ public final class ObjectPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Object", selector = "halt", eagerSpecializable = false)
   public abstract static class HaltPrim extends UnaryExpressionNode {
-    public HaltPrim() { 
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Halt")); 
+    public HaltPrim(final boolean eagWrap, final SourceSection source) { 
+      super(eagWrap, source); 
     }
     
     @Specialization
@@ -119,14 +119,10 @@ public final class ObjectPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Object", selector = "class", eagerSpecializable = false)
   public abstract static class ClassPrim extends UnaryExpressionNode {
-    public ClassPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Class"));
-    }
-
-    @Specialization
-    public final DynamicObject doSAbstractObject(final SAbstractObject receiver) {
-      return receiver.getSOMClass();
+    public ClassPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -141,9 +137,10 @@ public final class ObjectPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Object", selector = "installEnvironment:", mate = true)
   public abstract static class installEnvironmentPrim extends BinaryExpressionNode {
-    public installEnvironmentPrim() {
-      super(Source.newBuilder("Install Environment").internal().name("install environment").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public installEnvironmentPrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @Specialization(guards = "receiverIsSystemObject(receiver)")
@@ -164,9 +161,10 @@ public final class ObjectPrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "Object", selector = "shallowCopy", eagerSpecializable = false)
   public abstract static class ShallowCopyPrim extends UnaryExpressionNode {
-    public ShallowCopyPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Shallow"));
+    public ShallowCopyPrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -176,14 +174,56 @@ public final class ObjectPrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "Object", selector = "hashcode", eagerSpecializable = false)
+  @Primitive(klass = "Object", selector = "identityHash", eagerSpecializable = false)
   public abstract static class HashPrim extends UnaryExpressionNode {
-    public HashPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Hash"));
+    public HashPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
+    @TruffleBoundary
+    public final long doString(final String receiver) {
+      return receiver.hashCode();
+    }
+
+    @Specialization
+    @TruffleBoundary
+    public final long doSSymbol(final SSymbol receiver) {
+      return receiver.getString().hashCode();
+    }
+    
+    @Specialization
     public final long doSObject(final DynamicObject receiver) {
       return receiver.hashCode();
+    }
+  }
+  
+  @GenerateNodeFactory
+  @Primitive(klass = "Object", selector = "objectSize", eagerSpecializable = false)
+  @ImportStatic(SObject.class)
+  public abstract static class ObjectSizePrim extends UnaryExpressionNode {
+    public ObjectSizePrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
+    }
+
+    @Specialization
+    public final long doArray(final Object[] receiver) {
+      int size = 0;
+      size += receiver.length;
+      return size;
+    }
+
+    @Specialization // (guards = "isSObject(receiver)")
+    public final long doSObject(final DynamicObject receiver) {
+      int size = 0;
+      size += SObject.getNumberOfFields(receiver);
+      return size;
+    }
+
+    @Specialization
+    public final long doSAbstractObject(final Object receiver) {
+      return 0; // TODO: allow polymorphism?
     }
   }
 }

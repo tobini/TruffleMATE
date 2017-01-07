@@ -7,11 +7,13 @@ import som.interpreter.nodes.dispatch.UninitializedValuePrimDispatchNode;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.primitives.BlockPrims.ValuePrimitiveNode;
 import som.primitives.LengthPrim;
+import som.primitives.Primitive;
 import som.vm.constants.MateClasses;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
 import som.vmobjects.SBlock;
+import som.primitives.LengthPrimFactory;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -28,20 +30,18 @@ import com.oracle.truffle.api.source.SourceSection;
 
 @GenerateNodeFactory
 @ImportStatic(ArrayType.class)
+@Primitive(klass= "Array", selector = "putAll:", disabled = true,
+           extraChild = LengthPrimFactory.class)
 @NodeChild(value = "length", type = LengthPrim.class, executeWith = "receiver")
 public abstract class PutAllNode extends BinaryExpressionNode
   implements ValuePrimitiveNode  {
   @Child private AbstractDispatchNode block;
 
-  public PutAllNode() {
-    this(null);
-  }
-  
-  public PutAllNode(SourceSection source) {
-    super(source);
+  public PutAllNode(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
     block = new UninitializedValuePrimDispatchNode(this.sourceSection);
   }
-
+  
   @Override
   public void adoptNewDispatchListHead(final AbstractDispatchNode node) {
     block = insert(node);

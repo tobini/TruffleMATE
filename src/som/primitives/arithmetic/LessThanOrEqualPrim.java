@@ -2,16 +2,17 @@ package som.primitives.arithmetic;
 
 import java.math.BigInteger;
 
-import som.interpreter.SomLanguage;
+import som.primitives.Primitive;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
+@Primitive(selector = "<=")
 public abstract class LessThanOrEqualPrim extends ArithmeticPrim {
-  public LessThanOrEqualPrim() { 
-      super(Source.newBuilder("<=").internal().name("less than or equal").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  public LessThanOrEqualPrim(final boolean eagWrap, final SourceSection source) { 
+    super(eagWrap, source);
   }
   
   @Specialization

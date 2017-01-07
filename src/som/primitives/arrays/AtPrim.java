@@ -1,7 +1,7 @@
 package som.primitives.arrays;
 
-import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
+import som.primitives.Primitive;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
@@ -12,14 +12,15 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.profiles.ValueProfile;
-import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
 
 @GenerateNodeFactory
+@Primitive(klass = "Array", selector = "at:", receiverType = SArray.class)
 @ImportStatic(ArrayType.class)
 public abstract class AtPrim extends BinaryExpressionNode {
 
-  public AtPrim() { 
-    super(Source.newBuilder("at:").internal().name("at").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  public AtPrim(final boolean eagWrap, final SourceSection source) { 
+    super(eagWrap, source);
   }
   
   private final ValueProfile storageType = ValueProfile.createClassProfile();
@@ -67,7 +68,7 @@ public abstract class AtPrim extends BinaryExpressionNode {
   }
   
   @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
+  protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == BasicPrimitiveOperation.class) {
       return true;
     } else if (tag == ArrayRead.class) {

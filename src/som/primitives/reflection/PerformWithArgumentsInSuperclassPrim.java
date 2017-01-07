@@ -2,6 +2,7 @@ package som.primitives.reflection;
 
 import som.interpreter.SArguments;
 import som.interpreter.nodes.nary.QuaternaryExpressionNode;
+import som.primitives.Primitive;
 import som.vmobjects.SClass;
 import som.vmobjects.SInvokable;
 import som.vmobjects.SSymbol;
@@ -14,13 +15,15 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
+@Primitive(klass = "Object", selector = "perform:withArguments:inSuperclass:")
 public abstract class PerformWithArgumentsInSuperclassPrim extends QuaternaryExpressionNode {
   @Child private IndirectCallNode call;
-  public PerformWithArgumentsInSuperclassPrim() {
-    super(null);
+  public PerformWithArgumentsInSuperclassPrim(final boolean eagWrap, final SourceSection source) {
+    super(false, source);
     call = Truffle.getRuntime().createIndirectCallNode();
   }
 

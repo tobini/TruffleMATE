@@ -2,7 +2,7 @@ package som.primitives.arithmetic;
 
 import java.math.BigInteger;
 
-import som.interpreter.SomLanguage;
+import som.primitives.Primitive;
 import som.vmobjects.SClass;
 import som.vmobjects.SSymbol;
 
@@ -11,14 +11,16 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
+@Primitive(klass = "Integer", selector = "+")
+@Primitive(klass = "Double", selector = "+", eagerSpecializable = false)
 @ImportStatic(SClass.class)
 public abstract class AdditionPrim extends ArithmeticPrim {
-  public AdditionPrim() {
-    super(Source.newBuilder("+").internal().name("addition").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+  public AdditionPrim(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
   }
 
   @Specialization(rewriteOn = ArithmeticException.class)

@@ -4,27 +4,30 @@ import java.util.Arrays;
 
 import som.interpreter.SArguments;
 import som.interpreter.nodes.ExpressionNode;
+import som.vm.Universe;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
 
+import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.profiles.ValueProfile;
-import com.oracle.truffle.api.source.SourceSection;
 
 @ImportStatic(ArrayType.class)
 @NodeChildren({
   @NodeChild("somArray"),
   @NodeChild("receiver")})
+@GenerateNodeFactory
 public abstract class ToArgumentsArrayNode extends ExpressionNode {
 
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 
-  public ToArgumentsArrayNode() { 
-    super(SourceSection.createUnavailable("?", "To Arguments Array")); 
+  //to have uniform create() for @Primitive
+  public ToArgumentsArrayNode(final boolean eagWrap) { 
+    super(Universe.emptySource.createUnavailableSection()); 
   }
 
   public final static boolean isNull(final Object somArray) {

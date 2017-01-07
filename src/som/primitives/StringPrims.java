@@ -1,6 +1,5 @@
 package som.primitives;
 
-import som.interpreter.SomLanguage;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
@@ -12,16 +11,16 @@ import tools.dym.Tags.StringAccess;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 
 public class StringPrims {
 
   @GenerateNodeFactory
+  @Primitive(klass = "String", selector = "concatenate:", receiverType ={SSymbol.class, String.class})
   public abstract static class ConcatPrim extends BinaryExpressionNode {
-    public ConcatPrim() {
-      super(Source.newBuilder("Concat Strings").internal().name("concat").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public ConcatPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -45,7 +44,7 @@ public class StringPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == StringAccess.class) {
         return true;
       } else {
@@ -55,10 +54,11 @@ public class StringPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "String", selector = "asSymbol")
   public abstract static class AsSymbolPrim extends UnaryExpressionNode {
     private final Universe universe;
-    public AsSymbolPrim() { 
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "As Symbol"));
+    public AsSymbolPrim(final boolean eagWrap, final SourceSection source) { 
+      super(eagWrap, source);
       this.universe = Universe.getCurrent(); 
     }
 
@@ -73,7 +73,7 @@ public class StringPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == StringAccess.class) {
         return true;
       } else {
@@ -83,7 +83,12 @@ public class StringPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "String", selector = "primSubstringFrom:to:", receiverType ={SSymbol.class, String.class})
   public abstract static class SubstringPrim extends TernaryExpressionNode {
+    public SubstringPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
+    }
+
     @Specialization
     public final String doString(final String receiver, final long start,
         final long end) {
@@ -101,7 +106,7 @@ public class StringPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == StringAccess.class) {
         return true;
       } else if (tag == ComplexPrimitiveOperation.class) {
@@ -113,9 +118,16 @@ public class StringPrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "String", selector = "at:", 
+             eagerSpecializable = false, receiverType = String.class)
+  /*
+   * It is not specializable for avoiding the clash with Array at: primitive.
+   * We should improve the specialization so that it enables to store different 
+   * specializers for the same selector.
+   */
   public abstract static class AtStringPrim extends BinaryExpressionNode {
-    public AtStringPrim() {
-      super(Source.newBuilder("At for Strings").internal().name("at").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public AtStringPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -132,7 +144,7 @@ public class StringPrims {
     }
 
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == StringAccess.class) {
         return true;
       } else {
@@ -142,10 +154,11 @@ public class StringPrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "String", selector = "asNumber", receiverType = String.class)
   public abstract static class AsNumberStringPrim extends UnaryExpressionNode {
   
-    public AsNumberStringPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "As Number for Strings"));
+    public AsNumberStringPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -158,7 +171,7 @@ public class StringPrims {
     }
 
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == StringAccess.class) {
         return true;
       } else {
@@ -166,5 +179,4 @@ public class StringPrims {
       }
     }
   }
-
 }

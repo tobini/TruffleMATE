@@ -4,26 +4,51 @@ import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.GlobalNode;
 import som.interpreter.nodes.GlobalNode.UninitializedGlobalReadWithoutErrorNode;
 import som.interpreter.nodes.SOMNode;
+import som.primitives.Primitives.Specializer;
 import som.primitives.SystemPrims.BinarySystemNode;
 import som.vm.NotYetImplementedException;
 import som.vm.Universe;
+import som.vm.constants.Classes;
 import som.vm.constants.Nil;
+import som.vmobjects.SObject;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.dsl.ImportStatic;
+import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @ImportStatic(SystemPrims.class)
+@Primitive(klass = "System", selector = "global:",
+           specializer = GlobalPrim.IsSystemObject.class)
 public abstract class GlobalPrim extends BinarySystemNode {
+  protected GlobalPrim(boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
+  }
+
   @Child private GetGlobalNode getGlobal = new UninitializedGetGlobal(0);
 
   @Specialization(guards = "receiverIsSystemObject(receiver)")
   public final Object doSObject(final VirtualFrame frame, final DynamicObject receiver, final SSymbol argument) {
     return getGlobal.getGlobal(frame, argument);
   }
+  
+  public static class IsSystemObject extends Specializer<ExpressionNode> {
+    public IsSystemObject(final Primitive prim, final NodeFactory<ExpressionNode> fact) { super(prim, fact); }
+
+    @Override
+    public boolean matches(final Object[] args, final ExpressionNode[] argNodess) {
+      try{
+        return SObject.getSOMClass((DynamicObject) args[0]) == Classes.systemClass;
+      } catch (ClassCastException e){
+        return false;
+      }
+    }
+  }
+
 
   private abstract static class GetGlobalNode extends SOMNode {
     protected static final int INLINE_CACHE_SIZE = 6;

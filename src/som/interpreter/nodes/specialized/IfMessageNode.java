@@ -2,6 +2,7 @@ package som.interpreter.nodes.specialized;
 
 import som.interpreter.SArguments;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
+import som.primitives.Primitive;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vmobjects.SBlock;
@@ -10,6 +11,7 @@ import tools.dym.Tags.ControlFlowCondition;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
@@ -19,12 +21,31 @@ import com.oracle.truffle.api.profiles.ConditionProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
 
+@GenerateNodeFactory
 public abstract class IfMessageNode extends BinaryExpressionNode {
   protected final ConditionProfile condProf = ConditionProfile.createCountingProfile();
   private final boolean expected;
+  
+  @GenerateNodeFactory
+  @Primitive(klass = "True", selector = "ifTrue:", 
+             receiverType = Boolean.class, noWrapper = true)
+  @Primitive(klass = "False", selector = "ifTrue:",
+             receiverType = Boolean.class, noWrapper = true, eagerSpecializable = false)
+  public abstract static class IfTrueMessageNode extends IfMessageNode {
+    public IfTrueMessageNode(final boolean eagWrap, final SourceSection source) { super(eagWrap, source, true); assert !eagWrap; }
+  }
 
-  protected IfMessageNode(final boolean expected, final SourceSection source) {
-    super(source);
+  @GenerateNodeFactory
+  @Primitive(klass = "True", selector = "ifFalse:", 
+             receiverType = Boolean.class, noWrapper = true)
+  @Primitive(klass = "False", selector = "ifFalse:", 
+             receiverType = Boolean.class, noWrapper = true, eagerSpecializable = false)
+  public abstract static class IfFalseMessageNode extends IfMessageNode {
+    public IfFalseMessageNode(final boolean eagWrap, final SourceSection source) { super(eagWrap, source, false); assert !eagWrap; }
+  }
+  
+  protected IfMessageNode(final boolean eagWrap, final SourceSection source, final boolean expected) {
+    super(false, source);
     this.expected = expected;
   }
 
@@ -77,7 +98,7 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
   }
   
   @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
+  protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == ControlFlowCondition.class) {
       return true;
     } else {

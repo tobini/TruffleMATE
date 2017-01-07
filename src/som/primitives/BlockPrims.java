@@ -7,6 +7,7 @@ import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.QuaternaryExpressionNode;
 import som.interpreter.nodes.nary.TernaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
+import som.vm.Universe;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SBlock;
 import tools.dym.Tags.OpClosureApplication;
@@ -26,8 +27,11 @@ public abstract class BlockPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Block", selector = "restart", eagerSpecializable = false)
   public abstract static class RestartPrim extends UnaryExpressionNode {
-    public RestartPrim() { super(null); }
+    public RestartPrim(final boolean eagWrap, SourceSection source) { 
+      super(eagWrap, source); 
+    }
 
     @Specialization
     public SAbstractObject doSBlock(final SBlock receiver) {
@@ -40,16 +44,18 @@ public abstract class BlockPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Block1", selector = "value",
+             receiverType = {SBlock.class, Boolean.class})
   public abstract static class ValueNonePrim extends UnaryExpressionNode
       implements ValuePrimitiveNode {
     @Child private AbstractDispatchNode dispatchNode;
 
-    public ValueNonePrim() {
-      this(null);
+    public ValueNonePrim(final boolean eagWrap) {
+      super(eagWrap, Universe.emptySource.createUnavailableSection());
     }
     
-    public ValueNonePrim(SourceSection source) {
-      super(source);
+    public ValueNonePrim(final boolean eagerlyWrapped, SourceSection source) {
+      super(eagerlyWrapped, source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
@@ -83,7 +89,7 @@ public abstract class BlockPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpClosureApplication.class) {
         return true;
       } else {
@@ -93,16 +99,17 @@ public abstract class BlockPrims {
   }
 
   @GenerateNodeFactory
+  @Primitive(klass = "Block2", selector = "value:", receiverType = {SBlock.class})
   public abstract static class ValueOnePrim extends BinaryExpressionNode
       implements ValuePrimitiveNode  {
     @Child private AbstractDispatchNode dispatchNode;
 
-    public ValueOnePrim() {
-      this(null);
+    public ValueOnePrim(final boolean eagWrap) {
+      this(eagWrap, null);
     }
     
-    public ValueOnePrim(SourceSection source) {
-      super(source);
+    public ValueOnePrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
@@ -132,7 +139,7 @@ public abstract class BlockPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpClosureApplication.class) {
         return true;
       } else {
@@ -140,18 +147,20 @@ public abstract class BlockPrims {
       }
     }
   }
-
+  
   @GenerateNodeFactory
+  @Primitive(klass = "Block3", selector = "value:with:",
+      receiverType = {SBlock.class})
   public abstract static class ValueTwoPrim extends TernaryExpressionNode
       implements ValuePrimitiveNode {
     @Child private AbstractDispatchNode dispatchNode;
 
-    public ValueTwoPrim() {
-      this(null);
+    public ValueTwoPrim(final boolean eagerlyWrapped) {
+      this(eagerlyWrapped, null);
     }
     
-    public ValueTwoPrim(SourceSection source) {
-      super(source);
+    public ValueTwoPrim(final boolean eagerlyWrapped, SourceSection source) {
+      super(eagerlyWrapped, source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
@@ -181,7 +190,7 @@ public abstract class BlockPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpClosureApplication.class) {
         return true;
       } else {
@@ -191,16 +200,18 @@ public abstract class BlockPrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "Block4", selector = "value:with:with:",
+  receiverType = {SBlock.class})
   public abstract static class ValueThreePrim extends QuaternaryExpressionNode
       implements ValuePrimitiveNode {
     @Child private AbstractDispatchNode dispatchNode;
 
-    public ValueThreePrim() {
-      this(null);
+    public ValueThreePrim(final boolean eagerlyWrapped) {
+      this(eagerlyWrapped, null);
     }
     
-    public ValueThreePrim(SourceSection source) {
-      super(source);
+    public ValueThreePrim(final boolean eagerlyWrapped, SourceSection source) {
+      super(eagerlyWrapped, source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
     }
 
@@ -230,7 +241,7 @@ public abstract class BlockPrims {
     }
     
     @Override
-    protected boolean isTaggedWith(final Class<?> tag) {
+    protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpClosureApplication.class) {
         return true;
       } else {
@@ -239,10 +250,12 @@ public abstract class BlockPrims {
     }
   }
 
-  @GenerateNodeFactory
+  /*@GenerateNodeFactory
+  @Primitive(klass = "Block5", selector = "value:with:with:with:",
+             receiverType = {SBlock.class})
   public abstract static class ValueMorePrim extends QuaternaryExpressionNode {
-    public ValueMorePrim() {this(null);}
-    public ValueMorePrim(SourceSection source) { super(source); }
+    public ValueMorePrim(final boolean eagerlyWrapped) {this(eagerlyWrapped, null);}
+    public ValueMorePrim(final boolean eagerlyWrapped, SourceSection source) { super(eagerlyWrapped, source); }
     @Specialization
     public final Object doSBlock(final VirtualFrame frame,
         final SBlock receiver, final Object firstArg, final Object secondArg,
@@ -250,5 +263,5 @@ public abstract class BlockPrims {
       CompilerDirectives.transferToInterpreter();
       throw new RuntimeException("This should never be called, because SOM Blocks have max. 2 arguments.");
     }
-  }
+  }*/
 }

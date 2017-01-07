@@ -1,6 +1,7 @@
 package som.primitives.arrays;
 
 import som.interpreter.nodes.nary.TernaryExpressionNode;
+import som.primitives.Primitive;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.ArrayType;
@@ -12,11 +13,17 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.profiles.ValueProfile;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
+@Primitive(klass = "Array", selector = "at:put:", receiverType = SArray.class)
 @ImportStatic(ArrayType.class)
 public abstract class AtPutPrim extends TernaryExpressionNode {
+
+  public AtPutPrim(boolean eagerlyWrapped, SourceSection sourceSection) {
+    super(eagerlyWrapped, sourceSection);
+  }
 
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 
@@ -266,7 +273,7 @@ public abstract class AtPutPrim extends TernaryExpressionNode {
   }
   
   @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
+  protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == BasicPrimitiveOperation.class) {
       return true;
     } else if (tag == ArrayWrite.class) {

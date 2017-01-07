@@ -2,8 +2,8 @@ package som.interpreter.nodes.specialized;
 
 import som.interpreter.Invokable;
 import som.interpreter.SArguments;
-import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.QuaternaryExpressionNode;
+import som.primitives.Primitive;
 import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
@@ -11,31 +11,30 @@ import som.vmobjects.SInvokable;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.dsl.GenerateNodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
-
+//Should have noWrapper = true? 
+@Primitive(selector = "to:by:do:", disabled = true, 
+           requiresArguments = true, requiresExecutionLevel = true)
+@GenerateNodeFactory
 public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
 
   private final DynamicObject blockMethod;
   @Child private DirectCallNode valueSend;
 
-  public IntToByDoMessageNode(final ExpressionNode orignialNode,
-      final SBlock block, ExecutionLevel level) {
-    super(orignialNode.getSourceSection());
-    blockMethod = block.getMethod();
+  public IntToByDoMessageNode(final boolean eagWrap, final SourceSection section, 
+      final Object[] args, ExecutionLevel level) {
+    super(false, section);
+    blockMethod = ((SBlock) args[3]).getMethod();
     valueSend = Truffle.getRuntime().createDirectCallNode(
                     SInvokable.getCallTarget(blockMethod, level));
-  }
-
-  public IntToByDoMessageNode(final IntToByDoMessageNode node) {
-    super(node.getSourceSection());
-    this.blockMethod = node.blockMethod;
-    this.valueSend   = node.valueSend;
   }
 
   protected final boolean isSameBlockLong(final SBlock block) {
@@ -103,7 +102,7 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
   }
   
   @Override
-  protected boolean isTaggedWith(final Class<?> tag) {
+  protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == LoopNode.class) {
       return true;
     } else {

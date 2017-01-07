@@ -9,7 +9,7 @@ import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import som.vmobjects.SSymbol;
 
-public abstract class EagerlySpecializableNode extends ExprWithTagsNode
+public abstract class EagerlySpecializableNode extends ExpressionWithTagsNode
   implements PreevaluatedExpression {
 
   @CompilationFinal private boolean eagerlyWrapped;
