@@ -27,19 +27,15 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
   private final boolean expected;
   
   @GenerateNodeFactory
-  @Primitive(klass = "True", selector = "ifTrue:", 
+  @Primitive(selector = "ifTrue:", 
              receiverType = Boolean.class, noWrapper = true)
-  @Primitive(klass = "False", selector = "ifTrue:",
-             receiverType = Boolean.class, noWrapper = true, eagerSpecializable = false)
   public abstract static class IfTrueMessageNode extends IfMessageNode {
     public IfTrueMessageNode(final boolean eagWrap, final SourceSection source) { super(eagWrap, source, true); assert !eagWrap; }
   }
 
   @GenerateNodeFactory
-  @Primitive(klass = "True", selector = "ifFalse:", 
+  @Primitive(selector = "ifFalse:", 
              receiverType = Boolean.class, noWrapper = true)
-  @Primitive(klass = "False", selector = "ifFalse:", 
-             receiverType = Boolean.class, noWrapper = true, eagerSpecializable = false)
   public abstract static class IfFalseMessageNode extends IfMessageNode {
     public IfFalseMessageNode(final boolean eagWrap, final SourceSection source) { super(eagWrap, source, false); assert !eagWrap; }
   }
