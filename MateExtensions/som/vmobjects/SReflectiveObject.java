@@ -35,14 +35,15 @@ import com.oracle.truffle.api.object.dsl.Layout;
 public class SReflectiveObject extends SObject {
   @Layout
   public interface SReflectiveObjectLayout extends SObjectLayout {
-    DynamicObject createSReflectiveObject(DynamicObjectFactory factory);
+    //DynamicObject createSReflectiveObject(DynamicObjectFactory factory);
+    //DynamicObject getEnvironment(DynamicObjectFactory factory);
     DynamicObjectFactory createSReflectiveObjectShape(DynamicObject klass, DynamicObject environment);
-    DynamicObject getEnvironment(DynamicObjectFactory factory);
     DynamicObject getEnvironment(ObjectType objectType);
     DynamicObject getEnvironment(DynamicObject object);
     void setEnvironment(DynamicObject object, DynamicObject value);
     boolean isSReflectiveObject(DynamicObject object);
     boolean isSReflectiveObject(ObjectType objectType);
+    Object[] build();
   }
   
   //Only needed for system initialization
@@ -57,56 +58,14 @@ public class SReflectiveObject extends SObject {
     return SReflectiveObjectLayoutImpl.INSTANCE.getEnvironment(shape.getObjectType());
   }
   
-  //@TruffleBoundary
-  /*public static SReflectiveObjectObjectType objectTypeFor(DynamicObject environment, DynamicObject target){
-      SReflectiveObjectObjectType type = SREFLECTIVE_OBJECT_TYPES.get(environment);
-      if (type == null){
-        CompilerDirectives.transferToInterpreter();
-        /*
-         * Hack so objects with metaobjects do not lose the property for being classes. 
-         * Needs a fix so that the same metaobject can be assigned to instances and classes. 
-         * It still was no needed.
-         */
-    /*    SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(DynamicObject klass, DynamicObject environment);
-        if (SClass.isSClass(target)){
-          type = new SClass.SClassObjectType(environment);
-        } else {
-          type = new SReflectiveObjectObjectType(environment);
-        }
-        SREFLECTIVE_OBJECT_TYPES.put(environment, type);
-      }
-      return type;
-  }*/
-
+  @Override
+  public final Object[] buildArguments() {
+    return SReflectiveObjectLayoutImpl.INSTANCE.build();
+  }
+  
   public static final void setEnvironment(final DynamicObject obj, final DynamicObject value) {
     SReflectiveObjectLayoutImpl.INSTANCE.setEnvironment(obj, value);
   }
-  
-  /*public static class SReflectiveObjectObjectType extends ObjectType {
-    public final DynamicObject environment;
-    
-    public SReflectiveObjectObjectType(DynamicObject metaobj){
-      super();
-      this.environment = metaobj;
-    }
-    
-    @Override
-    public String toString(DynamicObject object) {
-      String environment;
-      if (this.environment == Nil.nilObject){
-        environment = "nil";
-      } else {
-        environment = this.environment.toString();
-      }
-      return "SReflectiveObject" + 
-      "\nClass:" + SClass.getName((DynamicObject)object.getShape().getSharedData()) + 
-      "\nEnvironment: " + environment;
-    }
-    
-    public DynamicObject getEnvironment(){
-      return this.environment;
-    }
-  }*/
   
   public static boolean isSReflectiveObject(final DynamicObject obj) {
     return SReflectiveObjectLayoutImpl.INSTANCE.isSReflectiveObject(obj);

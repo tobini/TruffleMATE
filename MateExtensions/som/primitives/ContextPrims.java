@@ -4,16 +4,13 @@ import som.interpreter.FrameOnStackMarker;
 import som.interpreter.Invokable;
 import som.interpreter.MateVisitors;
 import som.interpreter.SArguments;
-import som.interpreter.SomLanguage;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vm.Universe;
-import som.vmobjects.SClass;
 
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.TruffleRuntime;
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
-import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.FrameInstance;
@@ -25,10 +22,10 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public class ContextPrims {
   @GenerateNodeFactory
-  @ImportStatic(SClass.class)
+  @Primitive(klass = "Context", selector = "method", receiverType = {FrameInstance.class})
   public abstract static class GetMethodPrim extends UnaryExpressionNode {
-    public GetMethodPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Get Method"));
+    public GetMethodPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -39,9 +36,10 @@ public class ContextPrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "Context", selector = "sender", receiverType = {FrameInstance.class})
   public abstract static class SenderPrim extends UnaryExpressionNode {
-    public SenderPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Sender"));
+    public SenderPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -64,15 +62,15 @@ public class ContextPrims {
   }
   
   @GenerateNodeFactory
-  @ImportStatic(SClass.class)
+  @Primitive(klass = "Context", selector = "receiver", receiverType = {FrameInstance.class})
   public abstract static class GetReceiverFromContextPrim extends UnaryExpressionNode {
-    public GetReceiverFromContextPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Get Receiver From Context"));
+    public GetReceiverFromContextPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
-    public final DynamicObject doMaterializedFrame(final Object frame) {
-      Frame virtualFrame = ((FrameInstance)frame).getFrame(FrameAccess.READ_ONLY, false);
+    public final DynamicObject doMaterializedFrame(final FrameInstance frame) {
+      Frame virtualFrame = frame.getFrame(FrameAccess.READ_ONLY, false);
       return (DynamicObject) SArguments.rcvr(virtualFrame);
     }
   }

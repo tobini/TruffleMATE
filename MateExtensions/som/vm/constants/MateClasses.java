@@ -14,11 +14,11 @@ public final class MateClasses extends Classes {
   
   static {
     // Allocate the Metaclass classes
-    environmentMO          = ObjectMemory.newSystemClass(objectClass, "EnvironmentMO");
-    operationalSemanticsMO = ObjectMemory.newSystemClass(objectClass, "OperationalSemanticsMO");
-    messageMO              = ObjectMemory.newSystemClass(objectClass, "MessageMO");
-    shapeClass             = ObjectMemory.newSystemClass(objectClass, "Shape");
-    contextClass           = ObjectMemory.newSystemClass(objectClass, "Context");
+    environmentMO          = ObjectMemory.newSystemClass(objectClass);
+    operationalSemanticsMO = ObjectMemory.newSystemClass(objectClass);
+    messageMO              = ObjectMemory.newSystemClass(objectClass);
+    shapeClass             = ObjectMemory.newSystemClass(objectClass);
+    contextClass           = ObjectMemory.newSystemClass(objectClass);
     STANDARD_ENVIRONMENT   = Nil.nilObject;
     //environment = Universe.newSystemClass();
   }

@@ -174,9 +174,6 @@ public class Primitives {
     public T create(final Object[] arguments,
         final ExpressionNode[] argNodes, final SourceSection section,
         final boolean eagerWrapper, final Frame frame) {
-      if (arguments != null && arguments.length != argNodes.length){
-        int i = 1;
-      }
       assert arguments == null || arguments.length == argNodes.length;
       int numArgs = argNodes.length + 2 +
           (extraChildFactory != null ? 1 : 0) +
@@ -282,13 +279,7 @@ public class Primitives {
           }
           
           if ((!("".equals(prim.selector())) && prim.eagerSpecializable())) {
-            if (prim.selector().equals("and:")){
-              int in = 1;
-            }
             SSymbol msgSel = om.symbolFor(prim.selector());
-            if (eagerPrimitives.containsKey(msgSel)){
-              int i = 1;
-            }
             assert !eagerPrimitives.containsKey(msgSel) : "clash of selectors and eager specialization";
             eagerPrimitives.put(msgSel, specializer);
           }

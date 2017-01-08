@@ -1,37 +1,58 @@
 package som.primitives;
 
-import som.interpreter.SomLanguage;
+import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
+import som.primitives.Primitives.Specializer;
+import som.vm.Universe;
+import som.vm.constants.MateClasses;
 import som.vmobjects.SAbstractObject;
 import som.vmobjects.SClass;
-import som.vmobjects.SMateEnvironment;
+import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObjectLayoutImpl.SReflectiveObjectType;
 import som.vmobjects.SShape;
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory;
+import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 public final class MatePrims {
   @GenerateNodeFactory
+  @Primitive(klass = "EnvironmentMO Class", selector = "new", 
+             specializer = MateNewEnvironmentPrim.IsEnvironmentMOClass.class, 
+             mate = true)
   public abstract static class MateNewEnvironmentPrim extends UnaryExpressionNode {
-    public MateNewEnvironmentPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "New Environment"));
+    public MateNewEnvironmentPrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
     public final DynamicObject doSClass(final DynamicObject receiver) {
-      return SMateEnvironment.create(receiver);
+      return Universe.getCurrent().getObjectMemory().newObject(receiver);
+    }
+    
+    public static class IsEnvironmentMOClass extends Specializer<ExpressionNode> {
+      public IsEnvironmentMOClass(final Primitive prim, final NodeFactory<ExpressionNode> fact) { super(prim, fact); }
+
+      @Override
+      public boolean matches(final Object[] args, final ExpressionNode[] argNodess) {
+        try{
+          return SObject.getSOMClass((DynamicObject)args[0]) == MateClasses.environmentMO;
+        } catch (ClassCastException e){
+          return false;
+        }
+      }
     }
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "Shape Class", selector = "newWithFieldsCount:", 
+             eagerSpecializable = false, mate = true)
   public abstract static class MateNewShapePrim extends BinaryExpressionNode {
-    public MateNewShapePrim() {
-      super(Source.newBuilder("New Shape").internal().name("mate new shape").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public MateNewShapePrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -41,9 +62,10 @@ public final class MatePrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "Object", selector = "changeShape:", mate = true)
   public abstract static class MateChangeShapePrim extends BinaryExpressionNode {
-    public MateChangeShapePrim() {
-      super(Source.newBuilder("Change Shape").internal().name("mate change shape").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public MateChangeShapePrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -54,9 +76,11 @@ public final class MatePrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "Shape", selector = "fieldsCount", 
+             eagerSpecializable = false, mate = true)
   public abstract static class MateShapeFieldsCountPrim extends UnaryExpressionNode {
-    public MateShapeFieldsCountPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Shape Fields"));
+    public MateShapeFieldsCountPrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -66,9 +90,10 @@ public final class MatePrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "Object", selector = "shape", mate = true)
   public abstract static class MateGetShapePrim extends UnaryExpressionNode {
-    public MateGetShapePrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Get Shape"));
+    public MateGetShapePrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -78,9 +103,11 @@ public final class MatePrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "Shape", selector = "installEnvironment:", 
+             eagerSpecializable = false, mate = true)
   public abstract static class MateInstallEnvironmentInShapePrim extends BinaryExpressionNode {
-    public MateInstallEnvironmentInShapePrim() {
-      super(Source.newBuilder("Install Environment in Shape").internal().name("mate install env in shape").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public MateInstallEnvironmentInShapePrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -92,9 +119,11 @@ public final class MatePrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "Shape", selector = "installClass:", 
+             eagerSpecializable = false, mate = true)
   public abstract static class MateInstallClassInShapePrim extends BinaryExpressionNode {
-    public MateInstallClassInShapePrim() {
-      super(Source.newBuilder("Install class in Shape").internal().name("mate install class in shape").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public MateInstallClassInShapePrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -107,9 +136,11 @@ public final class MatePrims {
 
   
   @GenerateNodeFactory
+  @Primitive(klass = "Class", selector = "updateShapeForInstancesWith:", 
+             eagerSpecializable = false, mate = true)
   public abstract static class MateUpdateShapeForInstancesPrim extends BinaryExpressionNode {
-    public MateUpdateShapeForInstancesPrim() {
-      super(Source.newBuilder("Update Class Instances Shape").internal().name("update shape for instances").mimeType(SomLanguage.MIME_TYPE).build().createSection(null, 1));
+    public MateUpdateShapeForInstancesPrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -121,9 +152,11 @@ public final class MatePrims {
   }
   
   @GenerateNodeFactory
+  @Primitive(klass = "Class", selector = "getShapeForInstances", 
+             eagerSpecializable = false, mate = true)
   public abstract static class MateGetShapeForInstancesPrim extends UnaryExpressionNode {
-    public MateGetShapeForInstancesPrim() {
-      super(SourceSection.createUnavailable(SomLanguage.PRIMITIVE_SOURCE_IDENTIFIER, "Get Shape For Instances"));
+    public MateGetShapeForInstancesPrim(final boolean eagWrap, final SourceSection source) {
+      super(false, source);
     }
 
     @Specialization
@@ -132,4 +165,3 @@ public final class MatePrims {
     }
   }
 }
-
