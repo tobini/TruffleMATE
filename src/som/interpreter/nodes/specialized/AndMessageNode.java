@@ -58,7 +58,7 @@ public abstract class AndMessageNode extends BinaryExpressionNode {
         final ExpressionNode[] argNodes, final SourceSection section,
         final boolean eagerWrapper, final Frame frame) {
       if (unwrapIfNecessary(argNodes[1]) instanceof BlockNode) {
-        return fact.createNode(arguments[1], section, argNodes[0], argNodes[1]);
+        return fact.createNode(arguments[1], section, SArguments.getExecutionLevel(frame), argNodes[0], argNodes[1]);
       } else {
         assert arguments[1] instanceof Boolean;
         return boolFact.createNode(section, argNodes[0], argNodes[1]);
@@ -71,12 +71,6 @@ public abstract class AndMessageNode extends BinaryExpressionNode {
     blockMethod = arg.getMethod();
     blockValueSend = Truffle.getRuntime().createDirectCallNode(
         SInvokable.getCallTarget(blockMethod, level));
-  }
-
-  public AndMessageNode(final AndMessageNode copy) {
-    super(false, copy.getSourceSection());
-    blockMethod    = copy.blockMethod;
-    blockValueSend = copy.blockValueSend;
   }
 
   protected final boolean isSameBlock(final SBlock argument) {

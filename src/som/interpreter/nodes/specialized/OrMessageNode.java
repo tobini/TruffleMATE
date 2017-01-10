@@ -20,6 +20,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.SourceSection;
 
 
 @Primitive(selector = "or:", noWrapper = true, specializer = OrSplzr.class)
@@ -36,8 +37,8 @@ public abstract class OrMessageNode extends BinaryExpressionNode {
     }
   }
   
-  public OrMessageNode(final SBlock arg, ExecutionLevel level) {
-    super(true, Universe.emptySource.createUnavailableSection());
+  public OrMessageNode(final SBlock arg, final SourceSection source, ExecutionLevel level) {
+    super(true, source);
     blockMethod = arg.getMethod();
     blockValueSend = Truffle.getRuntime().createDirectCallNode(
         SInvokable.getCallTarget(blockMethod, level));
