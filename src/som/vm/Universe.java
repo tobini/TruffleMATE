@@ -370,8 +370,8 @@ public class Universe extends ExecutionContext {
 
   public DynamicObjectFactory getInstancesFactory(){
     if (options.vmReflectionEnabled){
-      return SReflectiveObject.SREFLECTIVE_OBJECT_FACTORY;
-      //return SReflectiveObjectEnvInObj.SREFLECTIVE_OBJECT_ENVINOBJ_FACTORY;
+      //return SReflectiveObject.SREFLECTIVE_OBJECT_FACTORY;
+      return SReflectiveObjectEnvInObj.SREFLECTIVE_OBJECT_ENVINOBJ_FACTORY;
     } else {
       return SObject.SOBJECT_FACTORY;
     }
@@ -379,8 +379,8 @@ public class Universe extends ExecutionContext {
   
   public SObject getInstanceArgumentsBuilder(){
     if (vmReflectionEnabled()){
-      //return new SReflectiveObjectEnvInObj();
-      return new SReflectiveObject();
+      return new SReflectiveObjectEnvInObj();
+      //return new SReflectiveObject();
     } else {
       return new SObject();
     }
@@ -399,8 +399,8 @@ public class Universe extends ExecutionContext {
   public DynamicObject createNilObject() {
     DynamicObject dummyObjectForInitialization = SBasicObjectLayoutImpl.INSTANCE.createSBasicObject();
     if (options.vmReflectionEnabled){
-      return SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(dummyObjectForInitialization, dummyObjectForInitialization).newInstance();
-      //return SReflectiveObjectEnvInObjLayoutImpl.INSTANCE.createSReflectiveObjectEnvInObjShape(dummyObjectForInitialization).newInstance(dummyObjectForInitialization);
+      //return SReflectiveObjectLayoutImpl.INSTANCE.createSReflectiveObjectShape(dummyObjectForInitialization, dummyObjectForInitialization).newInstance();
+      return SReflectiveObjectEnvInObjLayoutImpl.INSTANCE.createSReflectiveObjectEnvInObjShape(dummyObjectForInitialization).newInstance(dummyObjectForInitialization);
     } else {
       return SObjectLayoutImpl.INSTANCE.createSObjectShape(dummyObjectForInitialization).newInstance();
     }
@@ -408,8 +408,8 @@ public class Universe extends ExecutionContext {
   
   public DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
     if (options.vmReflectionEnabled){
-      return SReflectiveObject.createObjectShapeFactoryForClass(clazz);
-      //return SReflectiveObjectEnvInObj.createObjectShapeFactoryForClass(clazz);
+      //return SReflectiveObject.createObjectShapeFactoryForClass(clazz);
+      return SReflectiveObjectEnvInObj.createObjectShapeFactoryForClass(clazz);
     } else {
       return SObject.createObjectShapeFactoryForClass(clazz);
    }

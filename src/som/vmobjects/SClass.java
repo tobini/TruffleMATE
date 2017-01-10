@@ -43,11 +43,11 @@ import com.oracle.truffle.api.object.dsl.Layout;
 @SuppressWarnings("unused")
 public final class SClass {
   @Layout
-  //public interface SClassLayout extends SReflectiveObjectEnvInObjLayout {
-  public interface SClassLayout extends SReflectiveObjectLayout {
+  public interface SClassLayout extends SReflectiveObjectEnvInObjLayout {
+  //public interface SClassLayout extends SReflectiveObjectLayout {
     DynamicObject createSClass(DynamicObjectFactory factory, DynamicObject environment, SSymbol name, DynamicObject superclass, SArray instanceFields, SArray instanceInvokables, @SuppressWarnings("rawtypes") HashMap invokablesTable, DynamicObjectFactory instancesFactory);
-    //DynamicObjectFactory createSClassShape(DynamicObject klass);
-    DynamicObjectFactory createSClassShape(DynamicObject klass, DynamicObject environment);
+    DynamicObjectFactory createSClassShape(DynamicObject klass);
+    //DynamicObjectFactory createSClassShape(DynamicObject klass, DynamicObject environment);
     DynamicObject getSuperclass(DynamicObject object);
     SSymbol getName(DynamicObject object);
     SArray getInstanceFields(DynamicObject object);
@@ -65,8 +65,8 @@ public final class SClass {
   }
  
   //class which get's its own class set only later (to break up cyclic dependencies)
-  private static final DynamicObjectFactory INIT_CLASS_FACTORY = SClassLayoutImpl.INSTANCE.createSClassShape(Nil.nilObject, Nil.nilObject);
-  //private static final DynamicObjectFactory INIT_CLASS_FACTORY = SClassLayoutImpl.INSTANCE.createSClassShape(Nil.nilObject);
+  //private static final DynamicObjectFactory INIT_CLASS_FACTORY = SClassLayoutImpl.INSTANCE.createSClassShape(Nil.nilObject, Nil.nilObject);
+  private static final DynamicObjectFactory INIT_CLASS_FACTORY = SClassLayoutImpl.INSTANCE.createSClassShape(Nil.nilObject);
   
   public static DynamicObject createSClass(DynamicObject klass, SSymbol name, DynamicObject superclass, SArray fields, SArray methods){
     return createSClass(klass, name, superclass, fields, methods, 
@@ -75,10 +75,10 @@ public final class SClass {
   }
   
   public static DynamicObject createSClass(DynamicObject klass, SSymbol name, DynamicObject superclass, SArray instanceFields, SArray instanceInvokables, HashMap<SSymbol, DynamicObject> invokablesTable, DynamicObjectFactory instancesFactory){
-    DynamicObject resultClass = SClassLayoutImpl.INSTANCE.createSClass(SClassLayoutImpl.INSTANCE.createSClassShape(klass, Nil.nilObject),
-    //DynamicObject resultClass = SClassLayoutImpl.INSTANCE.createSClass(SClassLayoutImpl.INSTANCE.createSClassShape(klass),
+    //DynamicObject resultClass = SClassLayoutImpl.INSTANCE.createSClass(SClassLayoutImpl.INSTANCE.createSClassShape(klass, Nil.nilObject),
+    //name, superclass, instanceFields, instanceInvokables, invokablesTable, instancesFactory);
+    DynamicObject resultClass = SClassLayoutImpl.INSTANCE.createSClass(SClassLayoutImpl.INSTANCE.createSClassShape(klass),
         Nil.nilObject, name, superclass, instanceFields, instanceInvokables, invokablesTable, instancesFactory);
-        //name, superclass, instanceFields, instanceInvokables, invokablesTable, instancesFactory);
     setInstancesFactory(resultClass, Universe.getCurrent().createObjectShapeFactoryForClass(resultClass));
     for (Object invokable : instanceInvokables.getObjectStorage(null)){
       SInvokable.setHolder((DynamicObject)invokable,resultClass);

@@ -18,7 +18,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.profiles.BranchProfile;
-import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class IntercessionHandling extends Node {
   public abstract Object doMateSemantics(final VirtualFrame frame,
@@ -54,7 +53,7 @@ public abstract class IntercessionHandling extends Node {
     private final BranchProfile semanticsRedefined = BranchProfile.create();
     
     protected MateIntercessionHandling(ReflectiveOp operation){
-      semanticCheck = MateSemanticCheckNodeGen.create(SourceSection.createUnavailable("", ""), operation);
+      semanticCheck = MateSemanticCheckNodeGen.create(Universe.emptySource.createUnavailableSection(), operation);
       switch (operation){
         case LayoutReadField: case ExecutorReadField:
           reflectiveDispatch = MateDispatchFieldReadNodeGen.create();
@@ -84,13 +83,13 @@ public abstract class IntercessionHandling extends Node {
     }
     
     protected MateIntercessionHandling(SSymbol selector){
-      semanticCheck = MateSemanticCheckNodeGen.create(SourceSection.createUnavailable("", ""), ReflectiveOp.MessageLookup);
+      semanticCheck = MateSemanticCheckNodeGen.create(Universe.emptySource.createUnavailableSection(), ReflectiveOp.MessageLookup);
       reflectiveDispatch = MateCachedDispatchMessageLookupNodeGen.create(selector);
       this.adoptChildren();
     }
     
     protected MateIntercessionHandling(SSymbol selector, ISuperReadNode node){
-      semanticCheck = MateSemanticCheckNodeGen.create(SourceSection.createUnavailable("", ""), ReflectiveOp.MessageLookup);
+      semanticCheck = MateSemanticCheckNodeGen.create(Universe.emptySource.createUnavailableSection(), ReflectiveOp.MessageLookup);
       reflectiveDispatch = MateCachedDispatchSuperMessageLookupNodeGen.create(selector, node);
       this.adoptChildren();
     }
