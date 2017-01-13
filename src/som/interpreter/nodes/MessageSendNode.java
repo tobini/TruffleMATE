@@ -11,14 +11,11 @@ import som.interpreter.nodes.dispatch.UninitializedDispatchNode;
 import som.interpreter.nodes.nary.EagerlySpecializableNode;
 import som.interpreter.nodes.nary.ExpressionWithReceiver;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
-import som.interpreter.nodes.specialized.whileloops.WhileWithDynamicBlocksNode;
 import som.primitives.Primitives;
 import som.primitives.Primitives.Specializer;
 import som.vm.NotYetImplementedException;
 import som.vm.Universe;
-import som.vm.constants.ExecutionLevel;
 import som.vm.constants.MateClasses;
-import som.vmobjects.SBlock;
 import som.vmobjects.SSymbol;
 import tools.dym.Tags.VirtualInvoke;
 

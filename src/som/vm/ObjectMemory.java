@@ -35,7 +35,6 @@ import som.vmobjects.SArray;
 import som.vmobjects.SClass;
 import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObject;
-import som.vmobjects.SReflectiveObjectEnvInObj;
 import som.vmobjects.SSymbol;
 import tools.language.StructuralProbe;
 
