@@ -139,6 +139,7 @@ else:
     else:
         java_bin = graal_home
         for v in JDK_VERSIONS:
+            p = graal_home + '/' + v + '/product'
             if os.path.isdir(p):
                 java_bin = p + JAVA_BIN
                 break
