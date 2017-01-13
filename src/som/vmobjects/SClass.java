@@ -30,7 +30,6 @@ import som.vm.Universe;
 import som.vm.constants.Nil;
 import som.vmobjects.SInvokable.SPrimitive;
 import som.vmobjects.SReflectiveObject.SReflectiveObjectLayout;
-import som.vmobjects.SReflectiveObjectEnvInObj.SReflectiveObjectEnvInObjLayout;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
