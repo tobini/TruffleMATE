@@ -6,7 +6,6 @@ import som.interpreter.nodes.specialized.AndMessageNode.AndOrSplzr;
 import som.interpreter.nodes.specialized.OrMessageNode.OrSplzr;
 import som.interpreter.nodes.specialized.OrMessageNodeFactory.OrBoolMessageNodeFactory;
 import som.primitives.Primitive;
-import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
@@ -60,8 +59,8 @@ public abstract class OrMessageNode extends BinaryExpressionNode {
 
   @GenerateNodeFactory
   public abstract static class OrBoolMessageNode extends BinaryExpressionNode {
-    public OrBoolMessageNode() { 
-      super(false, Universe.emptySource.createUnavailableSection()); 
+    public OrBoolMessageNode(final SourceSection source) { 
+      super(false, source); 
     }
     
     @Specialization
