@@ -162,10 +162,10 @@ public final class MessageSendNode {
     protected abstract PreevaluatedExpression makeSuperSend();
 
     protected GenericMessageSendNode makeGenericSend() {
-      return new GenericMessageSendNode(selector,
+      return replace(new GenericMessageSendNode(selector,
           argumentNodes,
           new UninitializedDispatchNode(this.sourceSection, selector),
-          getSourceSection());
+          getSourceSection()));
     }
     
     private PreevaluatedExpression makeEagerPrim(final EagerlySpecializableNode prim) {
@@ -274,7 +274,6 @@ public final class MessageSendNode {
       extends AbstractMessageSendNode {
 
     protected final SSymbol selector;
-
     @Child private AbstractDispatchNode dispatchNode;
 
     protected GenericMessageSendNode(final SSymbol selector,
