@@ -23,8 +23,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeCost;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.object.ObjectType;
-import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -127,7 +125,7 @@ public abstract class MateAbstractSemanticNodes extends Node {
       super(operation);
     }
 
-    @Specialization(guards = { "receiver.getShape() == cachedShape" },
+    /*@Specialization(guards = { "receiver.getShape() == cachedShape" },
         limit = "1")
     public DynamicObject doMonomorhic(
         final VirtualFrame frame,
@@ -135,16 +133,17 @@ public abstract class MateAbstractSemanticNodes extends Node {
         @Cached("receiver.getShape()") final Shape cachedShape,
         @Cached("environmentReflectiveMethod(getEnvironment(cachedShape), reflectiveOperation)") final DynamicObject method) {
       return method;
-    }
+    }*/
 
     @Specialization(
-        guards = { "receiver.getShape().getObjectType() == cachedType" },
-        contains = { "doMonomorhic" }, limit = "6")
+        guards = { "receiver == cachedReceiver" },
+        //contains = { "doMonomorhic" }, 
+        limit = "6")
     public DynamicObject doPolymorhic(
         final VirtualFrame frame,
         final DynamicObject receiver,
-        @Cached("receiver.getShape().getObjectType()") final ObjectType cachedType,
-        @Cached("environmentReflectiveMethod(getEnvironment(receiver.getShape()), reflectiveOperation)") final DynamicObject method) {
+        @Cached("receiver") final DynamicObject cachedReceiver,
+        @Cached("environmentReflectiveMethod(getEnvironment(receiver), reflectiveOperation)") final DynamicObject method) {
       return method;
     }
 
@@ -163,8 +162,8 @@ public abstract class MateAbstractSemanticNodes extends Node {
       return null;
     }
 
-    protected static DynamicObject getEnvironment(Shape shape) {
-      return SReflectiveObject.getEnvironment(shape);
+    protected static DynamicObject getEnvironment(DynamicObject object) {
+      return SReflectiveObject.getEnvironment(object);
     }
   }
 
