@@ -136,13 +136,13 @@ public abstract class MateAbstractSemanticNodes extends Node {
     }*/
 
     @Specialization(
-        guards = { "receiver == cachedReceiver" },
+        guards = { "getEnvironment(receiver) == cachedEnvironment" },
         //contains = { "doMonomorhic" }, 
         limit = "6")
     public DynamicObject doPolymorhic(
         final VirtualFrame frame,
         final DynamicObject receiver,
-        @Cached("receiver") final DynamicObject cachedReceiver,
+        @Cached("getEnvironment(receiver)") final DynamicObject cachedEnvironment,
         @Cached("environmentReflectiveMethod(getEnvironment(receiver), reflectiveOperation)") final DynamicObject method) {
       return method;
     }
