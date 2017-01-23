@@ -3,6 +3,7 @@ package som.interpreter.nodes.nary;
 import som.instrumentation.FixedSizeExpressionWrapperFactory;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.PreevaluatedExpression;
+import som.interpreter.nodes.MessageSendNode.AbstractMessageSendNode;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -39,7 +40,7 @@ public abstract class UnaryExpressionNode extends EagerlySpecializableNode
   public EagerPrimitive wrapInEagerWrapper(
       final EagerlySpecializableNode prim, final SSymbol selector,
       final ExpressionNode[] arguments) {
-    return new EagerUnaryPrimitiveNode(selector,
+    return AbstractMessageSendNode.specializationFactory.unaryPrimitiveFor(selector, 
         arguments[0], this);
   }
 }
