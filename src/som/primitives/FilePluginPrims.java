@@ -107,7 +107,7 @@ public abstract class FilePluginPrims {
     @NodeChild(value = "starting", type = ExpressionNode.class),
     @NodeChild(value = "count", type = ExpressionNode.class),
   })
-  @Primitive(klass = "StandardFileStream", selector = "primRead:into:startingAt:count:")
+  @Primitive(klass = "StandardFileStream", selector = "primRead:into:startingAt:count:", eagerSpecializable = false)
   @ImportStatic(ArrayType.class)
   public abstract static class ReadIntoFilePrim extends ExpressionWithTagsNode {
     public ReadIntoFilePrim(final boolean eagWrap, SourceSection source) { 
