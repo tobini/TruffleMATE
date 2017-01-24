@@ -27,6 +27,7 @@ package som.vmobjects;
 import java.util.HashMap;
 
 import som.vm.Universe;
+import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vmobjects.SInvokable.SPrimitive;
 import som.vmobjects.SReflectiveObject.SReflectiveObjectLayout;
@@ -113,7 +114,7 @@ public final class SClass {
   }
  
   public static DynamicObject getSuperClass(final DynamicObject classObj) {
-    CompilerAsserts.neverPartOfCompilation("optimize caller");
+    //CompilerAsserts.neverPartOfCompilation("optimize caller");
     return SClassLayoutImpl.INSTANCE.getSuperclass(classObj);
   }
 
@@ -283,5 +284,12 @@ public final class SClass {
 
   public static boolean hasPrimitives(final DynamicObject classObj) {
     return includesPrimitives(classObj) || includesPrimitives(SObject.getSOMClass(classObj));
+  }
+  
+  public static void initialize(final DynamicObject clazz){
+    CompilerAsserts.neverPartOfCompilation("Only supposed to be used from TCKTests");
+    assert isSClass(clazz);
+    DynamicObject init = lookupInvokable(clazz, Universe.getCurrent().symbolFor("initialize"));
+    SInvokable.invoke(init, Nil.nilObject, ExecutionLevel.Base, new Object[]{clazz});
   }
 }

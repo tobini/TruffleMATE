@@ -97,11 +97,11 @@ public class SInvokable {
   }
   
   public static final Object invoke(final DynamicObject invokable, final VirtualFrame frame, final Object... arguments) {
-    return getCallTarget(invokable,SArguments.getExecutionLevel(frame)).call(arguments);
+    return getCallTarget(invokable, SArguments.getExecutionLevelFromArrayOfArgs(arguments)).call(arguments);
   }
 
   public static final Object invoke(final DynamicObject invokable, final VirtualFrame frame, final IndirectCallNode node, final Object... arguments) {
-    return node.call(frame, getCallTarget(invokable,SArguments.getExecutionLevel(frame)), arguments);
+    return node.call(frame, getCallTarget(invokable, SArguments.getExecutionLevelFromArrayOfArgs(arguments)), arguments);
   }
   
   public static final Object invoke(final DynamicObject invokable, final DynamicObject environment, final ExecutionLevel exLevel, final Object... arguments) {

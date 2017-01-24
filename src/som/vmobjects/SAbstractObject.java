@@ -6,10 +6,11 @@ import som.vm.constants.ExecutionLevel;
 import som.vm.constants.MateClasses;
 
 import com.oracle.truffle.api.CompilerAsserts;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.object.DynamicObject;
 
 
-public abstract class SAbstractObject {
+public abstract class SAbstractObject implements TruffleObject {
 
   public abstract DynamicObject getSOMClass();
 

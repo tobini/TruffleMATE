@@ -33,12 +33,16 @@ public final class SArguments {
     return (DynamicObject)args(frame)[ENVIRONMENT_IDX];
   }
   
+  public static ExecutionLevel getExecutionLevelFromArrayOfArgs(final Object[] args) {
+    return (ExecutionLevel) args[EXECUTION_LEVEL_IDX];
+  }
+  
   public static ExecutionLevel getExecutionLevel(final Frame frame) {
     //Object execLevel = args(frame)[EXECUTION_LEVEL_IDX];
     //if (execLevel.getClass() == ExecutionLevel.class) {
       // Graal can't know that only this branch is ever taken, so, we need to help it a little
       
-    return (ExecutionLevel) args(frame)[EXECUTION_LEVEL_IDX];
+    return getExecutionLevelFromArrayOfArgs(args(frame));
     //} else {
       // this should never happen
     //  CompilerDirectives.transferToInterpreter();

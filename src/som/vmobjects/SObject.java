@@ -40,7 +40,7 @@ public class SObject {
     DynamicObject createSBasicObject();
   }
   
-  @Layout
+  @Layout(objectTypeSuperclass = MateObjectType.class)
   public interface SObjectLayout {
     //DynamicObject createSObject(DynamicObjectFactory factory);
     //DynamicObject getKlass(DynamicObjectFactory factory);

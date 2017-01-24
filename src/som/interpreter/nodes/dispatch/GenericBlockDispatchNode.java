@@ -13,7 +13,7 @@ import com.oracle.truffle.api.source.SourceSection;
 
 
 public final class GenericBlockDispatchNode extends AbstractDispatchNode {
-  protected GenericBlockDispatchNode(SourceSection source) {
+  public GenericBlockDispatchNode(SourceSection source) {
     super(source);
   }
 

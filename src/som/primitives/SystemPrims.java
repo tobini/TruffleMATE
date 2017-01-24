@@ -7,6 +7,7 @@ import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.vm.Universe;
 import som.vm.constants.Globals;
 import som.vm.constants.Nil;
+import som.vmobjects.SBlock;
 import som.vmobjects.SClass;
 import som.vmobjects.SSymbol;
 
@@ -182,14 +183,14 @@ public final class SystemPrims {
     }
 
     @Specialization(guards = "receiverIsSystemObject(obj)")
-    public final boolean doString(final DynamicObject obj, final DynamicObject method,final String name) {
+    public final boolean doString(final DynamicObject obj, final SBlock method, final String name) {
       Universe vm = findContext.executeFindContext();
-      vm.registerExport(name, obj);
+      vm.registerExport(name, method);
       return true;
     }
 
     @Specialization(guards = "receiverIsSystemObject(obj)")
-    public final boolean doSymbol(final DynamicObject obj, final DynamicObject method, final SSymbol name) {
+    public final boolean doSymbol(final DynamicObject obj, final SBlock method, final SSymbol name) {
       return doString(obj, method, name.getString());
     }
   }
