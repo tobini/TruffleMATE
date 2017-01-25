@@ -23,6 +23,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeCost;
 import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -125,15 +126,15 @@ public abstract class MateAbstractSemanticNodes extends Node {
       super(operation);
     }
 
-    /*@Specialization(guards = { "receiver.getShape() == cachedShape" },
+    @Specialization(guards = { "receiver.getShape() == cachedShape" },
         limit = "1")
     public DynamicObject doMonomorhic(
         final VirtualFrame frame,
         final DynamicObject receiver,
         @Cached("receiver.getShape()") final Shape cachedShape,
-        @Cached("environmentReflectiveMethod(getEnvironment(cachedShape), reflectiveOperation)") final DynamicObject method) {
+        @Cached("environmentReflectiveMethod(getEnvironment(receiver), reflectiveOperation)") final DynamicObject method) {
       return method;
-    }*/
+    }
 
     @Specialization(
         guards = { "getEnvironment(receiver) == cachedEnvironment" },
@@ -177,13 +178,12 @@ public abstract class MateAbstractSemanticNodes extends Node {
     public abstract DynamicObject executeGeneric(VirtualFrame frame,
         Object receiver);
 
-    @Specialization(guards = { "receiver == cachedReceiver" }, limit = "5")
+    @Specialization(guards = { "getEnvironment(receiver) == cachedEnvironment" }, limit = "6")
     public DynamicObject doMonomorhic(
         final VirtualFrame frame,
         final DynamicObject receiver,
-        @Cached("receiver") final DynamicObject cachedReceiver,
-        @Cached("getEnvironment(cachedReceiver)") final DynamicObject environment,
-        @Cached("environmentReflectiveMethod(environment, reflectiveOperation)") final DynamicObject method) {
+        @Cached("getEnvironment(receiver)") final DynamicObject cachedEnvironment,
+        @Cached("environmentReflectiveMethod(cachedEnvironment, reflectiveOperation)") final DynamicObject method) {
       return method;
     }
 
