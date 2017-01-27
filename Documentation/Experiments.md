@@ -32,7 +32,7 @@ Profiling
 ---------
 The metaobjects for profiling the system are described in the paper in Section 6.2.3.
 
-This experiment mainly exploits TruffleMATE's reflective capabilities to collect the low-level information that a tool like [Senseo](http://scg.unibe.ch/research/senseo)(a dynamic behavior visualization tool) requires for producing its output. Actually, Senseo depends on third-party tools like Aspect-Oriented dynamic weavers for collecting that information.
+This experiment mainly exploits TruffleMATE's reflective capabilities to collect the low-level information that a tool like [Senseo] (http://scg.unibe.ch/research/senseo)(a dynamic behavior visualization tool) requires for producing its output. Actually, Senseo depends on third-party tools like Aspect-Oriented dynamic weavers for collecting that information.
 
 The [folder](https://github.com/charig/SOM/blob/papers/TSE2017/Examples/Benchmarks/Mate/Profiling/) contains two files corresponding to the implementation of the [Calling Context Tree](http://dl.acm.org/citation.cfm?id=258924) data structure: [CCT](https://github.com/charig/SOM/blob/papers/TSE2017/Examples/Benchmarks/Mate/Profiling/CCT.som) and [CallRecord](https://github.com/charig/SOM/blob/papers/TSE2017/Examples/Benchmarks/Mate/Profiling/CallRecord.som). It also contains the metaobject intercepting all method activations so that it logs the needed information in the CCT: [CCTActivationSemantics](https://github.com/charig/SOM/blob/papers/TSE2017/Examples/Benchmarks/Mate/Profiling/CCTActivationSemantics.som)
 
