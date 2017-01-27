@@ -48,7 +48,7 @@ Build Status
 
 Thanks to Travis CI, all commits of this repository are tested.
 The current build status is: [![Build Status](
-https://travis-ci.org/charig/TruffleMATE.png)](https://travis-ci.org/charig/TruffleMATE/branches#TSE2017)
+https://travis-ci.org/charig/TruffleMATE.png)](https://travis-ci.org/charig/TruffleMATE.svg?branch=TSE2017)
 
  [TSE]: https://www.computer.org/web/tse
  [GRAAL]: https://github.com/graalvm/graal-core
