@@ -4,7 +4,7 @@ Fully Reflective Execution Environments: Towards a New Generation of Virtual Mac
 Introduction
 ------------
 
-This branch contains the version of TruffleMate used for executing the experiments in the paper submitted to the [Journal of Systems and Software][JSS]. 
+This branch contains the version of TruffleMate used for executing the experiments in the paper submitted to the [Transactions on Software Engineering Journal][TSE]. 
 
 Obtaining and Running TruffleMate
 --------------------------------
@@ -50,4 +50,4 @@ Thanks to Travis CI, all commits of this repository are tested.
 The current build status is: [![Build Status](
 https://travis-ci.org/charig/TruffleMATE.png)](https://travis-ci.org/charig/TruffleMATE)
 
- [JSS]: http://www.journals.elsevier.com/journal-of-systems-and-software
+ [TSE]: https://www.computer.org/web/tse
