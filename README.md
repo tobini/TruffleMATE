@@ -41,7 +41,7 @@ distributed under the MIT License. Please see the LICENSE file for details.
 Running the experiments
 -------------------------
 
-[Click here](Documentation/Experiments.md) for a detailed description of every benchmark and instructions on how to run them
+[Click here](Documentation/Experiments.md) for a detailed description of all the benchmarks and examples described in the paper. The documentation also contains precise instructions on how to run them.
 
 Build Status
 ------------
@@ -52,4 +52,4 @@ https://travis-ci.org/charig/TruffleMATE.png)](https://travis-ci.org/charig/Truf
 
  [TSE]: https://www.computer.org/web/tse
  [GRAAL]: https://github.com/graalvm/graal-core
- [OTM] :http://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
+ [OTM]: http://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html
