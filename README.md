@@ -15,7 +15,7 @@ To checkout the code:
     cd directoryName
     git checkout papers/TSE2017
 
-Then, TruffleMate can be build with Ant:
+Then, to build TruffleMate with Ant:
 
     ant jar or ant compile
 
