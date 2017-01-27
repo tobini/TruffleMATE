@@ -13,7 +13,7 @@ To checkout the code:
 
     git clone https://github.com/charig/TruffleMate.git directoryName
     cd directoryName
-    git checkout papers/JSS2016
+    git checkout papers/TSE2017
 
 Then, TruffleMate can be build with Ant:
 
