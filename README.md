@@ -28,7 +28,7 @@ A simple Hello World program is executed with:
 
     ./som -G --mate -activateMate -cp Smalltalk:TestSuite:Smalltalk/Mate:Smalltalk/Mate/MOP:Examples Hello
 
-The --mate -activateMate options make the system run with the Mate Metaobject Protocol (MOP) enabled. Note that the classpath must be also extended with the MOP-related classes found under Smalltalk/MATE. The -G runs TruffleMATE in interpreter mode. For running in combination with GRAAL, the [Graal][GRAAL] compiler must be installed in the system. Compiled binaries can be gathered from Oracle's [OTM][] Then the -G option can be removed.
+The --mate -activateMate options make the system run with the Mate Metaobject Protocol (MOP) enabled. Note that the classpath must be also extended with the MOP-related classes found under Smalltalk/MATE. The -G runs TruffleMATE in interpreter mode. For running in combination with GRAAL, the [Graal][GRAAL] compiler must be installed in the system. Compiled binaries can be gathered from Oracle's [OTM][OTM]. Then the -G option can be removed.
 
 When working on TruffleMate, for instance in Eclipse, it is helpful to download
 the source files for Truffle as well:
