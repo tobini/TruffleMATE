@@ -8,6 +8,7 @@ import som.vm.constants.Classes;
 import som.vm.constants.ExecutionLevel;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
+import som.vmobjects.SBlock;
 import som.vmobjects.SInvokable;
 import som.vmobjects.SObject;
 import som.vmobjects.SSymbol;
@@ -211,6 +212,15 @@ public abstract class MateAbstractReflectiveDispatch extends Node {
     @Specialization(guards = {"cachedMethod==method"}, insertBefore="doMateNode")
     public Object doMateSArrayNodeCached(final VirtualFrame frame, final DynamicObject method,
         final SArray subject, final Object[] arguments,
+        @Cached("method") final DynamicObject cachedMethod,
+        @Cached("lookupResultFixedType(frame, method, subject, arguments, subject.getSOMClass())") final DynamicObject lookupResult){
+      // The MOP receives the class where the lookup must start (find: aSelector since: aClass)
+      return activationNode.doActivation(frame, lookupResult, arguments);
+    }
+    
+    @Specialization(guards = {"cachedMethod==method"}, insertBefore="doMateNode")
+    public Object doMateSArrayNodeCached(final VirtualFrame frame, final DynamicObject method,
+        final SBlock subject, final Object[] arguments,
         @Cached("method") final DynamicObject cachedMethod,
         @Cached("lookupResultFixedType(frame, method, subject, arguments, subject.getSOMClass())") final DynamicObject lookupResult){
       // The MOP receives the class where the lookup must start (find: aSelector since: aClass)

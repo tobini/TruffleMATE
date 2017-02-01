@@ -12,6 +12,7 @@ import som.vm.constants.ReflectiveOp;
 import som.vmobjects.SClass;
 import som.vmobjects.SObject;
 import som.vmobjects.SReflectiveObject;
+import som.vmobjects.SReflectiveObjectEnvInObj;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -22,6 +23,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
+@SuppressWarnings("unused")
 public final class ObjectPrims {
   
   @GenerateNodeFactory
@@ -151,7 +153,7 @@ public final class ObjectPrims {
     
     @Specialization
     public final Object doSObject(final DynamicObject receiver, final DynamicObject environment) {
-      SReflectiveObject.setEnvironment(receiver, environment);
+      SReflectiveObjectEnvInObj.setEnvironment(receiver, environment);
       return receiver;
     }
     
