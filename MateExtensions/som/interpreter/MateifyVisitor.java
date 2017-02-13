@@ -13,7 +13,7 @@ public class MateifyVisitor implements NodeVisitor {
     /*Some methods should not be mateify. At the moment, those methods must include the SPECIAL string in the selector. 
      A proper implementation should use an annotation at the Smalltalk method to define it as only base-level method!*/
     if (node instanceof Invokable) {
-      if (SMethod.getSignature(((Invokable) (node)).getBelongsToMethod()).getString().matches("(.*)SPECIAL(.*)")){
+      if (SMethod.getSignature(((Invokable) (node)).getBelongsToMethod()).getString().matches("(.*)SPECIAL(.*)")) {
         return false;
       }
     }

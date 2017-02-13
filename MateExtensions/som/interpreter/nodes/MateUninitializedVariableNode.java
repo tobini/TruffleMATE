@@ -20,29 +20,29 @@ public abstract class MateUninitializedVariableNode extends UninitializedVariabl
     public MateUninitializedVariableReadNode(UninitializedVariableReadNode node) {
       super(node.variable, node.getContextLevel(), node.getSourceSection());
     }
-    
+
     @Override
-    protected LocalVariableReadNode specializedNode(){
+    protected LocalVariableReadNode specializedNode() {
       return new MateLocalVariableNode.MateLocalVariableReadNode(LocalVariableReadNodeGen.create(variable, getSourceSection()));
     }
-    
+
     @Override
     public ExpressionNode asMateNode() {
       return null;
     }
   }
-  
+
   public static final class MateUninitializedVariableWriteNode extends UninitializedVariableWriteNode {
     public MateUninitializedVariableWriteNode(UninitializedVariableWriteNode node) {
       super(node.variable, node.getContextLevel(), node.exp, node.getSourceSection());
     }
-    
+
     @Override
-    protected LocalVariableWriteNode specializedNode(){
+    protected LocalVariableWriteNode specializedNode() {
       return new MateLocalVariableNode.MateLocalVariableWriteNode(
-          LocalVariableWriteNodeGen.create(variable, getSourceSection(), exp)); 
+          LocalVariableWriteNodeGen.create(variable, getSourceSection(), exp));
     }
-    
+
     @Override
     public ExpressionNode asMateNode() {
       return null;

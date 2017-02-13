@@ -24,16 +24,16 @@ public class MateMethodActivationNode extends Node {
   @Child MateActivationDispatch reflectiveDispatch;
   @Child AbstractMethodDispatchNode methodDispatch;
   private final ConditionProfile semanticsRedefined = ConditionProfile.createBinaryProfile();
-  
-  public MateMethodActivationNode(){
+
+  public MateMethodActivationNode() {
     semanticCheck = MateSemanticCheckNode.createForFullCheck(this.getSourceSection(), ReflectiveOp.MessageActivation);
     reflectiveDispatch = MateActivationDispatchNodeGen.create();
     methodDispatch = new UninitializedMethodDispatchNode();
   }
-  
+
   public Object doActivation(final VirtualFrame frame, DynamicObject method, Object[] arguments) {
     DynamicObject mateMethod = this.getMateNode().execute(frame, arguments);
-    if (semanticsRedefined.profile(mateMethod != null)){
+    if (semanticsRedefined.profile(mateMethod != null)) {
       return this.getMateDispatch().executeDispatch(frame, mateMethod, method, arguments);
     } else {
       return methodDispatch.executeDispatch(frame, SArguments.getEnvironment(frame), ExecutionLevel.Base, method, arguments);
@@ -47,7 +47,7 @@ public class MateMethodActivationNode extends Node {
   public MateActivationDispatch getMateDispatch() {
     return reflectiveDispatch;
   }
-  
+
   public AbstractMethodDispatchNode getDispatchListHead() {
     return methodDispatch;
   }
@@ -66,5 +66,5 @@ public class MateMethodActivationNode extends Node {
   @Override
   public NodeCost getCost() {
     return NodeCost.NONE;
-  }  
+  }
 }

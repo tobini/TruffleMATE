@@ -8,9 +8,9 @@ public interface MateNode {
    * the wrapping node.
    * @return 
    */
-  public abstract void wrapIntoMateNode();
-  
-  default public Node asMateNode() {
+  void wrapIntoMateNode();
+
+  default Node asMateNode() {
     // do nothing!
     // only a small subset of nodes needs to implement this method.
     return null;

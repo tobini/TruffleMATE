@@ -30,11 +30,11 @@ public class ContextPrims {
 
     @Specialization
     public final DynamicObject doMaterializedFrame(final FrameInstance frame) {
-      RootCallTarget target = ((RootCallTarget)frame.getCallTarget());
-      return ((Invokable)target.getRootNode()).getBelongsToMethod();
+      RootCallTarget target = ((RootCallTarget) frame.getCallTarget());
+      return ((Invokable) target.getRootNode()).getBelongsToMethod();
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "Context", selector = "sender", receiverType = {FrameInstance.class})
   public abstract static class SenderPrim extends UnaryExpressionNode {
@@ -44,23 +44,23 @@ public class ContextPrims {
 
     @Specialization
     public final FrameInstance doMaterializedFrame(final FrameInstance frame) {
-      TruffleRuntime runtime = ((Universe)((ExpressionNode)this).getRootNode().getExecutionContext()).getTruffleRuntime();
+      TruffleRuntime runtime = ((Universe) ((ExpressionNode) this).getRootNode().getExecutionContext()).getTruffleRuntime();
       FrameInstance sender;
-      if (runtime.getCurrentFrame() == frame){
+      if (runtime.getCurrentFrame() == frame) {
         sender = runtime.getCallerFrame();
       } else {
-        sender = runtime.iterateFrames(new MateVisitors.FindSenderFrame(frame.getFrame(FrameAccess.MATERIALIZE, true)));
+        sender = runtime.iterateFrames(new MateVisitors.FindSenderFrame(frame.getFrame(FrameAccess.MATERIALIZE)));
       }
-      Frame senderFrame = sender.getFrame(FrameAccess.MATERIALIZE, true);
-      if (senderFrame.getFrameDescriptor().findFrameSlot(Universe.frameOnStackSlotName()) == null){
+      Frame senderFrame = sender.getFrame(FrameAccess.MATERIALIZE);
+      if (senderFrame.getFrameDescriptor().findFrameSlot(Universe.frameOnStackSlotName()) == null) {
         senderFrame.setObject(
-            senderFrame.getFrameDescriptor().addFrameSlot(Universe.frameOnStackSlotName(), FrameSlotKind.Object), 
+            senderFrame.getFrameDescriptor().addFrameSlot(Universe.frameOnStackSlotName(), FrameSlotKind.Object),
             new FrameOnStackMarker());
       }
-      return sender; 
-    }  
+      return sender;
+    }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "Context", selector = "receiver", receiverType = {FrameInstance.class})
   public abstract static class GetReceiverFromContextPrim extends UnaryExpressionNode {
@@ -70,7 +70,7 @@ public class ContextPrims {
 
     @Specialization
     public final DynamicObject doMaterializedFrame(final FrameInstance frame) {
-      Frame virtualFrame = frame.getFrame(FrameAccess.READ_ONLY, false);
+      Frame virtualFrame = frame.getFrame(FrameAccess.READ_ONLY);
       return (DynamicObject) SArguments.rcvr(virtualFrame);
     }
   }

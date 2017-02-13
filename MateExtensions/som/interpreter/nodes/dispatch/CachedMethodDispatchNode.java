@@ -22,7 +22,7 @@ public final class CachedMethodDispatchNode extends AbstractMethodCachedDispatch
   @Override
   public Object executeDispatch(final VirtualFrame frame, final DynamicObject environment, final ExecutionLevel exLevel, final DynamicObject method, final Object[] arguments) {
     if (method == cachedSomMethod) {
-      return cachedMethod.call(frame, SArguments.createSArguments(environment, exLevel, arguments));
+      return cachedMethod.call(SArguments.createSArguments(environment, exLevel, arguments));
     } else {
       return nextInCache.executeDispatch(frame, environment, exLevel, method, arguments);
     }

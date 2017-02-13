@@ -18,28 +18,27 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.profiles.BranchProfile;
-import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class IntercessionHandling extends Node {
-  public abstract Object doMateSemantics(final VirtualFrame frame,
-      final Object[] arguments);
-  
-  public static IntercessionHandling createForOperation(ReflectiveOp operation){
-    if (operation == ReflectiveOp.None){
+  public abstract Object doMateSemantics(VirtualFrame frame,
+      Object[] arguments);
+
+  public static IntercessionHandling createForOperation(ReflectiveOp operation) {
+    if (operation == ReflectiveOp.None) {
       return new VoidIntercessionHandling();
     } else {
       return new MateIntercessionHandling(operation);
     }
   }
-  
-  public static IntercessionHandling createForMessageLookup(SSymbol selector){
+
+  public static IntercessionHandling createForMessageLookup(SSymbol selector) {
     return new MateIntercessionHandling(selector);
   }
-  
-  public static IntercessionHandling createForSuperMessageLookup(SSymbol selector, ISuperReadNode node){
+
+  public static IntercessionHandling createForSuperMessageLookup(SSymbol selector, ISuperReadNode node) {
     return new MateIntercessionHandling(selector, node);
   }
-  
+
   public static class VoidIntercessionHandling extends IntercessionHandling {
     @Override
     public Object doMateSemantics(final VirtualFrame frame,
@@ -47,15 +46,15 @@ public abstract class IntercessionHandling extends Node {
       return null;
     }
   }
-  
+
   public static class MateIntercessionHandling extends IntercessionHandling {
     @Child MateAbstractSemanticsLevelNode   semanticCheck;
     @Child MateAbstractStandardDispatch     reflectiveDispatch;
     private final BranchProfile semanticsRedefined = BranchProfile.create();
-    
-    protected MateIntercessionHandling(ReflectiveOp operation){
-      semanticCheck = MateSemanticCheckNodeGen.create(SourceSection.createUnavailable("", ""), operation);
-      switch (operation){
+
+    protected MateIntercessionHandling(ReflectiveOp operation) {
+      semanticCheck = MateSemanticCheckNodeGen.create(Universe.emptySource.createUnavailableSection(), operation);
+      switch (operation) {
         case LayoutReadField: case ExecutorReadField:
           reflectiveDispatch = MateDispatchFieldReadNodeGen.create();
           break;
@@ -82,30 +81,30 @@ public abstract class IntercessionHandling extends Node {
       }
       this.adoptChildren();
     }
-    
-    protected MateIntercessionHandling(SSymbol selector){
-      semanticCheck = MateSemanticCheckNodeGen.create(SourceSection.createUnavailable("", ""), ReflectiveOp.MessageLookup);
+
+    protected MateIntercessionHandling(SSymbol selector) {
+      semanticCheck = MateSemanticCheckNodeGen.create(Universe.emptySource.createUnavailableSection(), ReflectiveOp.MessageLookup);
       reflectiveDispatch = MateCachedDispatchMessageLookupNodeGen.create(selector);
       this.adoptChildren();
     }
-    
-    protected MateIntercessionHandling(SSymbol selector, ISuperReadNode node){
-      semanticCheck = MateSemanticCheckNodeGen.create(SourceSection.createUnavailable("", ""), ReflectiveOp.MessageLookup);
+
+    protected MateIntercessionHandling(SSymbol selector, ISuperReadNode node) {
+      semanticCheck = MateSemanticCheckNodeGen.create(Universe.emptySource.createUnavailableSection(), ReflectiveOp.MessageLookup);
       reflectiveDispatch = MateCachedDispatchSuperMessageLookupNodeGen.create(selector, node);
       this.adoptChildren();
     }
-    
+
     @Override
     public Object doMateSemantics(final VirtualFrame frame,
         final Object[] arguments) {
       DynamicObject method = this.getMateNode().execute(frame, arguments);
-      if (method != null){
+      if (method != null) {
         semanticsRedefined.enter();
         return this.getMateDispatch().executeDispatch(frame, method, arguments[0], arguments);
-      } 
-      return null;      
+      }
+      return null;
     }
-    
+
     private MateAbstractSemanticsLevelNode getMateNode() {
       return this.semanticCheck;
     }
@@ -114,5 +113,4 @@ public abstract class IntercessionHandling extends Node {
       return this.reflectiveDispatch;
     }
   }
-
 }

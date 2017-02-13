@@ -12,7 +12,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 public final class MateLayoutFieldReadNode extends ReadFieldNode {
   @Child private IntercessionHandling ih;
   @Child private ReadFieldNode read;
-  
+
   public MateLayoutFieldReadNode(final ReadFieldNode node) {
     super(node.getFieldIndex());
     ih = IntercessionHandling.createForOperation(ReflectiveOp.LayoutReadField);
@@ -21,8 +21,8 @@ public final class MateLayoutFieldReadNode extends ReadFieldNode {
   }
 
   public Object read(final VirtualFrame frame, final DynamicObject receiver) {
-    Object value = ih.doMateSemantics(frame, new Object[] {receiver, (long)this.getFieldIndex()});
-    if (value == null){
+    Object value = ih.doMateSemantics(frame, new Object[] {receiver, (long) this.getFieldIndex()});
+    if (value == null) {
      value = read.executeRead(receiver);
     }
     return value;
@@ -31,7 +31,7 @@ public final class MateLayoutFieldReadNode extends ReadFieldNode {
   @Override
   public Object executeRead(DynamicObject obj) {
     /*Should never enter here*/
-    assert(false);
+    assert (false);
     Universe.errorExit("Mate enters an unexpected method");
     return null;
   }
