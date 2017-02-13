@@ -28,10 +28,10 @@ public class EagerBinaryPrimitiveNode extends EagerPrimitive {
     this.adoptChildren();
   }
 
-  public ExpressionNode getReceiver(){
+  public ExpressionNode getReceiver() {
     return receiver;
   }
-  protected BinaryExpressionNode getPrimitive(){return primitive;}
+  protected BinaryExpressionNode getPrimitive() { return primitive; }
 
   @Override
   public Object executeGenericWithReceiver(final VirtualFrame frame, Object receiver) {
@@ -59,21 +59,21 @@ public class EagerBinaryPrimitiveNode extends EagerPrimitive {
   public ExpressionNode getArgument() {
     return argument;
   }
-  
+
   @Override
   public Object doPreEvaluated(VirtualFrame frame, Object[] args) {
     return executeEvaluated(frame, args[0], args[1]);
   }
-  
+
   @Override
   protected void setTags(final byte tagMark) {
     primitive.tagMark = tagMark;
   }
-  
+
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     assert !(primitive instanceof WrapperNode);
-    boolean result = super.isTaggedWith(tag)? super.isTaggedWith(tag) : primitive.isTaggedWith(tag); 
+    boolean result = super.isTaggedWith(tag) ? super.isTaggedWith(tag) : primitive.isTaggedWith(tag);
     return result;
   }
 }

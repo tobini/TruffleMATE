@@ -22,7 +22,7 @@ public class VMOptions {
   @CompilationFinal public boolean printAST;
   @CompilationFinal public boolean vmReflectionEnabled;
   @CompilationFinal public boolean vmReflectionActivated;
-  
+
   public VMOptions(final String[] args) {
     vmReflectionEnabled = false;
     printAST = false;
@@ -37,7 +37,7 @@ public class VMOptions {
           "Please set -D" + VmSettings.INSTRUMENTATION_PROP + "=true");
     }
   }
-  
+
   private String[] processVmArguments(final String[] arguments) {
     int currentArg = 0;
     boolean parsedArgument = true;
@@ -80,7 +80,7 @@ public class VMOptions {
         }
       }
     }
-      
+
     // store remaining arguments
     if (currentArg < arguments.length) {
       return Arrays.copyOfRange(arguments, currentArg, arguments.length);
@@ -115,7 +115,7 @@ public class VMOptions {
     Universe.println("    -d            enable disassembling");
     Universe.getCurrent().exit(1);
   }
-  
+
   @TruffleBoundary
   public void setupClassPath(final String cp) {
     // Create a new tokenizer to split up the string of directories
@@ -129,7 +129,7 @@ public class VMOptions {
       classPath[i] = tokenizer.nextToken();
     }
   }
-  
+
   @TruffleBoundary
   private String[] setupDefaultClassPath(final int directories) {
     // Get the default system class path

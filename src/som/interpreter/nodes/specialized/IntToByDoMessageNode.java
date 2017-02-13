@@ -21,7 +21,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 //Should have noWrapper = true? 
-@Primitive(selector = "to:by:do:", disabled = true, 
+@Primitive(selector = "to:by:do:", disabled = true,
            requiresArguments = true, requiresExecutionLevel = true)
 @GenerateNodeFactory
 public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
@@ -29,7 +29,7 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
   private final DynamicObject blockMethod;
   @Child private DirectCallNode valueSend;
 
-  public IntToByDoMessageNode(final boolean eagWrap, final SourceSection section, 
+  public IntToByDoMessageNode(final boolean eagWrap, final SourceSection section,
       final Object[] args, ExecutionLevel level) {
     super(false, section);
     blockMethod = ((SBlock) args[3]).getMethod();
@@ -48,18 +48,18 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
   @Specialization(guards = "isSameBlockLong(block)")
   public final long doIntToByDo(final VirtualFrame frame, final long receiver, final long limit, final long step, final SBlock block) {
     try {
-      if (step > 0){
+      if (step > 0) {
         if (receiver <= limit) {
-          valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
+          valueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
           for (long i = receiver + step; i <= limit; i += step) {
-            valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+            valueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
           }
         }
       } else {
         if (receiver >= limit) {
-          valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
+          valueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
           for (long i = receiver + step; i >= limit; i += step) {
-            valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+            valueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
           }
         }
       }
@@ -76,9 +76,9 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
   public final long doIntToByDo(final VirtualFrame frame, final long receiver, final double limit, final long step, final SBlock block) {
     try {
       if (receiver <= limit) {
-        valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
+        valueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
         for (long i = receiver + step; i <= limit; i += step) {
-          valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+          valueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
         }
       }
     } finally {
@@ -100,7 +100,7 @@ public abstract class IntToByDoMessageNode extends QuaternaryExpressionNode {
       ((Invokable) current).propagateLoopCountThroughoutLexicalScope(count);
     }
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == LoopNode.class) {

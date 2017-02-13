@@ -33,7 +33,7 @@ public abstract class PerformWithArgumentsInSuperclassPrim extends QuaternaryExp
       final Object[] argArr, final DynamicObject clazz) {
     CompilerAsserts.neverPartOfCompilation("PerformWithArgumentsInSuperclassPrim.doSAbstractObject()");
     DynamicObject invokable = SClass.lookupInvokable(clazz, selector);
-    return call.call(frame, SInvokable.getCallTarget(invokable, SArguments.getExecutionLevel(frame)), SArguments.createSArguments(SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), mergeReceiverWithArguments(receiver, argArr)));
+    return call.call(SInvokable.getCallTarget(invokable, SArguments.getExecutionLevel(frame)), SArguments.createSArguments(SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), mergeReceiverWithArguments(receiver, argArr)));
   }
 
   // TODO: remove duplicated code, also in symbol dispatch, ideally removing by optimizing this implementation...

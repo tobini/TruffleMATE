@@ -126,13 +126,13 @@ public abstract class IntToDoInlinedLiteralsNode extends ExpressionWithTagsNode 
       final InlinerAdaptToEmbeddedOuterContext inliner) {
     // NOOP: This node has a FrameSlot, but it is local, so does not need to be updated.
   }
-  
+
   public void wrapIntoMateNode() {
     super.wrapIntoMateNode();
     MateifyVisitor visitor = new MateifyVisitor();
     bodyActualNode.accept(visitor);
   }
-  
+
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     if (tag == LoopNode.class) {

@@ -122,19 +122,19 @@ public final class SNodeFactory {
       final List<ExpressionNode> exprs, final SourceSection source) {
     return MessageSendNode.create(msg, exprs.toArray(new ExpressionNode[0]), source);
   }
-  
+
   public static CascadeMessageSendNode createCascadeMessageSend(final ExpressionWithTagsNode receiver,
       final List<ExpressionWithTagsNode> messages, final SourceSection source) {
       return new CascadeMessageSendNode(receiver, messages.toArray(new ExpressionWithReceiver[0]), source);
   }
-  
+
   public static ReturnNonLocalNode createNonLocalReturn(final ExpressionNode exp,
       final FrameSlot markerSlot, final int contextLevel,
       final SourceSection source) {
     return new ReturnNonLocalNode(exp, markerSlot, contextLevel, source);
   }
-  
-  public static ThisContextNode createThisContext(final SourceSection source){
+
+  public static ThisContextNode createThisContext(final SourceSection source) {
     return new ThisContextNode(source);
   }
 }

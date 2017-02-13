@@ -35,15 +35,15 @@ public abstract class GlobalPrim extends BinarySystemNode {
   public final Object doSObject(final VirtualFrame frame, final DynamicObject receiver, final SSymbol argument) {
     return getGlobal.getGlobal(frame, argument);
   }
-  
+
   public static class IsSystemObject extends Specializer<ExpressionNode> {
     public IsSystemObject(final Primitive prim, final NodeFactory<ExpressionNode> fact) { super(prim, fact); }
 
     @Override
     public boolean matches(final Object[] args, final ExpressionNode[] argNodess) {
-      try{
+      try {
         return SObject.getSOMClass((DynamicObject) args[0]) == Classes.systemClass;
-      } catch (ClassCastException e){
+      } catch (ClassCastException e) {
         return false;
       }
     }
@@ -66,7 +66,7 @@ public abstract class GlobalPrim extends BinarySystemNode {
   private static final class UninitializedGetGlobal extends GetGlobalNode {
     private final int depth;
 
-    public UninitializedGetGlobal(final int depth) {
+    UninitializedGetGlobal(final int depth) {
       this.depth = depth;
     }
 
@@ -95,7 +95,7 @@ public abstract class GlobalPrim extends BinarySystemNode {
     @Child private GlobalNode getGlobal;
     @Child private GetGlobalNode next;
 
-    public CachedGetGlobal(final SSymbol name, final int depth) {
+    CachedGetGlobal(final SSymbol name, final int depth) {
       this.depth = depth;
       this.name  = name;
       getGlobal = new UninitializedGlobalReadWithoutErrorNode(name, null);
@@ -116,7 +116,7 @@ public abstract class GlobalPrim extends BinarySystemNode {
 
     private final Universe universe;
 
-    public GetGlobalFallback() {
+    GetGlobalFallback() {
       this.universe = Universe.getCurrent();
     }
 

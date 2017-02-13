@@ -7,7 +7,6 @@ import som.interpreter.nodes.nary.BinaryExpressionNode;
 import som.interpreter.nodes.nary.UnaryExpressionNode;
 import som.primitives.Primitives.Specializer;
 import som.primitives.arithmetic.ArithmeticPrim;
-import som.vm.Universe;
 import som.vm.constants.Classes;
 import som.vmobjects.SArray;
 import som.vmobjects.SSymbol;
@@ -49,7 +48,7 @@ public abstract class IntegerPrims {
     public final long doLong(final long receiver) {
       return (int) receiver;
     }
-    
+
     @Override
     protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpArithmetic.class) {
@@ -71,7 +70,7 @@ public abstract class IntegerPrims {
     public final long doLong(final long receiver) {
       return Integer.toUnsignedLong((int) receiver);
     }
-    
+
     @Override
     protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpArithmetic.class) {
@@ -83,25 +82,25 @@ public abstract class IntegerPrims {
   }
 
   @GenerateNodeFactory
-  @Primitive(klass = "Integer Class", selector = "fromString:", 
+  @Primitive(klass = "Integer Class", selector = "fromString:",
       specializer = FromStringPrim.IsIntegerClass.class)
   public abstract static class FromStringPrim extends ArithmeticPrim {
     public FromStringPrim(final boolean eagWrap, SourceSection source) {
       super(eagWrap, source);
     }
 
-    protected final static boolean receiverIsIntegerClass(final DynamicObject receiver) {
+    protected static final boolean receiverIsIntegerClass(final DynamicObject receiver) {
       return receiver == Classes.integerClass;
     }
-    
+
     public static class IsIntegerClass extends Specializer<ExpressionNode> {
       public IsIntegerClass(final Primitive prim, final NodeFactory<ExpressionNode> fact) { super(prim, fact); }
 
       @Override
       public boolean matches(final Object[] args, final ExpressionNode[] argNodess) {
-        try{
+        try {
           return receiverIsIntegerClass((DynamicObject) args[0]);
-        } catch (ClassCastException e){
+        } catch (ClassCastException e) {
           return false;
         }
       }
@@ -116,7 +115,7 @@ public abstract class IntegerPrims {
     public final Object doSClass(final DynamicObject receiver, final SSymbol argument) {
       return Long.parseLong(argument.getString());
     }
-    
+
     @Override
     protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == ComplexPrimitiveOperation.class) {
@@ -172,7 +171,7 @@ public abstract class IntegerPrims {
   }
 
   @GenerateNodeFactory
-  @Primitive(klass = "Integer", selector = "max:", 
+  @Primitive(klass = "Integer", selector = "max:",
              receiverType = Long.class, disabled = true)
   public abstract static class MaxIntPrim extends ArithmeticPrim {
     public MaxIntPrim(final boolean eagWrap, SourceSection source) {
@@ -186,7 +185,7 @@ public abstract class IntegerPrims {
   }
 
   @GenerateNodeFactory
-  @Primitive(klass = "Integer", selector = "to:", 
+  @Primitive(klass = "Integer", selector = "to:",
              receiverType = Long.class, disabled = true)
   public abstract static class ToPrim extends BinaryExpressionNode {
     public ToPrim(final boolean eagWrap, SourceSection source) {
@@ -202,7 +201,7 @@ public abstract class IntegerPrims {
       }
       return SArray.create(arr);
     }
-    
+
     @Override
     protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpArithmetic.class) {
@@ -224,7 +223,7 @@ public abstract class IntegerPrims {
     public final long doLong(final long receiver) {
       return Math.abs(receiver);
     }
-    
+
     @Override
     protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpArithmetic.class) {

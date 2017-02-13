@@ -17,18 +17,18 @@ public class MateVisitors {
 
     @Override
     public FrameInstance visitFrame(FrameInstance frameInstance) {
-      if (SArguments.getExecutionLevel(frameInstance.getFrame(FrameAccess.MATERIALIZE, true)) == ExecutionLevel.Base){
+      if (SArguments.getExecutionLevel(frameInstance.getFrame(FrameAccess.MATERIALIZE)) == ExecutionLevel.Base) {
         return frameInstance;
       }
       return null;
     }
   }
-  
+
   public static class FindSenderFrame implements FrameInstanceVisitor<FrameInstance>{
     private final FrameOnStackMarker toFind;
     private Boolean currentFound;
-    
-    public FindSenderFrame(Frame frame){
+
+    public FindSenderFrame(Frame frame) {
       FrameOnStackMarker marker;
       try {
         marker = (FrameOnStackMarker) frame.getObject(frame.getFrameDescriptor().findFrameSlot(Universe.frameOnStackSlotName()));
@@ -36,25 +36,25 @@ public class MateVisitors {
         marker = null;
         e.printStackTrace();
       }
-      toFind = marker; 
+      toFind = marker;
       currentFound = false;
     }
-    
+
     @Override
     public FrameInstance visitFrame(FrameInstance frameInstance) {
-      if (currentFound) return frameInstance;
-      Frame materialized = frameInstance.getFrame(FrameAccess.MATERIALIZE, true);
+      if (currentFound) { return frameInstance; }
+      Frame materialized = frameInstance.getFrame(FrameAccess.MATERIALIZE);
       FrameSlot slot = materialized.getFrameDescriptor().findFrameSlot(Universe.frameOnStackSlotName());
-      if (slot != null) {  
+      if (slot != null) {
         try {
-          FrameOnStackMarker marker = (FrameOnStackMarker)(materialized.getObject(slot));
-          if (marker == toFind){
+          FrameOnStackMarker marker = (FrameOnStackMarker) (materialized.getObject(slot));
+          if (marker == toFind) {
             currentFound = true;
           }
         } catch (FrameSlotTypeException e) {
           e.printStackTrace();
         }
-      } 
+      }
       return null;
     }
   }

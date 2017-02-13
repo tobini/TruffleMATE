@@ -42,11 +42,11 @@ public abstract class IntToDoMessageNode extends TernaryExpressionNode {
           args[2] instanceof SBlock;
     }
   }
-  
+
   private final DynamicObject blockMethod;
   @Child private DirectCallNode valueSend;
 
-  public IntToDoMessageNode(final boolean eagWrap, final SourceSection source, 
+  public IntToDoMessageNode(final boolean eagWrap, final SourceSection source,
       final Object[] args, ExecutionLevel level) {
     super(false, source);
     blockMethod = ((SBlock) args[2]).getMethod();
@@ -90,10 +90,10 @@ public abstract class IntToDoMessageNode extends TernaryExpressionNode {
   protected void doLooping(final VirtualFrame frame, final long receiver,
       long limit, final SBlock block) {
     if (receiver <= limit) {
-      valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
+      valueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
     }
     for (long i = receiver + 1; i <= limit; i++) {
-      valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+      valueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
     }
   }
 
@@ -107,7 +107,7 @@ public abstract class IntToDoMessageNode extends TernaryExpressionNode {
       ((Invokable) current).propagateLoopCountThroughoutLexicalScope(count);
     }
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == LoopNode.class) {

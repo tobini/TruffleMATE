@@ -28,16 +28,16 @@ public abstract class AbstractWhileNode extends BinaryExpressionNode {
   @Child protected DirectCallNode bodyValueSend;
 
   protected final boolean predicateBool;
-  
+
   @Override
   /*Analyze what is the best to do for this case*/
-  public ExpressionNode getReceiver(){
+  public ExpressionNode getReceiver() {
     return new IntegerLiteralNode(1, this.getSourceSection());
   }
-  
+
   @Override
   /*Analyze what is the best to do for this case*/
-  public ExpressionNode getArgument(){
+  public ExpressionNode getArgument() {
     return new IntegerLiteralNode(1, this.getSourceSection());
   }
 
@@ -67,14 +67,14 @@ public abstract class AbstractWhileNode extends BinaryExpressionNode {
     long iterationCount = 0;
 
     boolean loopConditionResult = (boolean) conditionValueSend.call(
-        frame, SArguments.createSArguments(SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), new Object[] {loopCondition}));
+        SArguments.createSArguments(SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), new Object[] {loopCondition}));
 
     try {
       // TODO: this is a simplification, we don't cover the case receiver isn't a boolean
       while (loopConditionResult == predicateBool) {
-        bodyValueSend.call(frame, new Object[] {loopBody});
+        bodyValueSend.call(new Object[] {loopBody});
         loopConditionResult = (boolean) conditionValueSend.call(
-            frame, new Object[] {loopCondition});
+            new Object[] {loopCondition});
 
         if (CompilerDirectives.inInterpreter()) { iterationCount++; }
       }
@@ -86,8 +86,8 @@ public abstract class AbstractWhileNode extends BinaryExpressionNode {
     return Nil.nilObject;
   }
 
-  protected abstract DynamicObject doWhileConditionally(final VirtualFrame frame,
-      final SBlock loopCondition, final SBlock loopBody);
+  protected abstract DynamicObject doWhileConditionally(VirtualFrame frame,
+      SBlock loopCondition, SBlock loopBody);
 
   protected final void reportLoopCount(final long count) {
     CompilerAsserts.neverPartOfCompilation("reportLoopCount");
@@ -99,7 +99,7 @@ public abstract class AbstractWhileNode extends BinaryExpressionNode {
       ((Invokable) current).propagateLoopCountThroughoutLexicalScope(count);
     }
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == LoopNode.class) {

@@ -12,8 +12,8 @@ import som.primitives.Primitive;
 @Primitive(klass = "Double", selector = "cos", receiverType = Double.class)
 public abstract class CosPrim extends UnaryExpressionNode {
 
-  public CosPrim(final boolean eagWrap, final SourceSection source) { 
-    super(eagWrap, source); 
+  public CosPrim(final boolean eagWrap, final SourceSection source) {
+    super(eagWrap, source);
   }
 
   @Specialization

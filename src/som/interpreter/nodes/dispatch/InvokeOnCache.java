@@ -31,7 +31,7 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
 
   private static final class UninitializedDispatchNode extends InvokeOnCache {
 
-    public UninitializedDispatchNode(final int depth) {
+    UninitializedDispatchNode(final int depth) {
       super(depth);
     }
 
@@ -76,7 +76,7 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
     @Child private DirectCallNode callNode;
     @Child private InvokeOnCache nextInCache;
 
-    public CachedDispatchNode(final DynamicObject invokable,
+    CachedDispatchNode(final DynamicObject invokable,
         final InvokeOnCache nextInCache, final int depth, ExecutionLevel level) {
       super(depth);
       this.invokable = invokable;
@@ -88,7 +88,7 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
     public Object executeDispatch(final VirtualFrame frame,
         final DynamicObject invokable, final Object[] arguments) {
       if (this.invokable == invokable) {
-        return callNode.call(frame, arguments);
+        return callNode.call(arguments);
       } else {
         return nextInCache.executeDispatch(frame, invokable, arguments);
       }
@@ -104,7 +104,7 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
 
     @Child private IndirectCallNode callNode;
 
-    public GenericDispatchNode() {
+    GenericDispatchNode() {
       super(0);
       callNode = Truffle.getRuntime().createIndirectCallNode();
     }
@@ -112,7 +112,7 @@ public abstract class InvokeOnCache extends Node implements DispatchChain {
     @Override
     public Object executeDispatch(final VirtualFrame frame,
         final DynamicObject invokable, final Object[] arguments) {
-      return callNode.call(frame, SInvokable.getCallTarget(invokable, SArguments.getExecutionLevel(frame)), arguments);
+      return callNode.call(SInvokable.getCallTarget(invokable, SArguments.getExecutionLevel(frame)), arguments);
     }
 
     @Override

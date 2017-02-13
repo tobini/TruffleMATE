@@ -101,12 +101,12 @@ import som.vmobjects.SArray;
 import som.vmobjects.SClass;
 import som.vmobjects.SObject;
 import som.vmobjects.SSymbol;
-import tools.highlight.Tags;
-import tools.highlight.Tags.DelimiterClosingTag;
-import tools.highlight.Tags.DelimiterOpeningTag;
-import tools.highlight.Tags.IdentifierTag;
-import tools.highlight.Tags.KeywordTag;
-import tools.highlight.Tags.StatementSeparatorTag;
+import tools.debugger.Tags;
+import tools.debugger.Tags.DelimiterClosingTag;
+import tools.debugger.Tags.DelimiterOpeningTag;
+import tools.debugger.Tags.IdentifierTag;
+import tools.debugger.Tags.KeywordTag;
+import tools.debugger.Tags.StatementSeparatorTag;
 import tools.language.StructuralProbe;
 
 import com.oracle.truffle.api.object.DynamicObject;
@@ -124,7 +124,7 @@ public class Parser {
 
   private SourceSection             lastMethodsSourceSection;
   private final StructuralProbe     structuralProbe;
-  
+
   private static final List<Symbol> singleOpSyms        = new ArrayList<Symbol>();
   private static final List<Symbol> binaryOpSyms        = new ArrayList<Symbol>();
   private static final List<Symbol> keywordSelectorSyms = new ArrayList<Symbol>();
@@ -217,7 +217,7 @@ public class Parser {
     }
   }
 
-  public Parser(final Reader reader, final long fileSize, final Source source, 
+  public Parser(final Reader reader, final long fileSize, final Source source,
       final ObjectMemory memory, final StructuralProbe structuralProbe) {
     this.objectMemory = memory;
     this.source   = source;
@@ -250,7 +250,7 @@ public class Parser {
       ExpressionWithTagsNode methodBody = method(mgenc);
       DynamicObject method = mgenc.assemble(methodBody, lastMethodsSourceSection);
       cgenc.addInstanceMethod(method);
-      if (structuralProbe != null){
+      if (structuralProbe != null) {
         structuralProbe.recordNewMethod(method);
       }
     }
@@ -265,7 +265,7 @@ public class Parser {
         ExpressionWithTagsNode methodBody = method(mgenc);
         DynamicObject method = mgenc.assemble(methodBody, lastMethodsSourceSection);
         cgenc.addClassMethod(method);
-        if (structuralProbe != null){
+        if (structuralProbe != null) {
           structuralProbe.recordNewMethod(method);
         }
       }
@@ -360,8 +360,13 @@ public class Parser {
 
   private SourceSection getSource(final SourceCoordinate coord) {
     assert lexer.getNumberOfCharactersRead() - coord.charIndex >= 0;
-    return source.createSection("method", coord.startLine,
-        coord.startColumn, coord.charIndex,
+    int line = coord.startLine == 0 ? 1 : coord.startLine;
+    int column = coord.startColumn;
+    while (source.getLineLength(line) < column) {
+      line += 1;
+      column = 1;
+    }
+    return source.createSection(line, column,
         lexer.getNumberOfCharactersRead() - coord.charIndex);
   }
 
@@ -567,8 +572,8 @@ public class Parser {
     expect(Assign, KeywordTag.class);
     return v;
   }
-  
-  private CascadeMessageSendNode cascadeMessages(final MethodGenerationContext mgenc, 
+
+  private CascadeMessageSendNode cascadeMessages(final MethodGenerationContext mgenc,
       ExpressionWithTagsNode firstMessage, ExpressionWithTagsNode receiver,
       SourceCoordinate coord, SourceSection section) throws ParseError {
     List<ExpressionWithTagsNode> expressions = new ArrayList<ExpressionWithTagsNode>();
@@ -587,9 +592,9 @@ public class Parser {
       ExpressionWithTagsNode receiver = exp;
       SourceCoordinate coord = getCoordinate();
       SourceSection section = getSource(coord);
-      
+
       exp = messages(mgenc, exp);
-      
+
       if (SemiColon == sym) {
         return cascadeMessages(mgenc, exp, receiver, coord, section);
       }
@@ -794,8 +799,8 @@ public class Parser {
     SourceCoordinate coord = getCoordinate();
     switch (sym) {
       case Pound:
-        try{peekForNextSymbolFromLexer();} catch (IllegalStateException e){/*Come from a trace that already peeked*/}
-        if (nextSym == NewTerm){
+        try { peekForNextSymbolFromLexer(); } catch (IllegalStateException e) { /*Come from a trace that already peeked*/ }
+        if (nextSym == NewTerm) {
           expect(Pound, null);
           return new ArrayLiteralNode(this.literalArray(), getSource(coord));
         } else {
@@ -803,10 +808,10 @@ public class Parser {
         }
       case STString:  return new StringLiteralNode(literalString(), getSource(coord));
       case STChar:    return new CharLiteralNode(literalChar(), getSource(coord));
-      default:   
+      default:
         boolean isNegative = isNegativeNumber();
         if (sym == Integer) {
-          long value = literalInteger(isNegative); 
+          long value = literalInteger(isNegative);
           if (value < Long.MIN_VALUE || value > Long.MAX_VALUE) {
             return new BigIntegerLiteralNode(BigInteger.valueOf(value), getSource(coord));
           } else {
@@ -818,7 +823,7 @@ public class Parser {
         }
     }
   }
-  
+
   private boolean isNegativeNumber() throws ParseError {
     boolean isNegative = false;
     if (sym == Minus) {
@@ -866,46 +871,46 @@ public class Parser {
     }
     return symb;
   }
-  
+
   private SArray literalArray() throws ParseError {
     List<Object> literals = new ArrayList<Object>();
     expect(NewTerm, null);
-    while (sym != EndTerm){
+    while (sym != EndTerm) {
       literals.add(this.getObjectForCurrentLiteral());
     }
     expect(EndTerm, null);
     return SArray.create(literals.toArray());
   }
-  
+
   private Object getObjectForCurrentLiteral() throws ParseError {
     switch (sym) {
       case NewTerm:
         return this.literalArray();
       case Pound:
-        try{this.peekForNextSymbolFromLexer();} catch (IllegalStateException e){/*Come from a trace that already peeked*/}
-        if (nextSym == NewTerm){
+        try { this.peekForNextSymbolFromLexer(); } catch (IllegalStateException e) { /*Come from a trace that already peeked*/ }
+        if (nextSym == NewTerm) {
           expect(Pound, null);
           return this.literalArray();
         } else {
           return literalSymbol();
         }
-      case STString: 
+      case STString:
         return literalString();
-      case STChar: 
-        return literalChar();  
-      case Integer: 
+      case STChar:
+        return literalChar();
+      case Integer:
         return literalInteger(isNegativeNumber());
-      case Double: 
+      case Double:
         return literalDouble(isNegativeNumber());
-      case Identifier: 
+      case Identifier:
         if (text.equals("nil")) {
-          selector(); //Consume the text from the parser state
+          selector(); // Consume the text from the parser state
           return Nil.nilObject;
-        } else if (text.equals("true")){
-          selector(); //Consume the text from the parser state
+        } else if (text.equals("true")) {
+          selector(); // Consume the text from the parser state
           return Universe.getCurrent().getTrueObject();
-        } else if (text.equals("false")){
-          selector(); //Consume the text from the parser state
+        } else if (text.equals("false")) {
+          selector(); // Consume the text from the parser state
           return Universe.getCurrent().getFalseObject();
         }
         return selector();
@@ -921,7 +926,7 @@ public class Parser {
   private String literalString() throws ParseError {
     return string();
   }
-  
+
   private Character literalChar() throws ParseError {
     char value = text.charAt(0);
     expect(STChar, null);
@@ -954,7 +959,7 @@ public class Parser {
   private ExpressionWithTagsNode nestedBlock(final MethodGenerationContext mgenc) throws ParseError {
     SourceCoordinate coord = getCoordinate();
     expect(NewBlock, DelimiterOpeningTag.class);
-    
+
     mgenc.addArgumentIfAbsent("$blockSelf");
 
     if (sym == Colon) {
@@ -997,7 +1002,7 @@ public class Parser {
     if ("super".equals(variableName)) {
       return mgenc.getSuperReadNode(source);
     }
-    
+
     // we need to handle thisContext special here
     if ("thisContext".equals(variableName)) {
       return mgenc.getThisContextNode(source);

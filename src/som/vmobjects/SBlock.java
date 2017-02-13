@@ -40,11 +40,11 @@ public final class SBlock extends SAbstractObject {
     this.blockClass = blockClass;
   }
 
-  public final DynamicObject getMethod() {
+  public DynamicObject getMethod() {
     return method;
   }
 
-  public final MaterializedFrame getContext() {
+  public MaterializedFrame getContext() {
     assert context != null;
     return context;
   }
@@ -54,10 +54,10 @@ public final class SBlock extends SAbstractObject {
     return blockClass;
   }
 
-  public final Object getOuterSelf() {
+  public Object getOuterSelf() {
     return SArguments.rcvr(getContext());
   }
-  
+
   @Override
   public ForeignAccess getForeignAccess() {
     return SBlockInteropMessageResolutionForeign.createAccess();

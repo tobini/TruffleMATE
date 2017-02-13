@@ -27,7 +27,7 @@ public class ClassPrims {
     @TruffleBoundary
     @Specialization(guards = "isSClass(receiver)")
     public final SAbstractObject doSClass(final DynamicObject receiver) {
-      //CompilerAsserts.neverPartOfCompilation("Class>>NamePrim");
+      // CompilerAsserts.neverPartOfCompilation("Class>>NamePrim");
       return SClass.getName(receiver);
     }
   }
@@ -42,12 +42,11 @@ public class ClassPrims {
 
     @Specialization(guards = "isSClass(receiver)")
     public final DynamicObject doSClass(final DynamicObject receiver) {
-      CompilerAsserts.neverPartOfCompilation("Class>>SuperClassPrim");
+      // CompilerAsserts.neverPartOfCompilation("Class>>SuperClassPrim");
       return SClass.getSuperClass(receiver);
     }
   }
 
-  
   @GenerateNodeFactory
   @Primitive(klass = "Class", selector = "methods")
   @ImportStatic(SClass.class)

@@ -181,7 +181,7 @@ public final class MethodGenerationContext {
 
     DynamicObject method = Universe.newMethod(signature, truffleMethod, false,
         embeddedBlockMethods.toArray(new DynamicObject[0]));
-    
+
     truffleMethod.setMethod(method);
 
     // return the method - the holder field is to be set later on!
@@ -189,11 +189,9 @@ public final class MethodGenerationContext {
   }
 
   private SourceSection getSourceSectionForMethod(final SourceSection ssBody) {
-    String cls = holderGenc.isClassSide() ? "_class" : "";
     SourceSection ssMethod = ssBody.getSource().createSection(
-        holderGenc.getName().getString() + cls + ">>" + signature.toString(),
         ssBody.getStartLine(), ssBody.getStartColumn(),
-        ssBody.getCharIndex(), ssBody.getCharLength());
+        ssBody.getCharLength());
     return ssMethod;
   }
 
@@ -295,7 +293,7 @@ public final class MethodGenerationContext {
     return self.getSuperReadNode(getOuterSelfContextLevel(),
         holderGenc.getName(), holderGenc.isClassSide(), source);
   }
-  
+
   public ExpressionWithTagsNode getThisContextNode(final SourceSection source) {
     Variable self = getVariable("self");
     return self.getThisContextNode(source);

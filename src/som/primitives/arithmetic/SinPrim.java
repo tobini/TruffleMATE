@@ -12,7 +12,7 @@ import som.primitives.Primitive;
 @Primitive(klass = "Double", selector = "sin", receiverType = Double.class)
 public abstract class SinPrim extends UnaryExpressionNode {
 
-  public SinPrim(final boolean eagWrap, final SourceSection source) { 
+  public SinPrim(final boolean eagWrap, final SourceSection source) {
     super(eagWrap, source);
   }
 

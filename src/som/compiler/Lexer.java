@@ -35,8 +35,8 @@ public final class Lexer {
   private static final String PRIMITIVE = "primitive";
 
   private class LexerState {
-    public LexerState() { }
-    public LexerState(final LexerState old) {
+    LexerState() { }
+    LexerState(final LexerState old) {
       lineNumber = old.lineNumber;
       charsRead  = old.charsRead;
       buf        = old.buf;
@@ -257,10 +257,10 @@ public final class Lexer {
       state.bufp++;
       lexEscapeChar();
     } else {
-      lexChar(); 
+      lexChar();
     }
   }
-  
+
   private void lexChar() {
     state.text.append(currentChar());
     state.bufp++;
@@ -281,7 +281,7 @@ public final class Lexer {
 
     state.bufp++;
   }
-  
+
   private void lexCharacter() {
     state.set(Symbol.STChar);
     state.bufp++;
@@ -451,5 +451,4 @@ public final class Lexer {
     char next = bufchar(state.bufp + text.length());
     return !(isIdentifierChar(next) || next == ':');
   }
-
 }

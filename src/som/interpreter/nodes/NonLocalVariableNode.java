@@ -84,7 +84,7 @@ public abstract class NonLocalVariableNode extends ContextualNode {
       return determineContext(frame).getDouble(slot);
     }
 
-    @Specialization(guards = {"isObject(frame)"}, 
+    @Specialization(guards = {"isObject(frame)"},
         contains = {"doBoolean", "doLong", "doDouble"},
         rewriteOn = {FrameSlotTypeException.class})
     public final Object doObject(final VirtualFrame frame) throws FrameSlotTypeException {

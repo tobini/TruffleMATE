@@ -28,7 +28,7 @@ public class BlockNode extends LiteralNode {
   public BlockNode(final DynamicObject blockMethod,
       final SourceSection source) {
     super(source);
-    if ((Universe.getCurrent().vmReflectionEnabled())){
+    if ((Universe.getCurrent().vmReflectionEnabled())) {
       Universe.getCurrent().mateifyMethod(blockMethod);
     }
     this.blockMethod = blockMethod;

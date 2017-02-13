@@ -43,13 +43,13 @@ import com.oracle.truffle.api.source.Source;
 public final class SourcecodeCompiler {
 
   @TruffleBoundary
-  public static DynamicObject compileClass(Source source, final DynamicObject systemClass, 
+  public static DynamicObject compileClass(Source source, final DynamicObject systemClass,
       final ObjectMemory memory, final StructuralProbe structuralProbe) {
-    
+
     Parser parser;
-    try{
+    try {
       parser = new Parser(new FileReader(source.getPath()), new File(source.getPath()).length(), source, memory, structuralProbe);
-    } catch (IOException ex){
+    } catch (IOException ex) {
       throw new IllegalStateException("File name " + ex.getMessage()
           + " does not exist ");
     }
@@ -92,7 +92,7 @@ public final class SourcecodeCompiler {
     } else {
       cgc.assembleSystemClass(result);
     }
-    if (structuralProbe != null){
+    if (structuralProbe != null) {
       structuralProbe.recordNewClass(result);
     }
     return result;

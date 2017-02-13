@@ -44,13 +44,13 @@ public class MateTests extends SomTests {
       });
   }
 
-  protected String[] getArguments(){
+  protected String[] getArguments() {
     String[] arg = {
         "--mate",
         "-activateMate",
-        "-cp", 
-        "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:TestSuite:TestSuite/MateMOPSuite:Examples/Benchmarks:Examples/Benchmarks/Mate/Immutability:Examples/Benchmarks/Mate/Immutability/Handles:Examples/Benchmarks/Mate/Immutability/DelegationProxies:Examples/Benchmarks/Mate/Layout:TestSuite/FileSystem", 
-        "TestHarness", 
+        "-cp",
+        "Smalltalk:Smalltalk/Mate:Smalltalk/Mate/MOP:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:TestSuite:TestSuite/MateMOPSuite:Examples/Benchmarks:Examples/Benchmarks/Mate/Immutability:Examples/Benchmarks/Mate/Immutability/Handles:Examples/Benchmarks/Mate/Immutability/DelegationProxies:Examples/Benchmarks/Mate/Layout:TestSuite/FileSystem",
+        "TestHarness",
         testName};
     return arg;
   }

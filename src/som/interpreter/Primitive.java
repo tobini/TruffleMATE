@@ -80,7 +80,7 @@ public final class Primitive extends Invokable {
       m.propagateLoopCountThroughoutLexicalScope(count);
     }
   }
-  
+
   /**
    * Primitive operations are not instrumentable. They are not user-level
    * behavior, and thus, are supposed to remain opaque.

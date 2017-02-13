@@ -14,7 +14,7 @@ public final class WhileWithDynamicBlocksNode extends AbstractWhileNode {
   private final DynamicObject conditionMethod;
   private final DynamicObject bodyMethod;
 
-  public final static WhileWithDynamicBlocksNode create(final SBlock rcvr,
+  public static WhileWithDynamicBlocksNode create(final SBlock rcvr,
       final SBlock arg, final boolean predicateBool, ExecutionLevel level) {
     return new WhileWithDynamicBlocksNode(rcvr, arg, predicateBool, null, level);
   }
@@ -31,7 +31,7 @@ public final class WhileWithDynamicBlocksNode extends AbstractWhileNode {
     CompilerAsserts.neverPartOfCompilation("WhileWithDynamicBlocksNode.generic");
     throw new NotYetImplementedException();
   }
-  
+
   @Override
   public Object executeGenericWithReceiver(final VirtualFrame frame, final Object receiver) {
     CompilerAsserts.neverPartOfCompilation("WhileWithDynamicBlocksNode.generic");

@@ -29,18 +29,18 @@ public abstract class WhilePrimitiveNode extends BinaryExpressionNode {
     return (DynamicObject) whileNode.executeEvaluated(frame, loopCondition, loopBody);
   }
 
-  @Primitive(klass = "Block", selector = "whileTrue:", 
+  @Primitive(klass = "Block", selector = "whileTrue:",
              eagerSpecializable = false, receiverType = {SBlock.class})
   public abstract static class WhileTruePrimitiveNode extends WhilePrimitiveNode {
     public WhileTruePrimitiveNode(final boolean eagPrim, final SourceSection source) { super(eagPrim, source, true); }
   }
-  
-  @Primitive(klass = "Block", selector = "whileFalse:", 
+
+  @Primitive(klass = "Block", selector = "whileFalse:",
              eagerSpecializable = false, receiverType = {SBlock.class})
   public abstract static class WhileFalsePrimitiveNode extends WhilePrimitiveNode {
     public WhileFalsePrimitiveNode(final boolean eagPrim, final SourceSection source) { super(eagPrim, source, false); }
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == LoopNode.class) {

@@ -215,7 +215,7 @@ public abstract class StorageLocation {
 //          // TODO: for the moment Graal doesn't seem to get the optimizations
 //          // right, still need to pass in the correct location identifier, which can probably be `this`.
 //          arr[extensionIndex],
-////          CompilerDirectives.unsafeGetObject(arr, absoluteIndex, assumptionValid, null),
+//          CompilerDirectives.unsafeGetObject(arr, absoluteIndex, assumptionValid, null),
 //          Object.class, true, true);
       return arr[extensionIndex];
     }

@@ -26,7 +26,7 @@ public final class CachedDnuNode extends AbstractCachedDispatchNode {
   }
 
   @Override
-  public Object executeDispatch(final VirtualFrame frame, 
+  public Object executeDispatch(final VirtualFrame frame,
       final DynamicObject environment, final ExecutionLevel exLevel, final Object[] arguments) {
     Object rcvr = arguments[0];
     try {
@@ -45,14 +45,13 @@ public final class CachedDnuNode extends AbstractCachedDispatchNode {
   public static CallTarget getDnuCallTarget(final DynamicObject rcvrClass, ExecutionLevel level) {
     return SInvokable.getCallTarget(SClass.lookupInvokable(rcvrClass,
           Universe.getCurrent().symbolFor("doesNotUnderstand:arguments:")), level);
-        
   }
 
-  protected final Object performDnu(final VirtualFrame frame, 
+  protected Object performDnu(final VirtualFrame frame,
       final DynamicObject environment, final ExecutionLevel exLevel, final Object[] arguments,
       final Object rcvr) {
     Object[] argsArr = new Object[] {
         environment, exLevel, rcvr, selector, SArguments.getArgumentsWithoutReceiver(arguments) };
-    return cachedMethod.call(frame, argsArr);
+    return cachedMethod.call(argsArr);
   }
 }

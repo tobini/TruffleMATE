@@ -19,10 +19,10 @@ import com.oracle.truffle.api.source.SourceSection;
 @ImportStatic(ArrayType.class)
 public abstract class AtPrim extends BinaryExpressionNode {
 
-  public AtPrim(final boolean eagWrap, final SourceSection source) { 
+  public AtPrim(final boolean eagWrap, final SourceSection source) {
     super(eagWrap, source);
   }
-  
+
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 
   @Specialization(guards = "isEmptyType(receiver)")
@@ -46,7 +46,7 @@ public abstract class AtPrim extends BinaryExpressionNode {
   public final long doLongSArray(final SArray receiver, final long idx) {
     return receiver.getLongStorage(storageType)[(int) idx - 1];
   }
-  
+
   @Specialization(guards = "isByteType(receiver)")
   public final long doByteSArray(final SArray receiver, final long idx) {
     return receiver.getByteStorage(storageType)[(int) idx - 1];
@@ -61,12 +61,12 @@ public abstract class AtPrim extends BinaryExpressionNode {
   public final boolean doBooleanSArray(final SArray receiver, final long idx) {
     return receiver.getBooleanStorage(storageType)[(int) idx - 1];
   }
-  
+
   @Specialization(guards = "isCharType(receiver)")
   public final char doCharSArray(final SArray receiver, final long idx) {
     return receiver.getCharStorage(storageType)[(int) idx - 1];
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == BasicPrimitiveOperation.class) {

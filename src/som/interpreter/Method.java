@@ -22,6 +22,8 @@
 package som.interpreter;
 
 import som.interpreter.nodes.ExpressionNode;
+import som.interpreter.nodes.SOMNode;
+
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
@@ -48,7 +50,8 @@ public final class Method extends Invokable {
   @Override
   public String toString() {
     SourceSection ss = getSourceSection();
-    final String id = ss.getShortDescription();
+    final String id = String.format("%s:%d", ss.getSource().getName(),
+        ss.getStartLine());
     return "Method " + id + "\t@" + Integer.toHexString(hashCode());
   }
 
@@ -97,8 +100,28 @@ public final class Method extends Invokable {
     LoopNode.reportLoopCount(this, (count > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) count);
   }
 
+  public SourceSection[] getDefinition() {
+    // Should we include an special array of sourceSections for the method definition as in SOMns?
+    return new SourceSection[]{this.getSourceSection()};
+  }
+
+  public SourceSection getRootNodeSource() {
+    ExpressionNode root = SOMNode.unwrapIfNecessary(expressionOrSequence);
+    assert root.isMarkedAsRootExpression();
+    return root.getSourceSection();
+  }
+
   @Override
   public Node deepCopy() {
     return cloneWithNewLexicalContext(currentLexicalScope.getOuterScopeOrNull());
+  }
+
+  public boolean isBlock() {
+    // TODO: analyze the best way to implement this method properly
+    return false;
+  }
+
+  public LexicalScope getLexicalScope() {
+    return currentLexicalScope;
   }
 }

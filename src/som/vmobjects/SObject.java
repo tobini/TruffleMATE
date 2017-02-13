@@ -39,11 +39,11 @@ public class SObject {
   public interface SBasicObjectLayout {
     DynamicObject createSBasicObject();
   }
-  
+
   @Layout(objectTypeSuperclass = MateObjectType.class)
   public interface SObjectLayout {
-    //DynamicObject createSObject(DynamicObjectFactory factory);
-    //DynamicObject getKlass(DynamicObjectFactory factory);
+    // DynamicObject createSObject(DynamicObjectFactory factory);
+    // DynamicObject getKlass(DynamicObjectFactory factory);
     DynamicObjectFactory createSObjectShape(DynamicObject klass);
     DynamicObject getKlass(ObjectType objectType);
     DynamicObject getKlass(DynamicObject object);
@@ -52,10 +52,10 @@ public class SObject {
     boolean isSObject(ObjectType objectType);
     Object[] build();
   }
-  
-  //Only needed for system initialization
+
+  // Only needed for system initialization
   public static final DynamicObjectFactory SOBJECT_FACTORY = SObjectLayoutImpl.INSTANCE.createSObjectShape(Nil.nilObject);
-  
+
   public static DynamicObjectFactory createObjectShapeFactoryForClass(final DynamicObject clazz) {
     return SObjectLayoutImpl.INSTANCE.createSObjectShape(clazz);
   }
@@ -63,7 +63,7 @@ public class SObject {
   public static boolean isSObject(final DynamicObject obj) {
     return SObjectLayoutImpl.INSTANCE.isSObject(obj);
   }
-  
+
   public static void setClass(final DynamicObject obj, final DynamicObject value) {
     CompilerAsserts.neverPartOfCompilation("Should not compile changing the class of an object, it should only happen in the slow path?");
     SObjectLayoutImpl.INSTANCE.setKlass(obj, value);
@@ -76,9 +76,8 @@ public class SObject {
   public static final int getNumberOfFields(final DynamicObject obj) {
     throw new NotYetImplementedException();
   }
-  
+
   public Object[] buildArguments() {
     return SObjectLayoutImpl.INSTANCE.build();
   }
 }
-

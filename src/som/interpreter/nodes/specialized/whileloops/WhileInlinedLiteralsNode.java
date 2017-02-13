@@ -75,7 +75,7 @@ public final class WhileInlinedLiteralsNode extends ExpressionWithTagsNode {
     return Nil.nilObject;
   }
 
-  protected final void reportLoopCount(final long count) {
+  protected void reportLoopCount(final long count) {
     CompilerAsserts.neverPartOfCompilation("reportLoopCount");
     Node current = getParent();
     while (current != null && !(current instanceof RootNode)) {
@@ -92,7 +92,7 @@ public final class WhileInlinedLiteralsNode extends ExpressionWithTagsNode {
     conditionActualNode.accept(visitor);
     bodyActualNode.accept(visitor);
   }
-  
+
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     if (tag == LoopNode.class) {

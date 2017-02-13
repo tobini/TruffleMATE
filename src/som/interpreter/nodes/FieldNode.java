@@ -41,9 +41,9 @@ public abstract class FieldNode extends ExpressionWithTagsNode {
   protected FieldNode(final SourceSection source) {
     super(source);
   }
-  
+
   public abstract ExpressionNode getSelf();
-  
+
   @NodeChild(value = "self", type = ExpressionNode.class)
   public abstract static class FieldReadNode extends FieldNode {
 
@@ -65,12 +65,12 @@ public abstract class FieldNode extends ExpressionWithTagsNode {
         final Object[] arguments) {
       return executeEvaluated((DynamicObject) arguments[0]);
     }*/
-    
+
     @Override
     public ExpressionNode asMateNode() {
       return MateFieldReadNodeGen.create(this, this.getSelf());
     }
-    
+
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
       if (tag == FieldRead.class) {
@@ -85,11 +85,11 @@ public abstract class FieldNode extends ExpressionWithTagsNode {
     @NodeChild(value = "self", type = ExpressionNode.class),
     @NodeChild(value = "value", type = ExpressionNode.class)})
   public abstract static class FieldWriteNode extends FieldNode {
-    //implements PreevaluatedExpression {
+    // implements PreevaluatedExpression {
     @Child protected WriteFieldNode write;
 
     public abstract ExpressionNode getValue();
-    
+
     public FieldWriteNode(final int fieldIndex, final SourceSection source) {
       super(source);
       write = FieldAccessorNode.createWrite(fieldIndex);
@@ -105,12 +105,12 @@ public abstract class FieldNode extends ExpressionWithTagsNode {
         final Object[] arguments) {
       return executeEvaluated((DynamicObject) arguments[0], arguments[1]);
     }*/
-    
+
     @Override
     public ExpressionNode asMateNode() {
       return MateFieldWriteNodeGen.create(this, this.getSelf(), this.getValue());
     }
-    
+
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
       if (tag == FieldWrite.class) {

@@ -21,7 +21,7 @@ import com.oracle.truffle.api.object.Property;
 
 
 public abstract class FieldAccessorNode extends Node implements MateNode {
-  protected final int LIMIT = 10;
+  protected static final int LIMIT = 10;
   protected final int fieldIndex;
 
   public static ReadFieldNode createRead(final int fieldIndex) {
@@ -61,10 +61,10 @@ public abstract class FieldAccessorNode extends Node implements MateNode {
   protected static final Assumption createAssumption() {
     return Truffle.getRuntime().createAssumption();
   }
-  
-  public void wrapIntoMateNode(){
+
+  public void wrapIntoMateNode() {
     Node replacement = this.asMateNode();
-    if (replacement != null){
+    if (replacement != null) {
       this.replace(replacement);
     }
   }
@@ -93,16 +93,16 @@ public abstract class FieldAccessorNode extends Node implements MateNode {
         @Cached("getLocation(self)") final Location location) {
       return Nil.nilObject;
     }
-    
+
     @Specialization(guards = "self.updateShape()")
     public final Object updateShapeAndRead(final DynamicObject self) {
       return executeRead(self); // restart execution of the whole node
     }
-      
+
     @TruffleBoundary
     @Specialization(contains = {"readSetField", "readUnsetField", "updateShapeAndRead"})
     public final Object readFieldUncached(final DynamicObject receiver) {
-      //CompilerAsserts.neverPartOfCompilation("readFieldUncached");
+      // CompilerAsserts.neverPartOfCompilation("readFieldUncached");
       return receiver.get(fieldIndex, Nil.nilObject);
     }
   }
@@ -131,7 +131,7 @@ public abstract class FieldAccessorNode extends Node implements MateNode {
       }
       return value;
     }
-    
+
     @Specialization(guards = {"self.getShape() == oldShape", "oldLocation == null"},
         assumptions = {"locationAssignable", "oldShape.getValidAssumption()", "newShape.getValidAssumption()"},
         limit = "LIMIT")
@@ -151,7 +151,7 @@ public abstract class FieldAccessorNode extends Node implements MateNode {
       }
       return value;
     }
-    
+
     @Specialization(guards = "self.updateShape()")
     public final Object updateObjectShapeAndRespecialize(
         final DynamicObject self, final Object value) {

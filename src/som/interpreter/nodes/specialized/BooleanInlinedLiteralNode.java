@@ -52,11 +52,11 @@ public abstract class BooleanInlinedLiteralNode extends ExpressionWithTagsNode {
           new Node[] {argumentNode}, e.getResult());
     }
   }
-  
-  public ExpressionNode getReceiver(){
+
+  public ExpressionNode getReceiver() {
     return receiverNode;
   }
-  
+
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     if (tag == ControlFlowCondition.class) {
@@ -84,13 +84,13 @@ public abstract class BooleanInlinedLiteralNode extends ExpressionWithTagsNode {
 
     @Override
     public boolean executeBoolean(final VirtualFrame frame) {
-      if ((boolean)evaluateReceiver(frame)) {
+      if ((boolean) evaluateReceiver(frame)) {
         return evaluateArgument(frame);
       } else {
         return false;
       }
     }
-    
+
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
       if (tag == OpComparison.class) {
@@ -119,13 +119,13 @@ public abstract class BooleanInlinedLiteralNode extends ExpressionWithTagsNode {
 
     @Override
     public boolean executeBoolean(final VirtualFrame frame) {
-      if ((boolean)evaluateReceiver(frame)) {
+      if ((boolean) evaluateReceiver(frame)) {
         return true;
       } else {
         return evaluateArgument(frame);
       }
     }
-    
+
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
       if (tag == OpComparison.class) {

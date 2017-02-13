@@ -7,7 +7,7 @@ import com.oracle.truffle.api.nodes.NodeVisitor;
 
 public final class NodeVisitorUtil {
 
-  private static class DummyParent extends Node {
+  private static final class DummyParent extends Node {
     private DummyParent() { super(); }
     @Child private ExpressionNode child;
 

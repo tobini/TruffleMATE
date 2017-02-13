@@ -26,6 +26,7 @@ package som.vmobjects;
 
 import som.vm.constants.Classes;
 
+import com.oracle.truffle.api.interop.ForeignAccess;
 import com.oracle.truffle.api.object.DynamicObject;
 
 public final class SSymbol extends SAbstractObject {
@@ -84,5 +85,11 @@ public final class SSymbol extends SAbstractObject {
           && c != ',' && c != '%' && c != '\\') { return false; }
     }
     return true;
+  }
+
+  @Override
+  public ForeignAccess getForeignAccess() {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

@@ -19,7 +19,7 @@ public @interface Primitive {
   /** Name of the selector, for which the primitive is to be installed. */
   String klass() default "";
 
-  /** Selector */
+  /** Selector. */
   String selector() default "";
 
   /**
@@ -32,7 +32,7 @@ public @interface Primitive {
    * The specializer is used to check when eager specialization is to be
    * applied and to construct the node.
    */
-  
+
   @SuppressWarnings("rawtypes")
   Class<? extends Specializer> specializer() default Specializer.class;
 
@@ -42,7 +42,7 @@ public @interface Primitive {
 
   /** Pass array of evaluated arguments to node constructor. */
   boolean requiresArguments() default false;
-  
+
   /** Pass ExecutionLevel to node constructor. */
   boolean requiresExecutionLevel() default false;
 
@@ -56,10 +56,10 @@ public @interface Primitive {
    * to handle all possible cases themselves.
    */
   boolean noWrapper() default false;
-  
+
   boolean eagerSpecializable() default true;
 
-  /** Indicates if the primitive is only valid for Mate */
+  /** Indicates if the primitive is only valid for Mate. */
   boolean mate() default false;
 
 

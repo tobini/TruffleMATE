@@ -23,7 +23,7 @@ import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
-@Primitive(klass = "Array", selector = "doIndexes:", 
+@Primitive(klass = "Array", selector = "doIndexes:",
            receiverType = SArray.class, disabled = true)
 public abstract class DoIndexesPrim extends BinaryExpressionNode
     implements ValuePrimitiveNode {

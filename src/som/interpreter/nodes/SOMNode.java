@@ -35,7 +35,7 @@ import com.oracle.truffle.api.source.SourceSection;
 @TypeSystemReference(Types.class)
 public abstract class SOMNode extends Node implements MateNode {
   protected final SourceSection sourceSection;
-  
+
   public SOMNode(final SourceSection sourceSection) {
     super();
     this.sourceSection = sourceSection;
@@ -92,14 +92,14 @@ public abstract class SOMNode extends Node implements MateNode {
    * @return body of a node that just wraps the actual method body.
    */
   public abstract ExpressionNode getFirstMethodBodyNode();
-  
-  public void wrapIntoMateNode(){
+
+  public void wrapIntoMateNode() {
     Node replacement = this.asMateNode();
-    if (replacement != null){
+    if (replacement != null) {
       this.replace(replacement);
     }
   }
-  
+
   @SuppressWarnings("unchecked")
   public static <T extends Node> T unwrapIfNecessary(final T node) {
     if (node instanceof WrapperNode) {
@@ -108,7 +108,7 @@ public abstract class SOMNode extends Node implements MateNode {
       return node;
     }
   }
-  
+
   @Override
   public SourceSection getSourceSection() {
     return sourceSection;

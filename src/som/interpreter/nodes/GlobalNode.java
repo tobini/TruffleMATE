@@ -132,7 +132,7 @@ public abstract class GlobalNode extends ExpressionWithTagsNode {
   }
 
   private static final class TrueGlobalNode extends GlobalNode {
-    public TrueGlobalNode(final SSymbol globalName, final SourceSection source) {
+    TrueGlobalNode(final SSymbol globalName, final SourceSection source) {
       super(globalName, source);
     }
 
@@ -148,7 +148,7 @@ public abstract class GlobalNode extends ExpressionWithTagsNode {
   }
 
   private static final class FalseGlobalNode extends GlobalNode {
-    public FalseGlobalNode(final SSymbol globalName,
+    FalseGlobalNode(final SSymbol globalName,
         final SourceSection source) {
       super(globalName, source);
     }
@@ -165,7 +165,7 @@ public abstract class GlobalNode extends ExpressionWithTagsNode {
   }
 
   private static final class NilGlobalNode extends GlobalNode {
-    public NilGlobalNode(final SSymbol globalName,
+    NilGlobalNode(final SSymbol globalName,
         final SourceSection source) {
       super(globalName, source);
     }

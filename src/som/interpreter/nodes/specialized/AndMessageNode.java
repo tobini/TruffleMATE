@@ -65,7 +65,7 @@ public abstract class AndMessageNode extends BinaryExpressionNode {
       }
     }
   }
-  
+
   public AndMessageNode(final SBlock arg, final SourceSection source, ExecutionLevel level) {
     super(false, source);
     blockMethod = arg.getMethod();
@@ -83,7 +83,7 @@ public abstract class AndMessageNode extends BinaryExpressionNode {
     if (receiver == false) {
       return false;
     } else {
-      return (boolean) blockValueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), argument});
+      return (boolean) blockValueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), argument});
     }
   }
 
@@ -99,7 +99,7 @@ public abstract class AndMessageNode extends BinaryExpressionNode {
       return receiver && argument;
     }
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == ControlFlowCondition.class) {

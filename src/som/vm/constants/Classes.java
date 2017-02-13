@@ -22,7 +22,7 @@ public class Classes {
   public static final DynamicObject  falseClass;
   public static final DynamicObject  systemClass;
   // These classes can be statically preinitialized.
-  
+
   static {
     // Allocate the Metaclass classes
     metaclassClass = ObjectMemory.newMetaclassClass("Metaclass");

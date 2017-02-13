@@ -12,11 +12,11 @@ import com.oracle.truffle.api.source.SourceSection;
 @Primitive(klass = "Integer", selector = "<")
 @Primitive(klass = "Double", selector = "<", eagerSpecializable = false)
 public abstract class LessThanPrim extends ArithmeticPrim {
-  
-  public LessThanPrim(final boolean eagWrap, final SourceSection source) { 
+
+  public LessThanPrim(final boolean eagWrap, final SourceSection source) {
     super(eagWrap, source);
   }
-  
+
   @Specialization
   public final boolean doLong(final long left, final long right) {
     return left < right;

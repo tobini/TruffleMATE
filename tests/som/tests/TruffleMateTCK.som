@@ -1,17 +1,17 @@
 "Based on Smarr's SOMns"
 TruffleMateTCK = (
-	initialize = (
-		system export: [:a :b | a + b] 			as: #sum:and:.
-		system export: [ 42 ]    	   			as: #fourtyTwo.
-		system export: [ nil ]         			as: #returnNil.
-  		system export: [:val | val ]   			as: #identity:.
-  		system export: [ CompoundObject new ] 	as: #compoundObject.
-  		system export: [ ValuesObject new ]   	as: #valuesObject.
-  		system export: [ | a |
+    initialize = (
+        system export: [:a :b | a + b]          as: #sum:and:.
+        system export: [ 42 ]                   as: #fourtyTwo.
+        system export: [ nil ]                  as: #returnNil.
+        system export: [:val | val ]            as: #identity:.
+        system export: [ CompoundObject new ]   as: #compoundObject.
+        system export: [ ValuesObject new ]     as: #valuesObject.
+        system export: [ | a |
                            a := Array new: 4.
                            a at: 3 put: 42.0.
-                           a ] 					as: #objectWithElement.
-  		system export: [ [:a :b | a + b ] ] 	as: #functionAddNumbers.
-  		system export: [:f | self doApply: f ]  as: #apply:.
-	)
+                           a ]                  as: #objectWithElement.
+        system export: [ [:a :b | a + b ] ]     as: #functionAddNumbers.
+        system export: [:f | self doApply: f ]  as: #apply:.
+    )
 )

@@ -30,12 +30,12 @@ public final class CachedDispatchNode extends AbstractCachedDispatchNode {
   }
 
   @Override
-  public Object executeDispatch(final VirtualFrame frame, 
+  public Object executeDispatch(final VirtualFrame frame,
       final DynamicObject environment, final ExecutionLevel exLevel, final Object[] arguments) {
     Object rcvr = arguments[0];
     try {
       if (guard.entryMatches(rcvr)) {
-        return cachedMethod.call(frame, SArguments.createSArguments(environment, exLevel, arguments));
+        return cachedMethod.call(SArguments.createSArguments(environment, exLevel, arguments));
       } else {
         return nextInCache.executeDispatch(frame, environment, exLevel, arguments);
       }

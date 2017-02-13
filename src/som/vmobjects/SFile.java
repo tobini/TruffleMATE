@@ -11,14 +11,14 @@ public class SFile {
   private FileOutputStream outputStream;
   private FileInputStream inputStream;
   private long position;
-  
-  public SFile(File fileParam, boolean writable){
+
+  public SFile(File fileParam, boolean writable) {
     file = fileParam;
-    if (writable){
+    if (writable) {
       setInputStream(null);
       try {
         setOutputStream(new FileOutputStream(file));
-      } catch (FileNotFoundException e){
+      } catch (FileNotFoundException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
         setOutputStream(null);
@@ -64,7 +64,7 @@ public class SFile {
       e.printStackTrace();
     }
   }
-  
+
   public File getFile() {
     return file;
   }
