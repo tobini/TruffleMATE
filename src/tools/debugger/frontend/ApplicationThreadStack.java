@@ -7,8 +7,7 @@ import com.oracle.truffle.api.debug.DebugStackFrame;
 import com.oracle.truffle.api.debug.SuspendedEvent;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 
-import som.interpreter.LexicalScope.MethodScope;
-
+import som.interpreter.LexicalScope;
 
 /**
  * Keeps information on the run-time stack of an application thread for
@@ -47,7 +46,7 @@ class ApplicationThreadStack {
   }
 
   int addScope(final MaterializedFrame frame,
-      final MethodScope lexicalScope) {
+      final LexicalScope lexicalScope) {
     scopesAndObjects.add(new RuntimeScope(frame, lexicalScope));
     return getLastScopeOrVarId();
   }

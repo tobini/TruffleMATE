@@ -6,7 +6,7 @@ import com.oracle.truffle.api.debug.DebugStackFrame;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 
-import som.interpreter.LexicalScope.MethodScope;
+import som.interpreter.LexicalScope;
 import som.interpreter.Method;
 import som.interpreter.Primitive;
 import som.interpreter.SArguments;
@@ -47,8 +47,8 @@ public final class ScopesResponse extends Response {
   }
 
   private static void addScopes(final ArrayList<Scope> scopes,
-      final MethodScope method, final Object rcvr, final Suspension suspension) {
-    MethodScope outer = method.getOuterMethodScopeOrNull();
+      final LexicalScope method, final Object rcvr, final Suspension suspension) {
+    LexicalScope outer = method.getOuterScopeOrNull();
     if (outer != null) {
       assert rcvr instanceof SBlock;
       MaterializedFrame mFrame = ((SBlock) rcvr).getContext();
@@ -68,7 +68,7 @@ public final class ScopesResponse extends Response {
     RootNode invokable = frame.getRootNode();
     if (invokable instanceof Method) {
       Method m = (Method) invokable;
-      MethodScope scope = m.getLexicalScope();
+      LexicalScope scope = m.getLexicalScope();
       int scopeId = suspension.addScope(mFrame, scope);
       scopes.add(new Scope("Locals", scopeId, false));
 

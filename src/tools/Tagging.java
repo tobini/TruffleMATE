@@ -8,7 +8,7 @@ import com.oracle.truffle.api.instrumentation.Instrumenter;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.SourceSection;
 
-import tools.highlight.Tags;
+import tools.debugger.Tags;
 
 public abstract class Tagging {
   private Tagging() { }
@@ -17,6 +17,9 @@ public abstract class Tagging {
       final Iterable<RootNode> rootNodes,
       final Map<SourceSection, Set<Class<? extends Tags>>> sourceSectionsAndTags,
       final Instrumenter instrumenter) {
+    if (rootNodes == null) {
+      return;
+    }
     for (RootNode root : rootNodes) {
       root.accept(node -> {
         @SuppressWarnings("rawtypes")  Set t = instrumenter.queryTags(node);

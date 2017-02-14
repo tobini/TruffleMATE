@@ -8,7 +8,7 @@ import org.java_websocket.server.WebSocketServer;
 
 import com.google.gson.Gson;
 
-import som.VM;
+import som.vm.Universe;
 import tools.debugger.message.Message.IncommingMessage;
 
 
@@ -40,7 +40,7 @@ public class WebSocketHandler extends WebSocketServer {
       IncommingMessage respond = gson.fromJson(message, IncommingMessage.class);
       respond.process(connector, conn);
     } catch (Exception ex) {
-      VM.errorPrint("Error while processing msg:" + message);
+      Universe.errorPrint("Error while processing msg:" + message);
       ex.printStackTrace();
     }
   }
