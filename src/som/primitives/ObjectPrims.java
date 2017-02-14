@@ -23,7 +23,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.source.SourceSection;
 
 public final class ObjectPrims {
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "Object", selector = "instVarAt:")
   public abstract static class InstVarAtPrim extends BinaryExpressionNode {
@@ -34,7 +34,7 @@ public final class ObjectPrims {
       super(false, source);
       dispatch = IndexDispatch.create();
     }
-    
+
     @Specialization
     public final Object doSObject(final DynamicObject receiver, final long idx) {
       return dispatch.executeDispatch(receiver, (int) idx - 1);
@@ -50,8 +50,8 @@ public final class ObjectPrims {
       long idx     = (long) firstArg;
       return doSObject(rcvr, idx);
     }
-    
-    public ReflectiveOp reflectiveOperation(){
+
+    public ReflectiveOp reflectiveOperation() {
       return ReflectiveOp.LayoutPrimReadField;
     }
   }
@@ -65,7 +65,7 @@ public final class ObjectPrims {
       super(false, source);
       dispatch = IndexDispatch.create();
     }
-    
+
     @Specialization
     public final Object doSObject(final DynamicObject receiver, final long idx, final Object val) {
       dispatch.executeDispatch(receiver, (int) idx - 1, val);
@@ -83,8 +83,8 @@ public final class ObjectPrims {
       long idx     = (long) firstArg;
       return doSObject(rcvr, idx, secondArg);
     }
-    
-    public ReflectiveOp reflectiveOperation(){
+
+    public ReflectiveOp reflectiveOperation() {
       return ReflectiveOp.LayoutPrimWriteField;
     }
   }
@@ -99,7 +99,7 @@ public final class ObjectPrims {
     @TruffleBoundary
     @Specialization
     public final Object doSObject(final DynamicObject receiver, final SSymbol fieldName) {
-      //CompilerAsserts.neverPartOfCompilation("InstVarNamedPrim");
+      // CompilerAsserts.neverPartOfCompilation("InstVarNamedPrim");
       return receiver.get(SClass.lookupFieldIndex(SObject.getSOMClass(receiver), fieldName), Nil.nilObject);
     }
   }
@@ -107,10 +107,10 @@ public final class ObjectPrims {
   @GenerateNodeFactory
   @Primitive(klass = "Object", selector = "halt", eagerSpecializable = false)
   public abstract static class HaltPrim extends UnaryExpressionNode {
-    public HaltPrim(final boolean eagWrap, final SourceSection source) { 
-      super(eagWrap, source); 
+    public HaltPrim(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
     }
-    
+
     @Specialization
     public final Object doSAbstractObject(final Object receiver) {
       Universe.errorPrintln("BREAKPOINT");
@@ -138,28 +138,28 @@ public final class ObjectPrims {
 
   @GenerateNodeFactory
   @Primitive(klass = "Object", selector = "installEnvironment:", mate = true)
-  public abstract static class installEnvironmentPrim extends BinaryExpressionNode {
-    public installEnvironmentPrim(final boolean eagWrap, final SourceSection source) {
+  public abstract static class InstallEnvironmentPrim extends BinaryExpressionNode {
+    public InstallEnvironmentPrim(final boolean eagWrap, final SourceSection source) {
       super(false, source);
     }
 
     @Specialization(guards = "receiverIsSystemObject(receiver)")
     public final DynamicObject doSystemObject(final DynamicObject receiver, final DynamicObject environment) {
       Universe.getCurrent().setGlobalEnvironment(environment);
-      return environment; 
+      return environment;
     }
-    
+
     @Specialization
     public final Object doSObject(final DynamicObject receiver, final DynamicObject environment) {
       SReflectiveObject.setEnvironment(receiver, environment);
       return receiver;
     }
-    
+
     public static final boolean receiverIsSystemObject(final DynamicObject receiver) {
       return receiver == Globals.systemObject;
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "Object", selector = "shallowCopy", eagerSpecializable = false)
   public abstract static class ShallowCopyPrim extends UnaryExpressionNode {
@@ -172,7 +172,7 @@ public final class ObjectPrims {
       return receiver.copy(receiver.getShape());
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "Object", selector = "hashcode", eagerSpecializable = false)
   @Primitive(klass = "Object", selector = "identityHash", eagerSpecializable = false)
@@ -192,13 +192,13 @@ public final class ObjectPrims {
     public final long doSSymbol(final SSymbol receiver) {
       return receiver.getString().hashCode();
     }
-    
+
     @Specialization
     public final long doSObject(final DynamicObject receiver) {
       return receiver.hashCode();
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "Object", selector = "objectSize", eagerSpecializable = false)
   @ImportStatic(SObject.class)

@@ -28,14 +28,14 @@ import com.oracle.truffle.api.source.SourceSection;
 public abstract class OrMessageNode extends BinaryExpressionNode {
   private final DynamicObject blockMethod;
   @Child private DirectCallNode blockValueSend;
-  
+
   public static final class OrSplzr extends AndOrSplzr {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public OrSplzr(final Primitive prim, final NodeFactory<BinaryExpressionNode> fact) {
       super(prim, fact, (NodeFactory) OrBoolMessageNodeFactory.getInstance());
     }
   }
-  
+
   public OrMessageNode(final SBlock arg, final SourceSection source, ExecutionLevel level) {
     super(true, source);
     blockMethod = arg.getMethod();
@@ -53,23 +53,23 @@ public abstract class OrMessageNode extends BinaryExpressionNode {
     if (receiver) {
       return true;
     } else {
-      return (boolean) blockValueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), argument});
+      return (boolean) blockValueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), argument});
     }
   }
 
   @GenerateNodeFactory
   public abstract static class OrBoolMessageNode extends BinaryExpressionNode {
-    public OrBoolMessageNode(final SourceSection source) { 
-      super(false, source); 
+    public OrBoolMessageNode(final SourceSection source) {
+      super(false, source);
     }
-    
+
     @Specialization
     public final boolean doOr(final VirtualFrame frame, final boolean receiver,
         final boolean argument) {
       return receiver || argument;
     }
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == ControlFlowCondition.class) {

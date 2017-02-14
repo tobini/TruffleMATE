@@ -28,8 +28,8 @@ public final class IfTrueIfFalseInlinedLiteralsNode extends ExpressionWithTagsNo
 
   // In case we need to revert from this optimistic optimization, keep the
   // original nodes around
-  private final ExpressionNode trueActualNode;
-  private final ExpressionNode falseActualNode;
+  // private final ExpressionNode trueActualNode;
+  // private final ExpressionNode falseActualNode;
 
   public IfTrueIfFalseInlinedLiteralsNode(
       final ExpressionNode conditionNode,
@@ -42,8 +42,8 @@ public final class IfTrueIfFalseInlinedLiteralsNode extends ExpressionWithTagsNo
     this.conditionNode   = conditionNode;
     this.trueNode        = inlinedTrueNode;
     this.falseNode       = inlinedFalseNode;
-    this.trueActualNode  = originalTrueNode;
-    this.falseActualNode = originalFalseNode;
+    // this.trueActualNode  = originalTrueNode;
+    // this.falseActualNode = originalFalseNode;
   }
 
   private boolean evaluateCondition(final VirtualFrame frame) {

@@ -94,12 +94,12 @@ import com.oracle.truffle.api.source.SourceSection;
 public class Primitives {
   private Map<SSymbol, Specializer<? extends ExpressionNode>>  eagerPrimitives;
   private Map<SSymbol, List<DynamicObject>> vmPrimitives;
-  
+
   @SuppressWarnings("unchecked")
   public Specializer<EagerlySpecializableNode> getEagerSpecializer(final SSymbol selector,
       final Object[] arguments, final ExpressionNode[] argumentNodes) {
     Specializer<? extends ExpressionNode> specializer = eagerPrimitives.get(selector);
-    if (specializer != null && specializer.mate() && !Universe.getCurrent().vmReflectionEnabled()){
+    if (specializer != null && specializer.mate() && !Universe.getCurrent().vmReflectionEnabled()) {
       return null;
     }
     if (specializer != null && specializer.matches(arguments, argumentNodes)) {
@@ -107,11 +107,11 @@ public class Primitives {
     }
     return null;
   }
-  
+
   public List<DynamicObject> getVMPrimitivesForClassNamed(final SSymbol classname) {
     return vmPrimitives.get(classname);
   }
-  
+
   public Primitives(ObjectMemory om) {
     eagerPrimitives = new HashMap<>();
     vmPrimitives = new HashMap<>();
@@ -141,18 +141,18 @@ public class Primitives {
             | InvocationTargetException | NoSuchMethodException
             | SecurityException e) {
           throw new RuntimeException(e);
-        } 
+        }
       }
     }
 
     public boolean noWrapper() {
       return prim.noWrapper();
     }
-    
+
     public boolean mate() {
       return prim.mate();
     }
-    
+
     public boolean matches(final Object[] args, final ExpressionNode[] argNodes) {
       if (prim.disabled() && VmSettings.DYNAMIC_METRICS) {
         return false;
@@ -189,7 +189,7 @@ public class Primitives {
         ctorArgs[offset] = arguments;
         offset += 1;
       }
-      
+
       if (prim.requiresExecutionLevel()) {
         ctorArgs[offset] = SArguments.getExecutionLevel(frame);
         offset += 1;
@@ -210,17 +210,17 @@ public class Primitives {
       final Specializer<? extends ExpressionNode> specializer) {
     CompilerAsserts.neverPartOfCompilation("constructPrimitive");
     int numArgs = signature.getNumberOfSignatureArguments();
-    
+
     Source s = SomLanguage.getSyntheticSource("primitive", specializer.fact.getClass().getSimpleName());
-    
+
     MethodGenerationContext mgen = new MethodGenerationContext(null);
     ExpressionWithTagsNode[] args = new ExpressionWithTagsNode[numArgs];
     for (int i = 0; i < numArgs; i++) {
       args[i] = new LocalArgumentReadNode(i, s.createSection(1));
     }
-    
+
     ExpressionNode primNode = specializer.create(null, args, s.createSection(1), false, null);
-    
+
     Primitive primMethodNode = new Primitive(primNode, mgen.getCurrentLexicalScope().getFrameDescriptor(),
         (ExpressionNode) primNode.deepCopy(), null);
     DynamicObject primitive = Universe.newMethod(signature, primMethodNode, true, new DynamicObject[0]);
@@ -239,7 +239,7 @@ public class Primitives {
     primMethodNode.setMethod(method);
     return method;
   }
- 
+
   public static DynamicObject installPrimitive(final SSymbol signature,
       final Specializer<? extends ExpressionNode> specializer, final DynamicObject holder) {
     DynamicObject prim = constructPrimitive(signature, specializer);
@@ -252,7 +252,7 @@ public class Primitives {
     Class<?> nodeClass = primFact.getNodeClass();
     return nodeClass.getAnnotationsByType(som.primitives.Primitive.class);
   }
-  
+
   /**
    * Setup the lookup data structures for vm primitive registration as well as
    * eager primitive replacement.
@@ -269,7 +269,7 @@ public class Primitives {
             SSymbol klass = om.symbolFor(classname);
             SSymbol signature = om.symbolFor(prim.selector());
             List<DynamicObject> content;
-            if (vmPrimitives.containsKey(klass)){
+            if (vmPrimitives.containsKey(klass)) {
               content = vmPrimitives.get(klass);
             } else {
               content = new ArrayList<DynamicObject>();
@@ -277,7 +277,7 @@ public class Primitives {
             }
             content.add(constructPrimitive(signature, specializer));
           }
-          
+
           if ((!("".equals(prim.selector())) && prim.eagerSpecializable())) {
             SSymbol msgSel = om.symbolFor(prim.selector());
             assert !eagerPrimitives.containsKey(msgSel) : "clash of selectors and eager specialization";
@@ -287,7 +287,7 @@ public class Primitives {
       }
     }
   }
-  
+
   @SuppressWarnings("unchecked")
   private <T> Specializer<T> getSpecializer(final som.primitives.Primitive prim, final NodeFactory<T> factory) {
     try {
@@ -300,7 +300,7 @@ public class Primitives {
       throw new RuntimeException(e);
     }
   }
-  
+
   private static List<NodeFactory<? extends ExpressionNode>> getFactories() {
     List<NodeFactory<? extends ExpressionNode>> allFactories = new ArrayList<>();
     allFactories.addAll(BlockPrimsFactory.getFactories());
@@ -316,8 +316,8 @@ public class Primitives {
     allFactories.addAll(StringPrimsFactory.getFactories());
     allFactories.addAll(SystemPrimsFactory.getFactories());
     allFactories.addAll(WhilePrimitiveNodeFactory.getFactories());
-    //allFactories.addAll(ObjectSystemPrimsFactory.getFactories());
-    
+    // allFactories.addAll(ObjectSystemPrimsFactory.getFactories());
+
     allFactories.add(AdditionPrimFactory.getInstance());
     allFactories.add(AndMessageNodeFactory.getInstance());
     allFactories.add(AsStringPrimFactory.getInstance());
@@ -358,12 +358,12 @@ public class Primitives {
     allFactories.add(PerformWithArgumentsPrimFactory.getInstance());
     allFactories.add(PutAllNodeFactory.getInstance());
     allFactories.add(RemainderPrimFactory.getInstance());
-    //allFactories.add(ExpPrimFactory.getInstance());
-    //allFactories.add(LogPrimFactory.getInstance());
+    // allFactories.add(ExpPrimFactory.getInstance());
+    // allFactories.add(LogPrimFactory.getInstance());
     allFactories.add(SinPrimFactory.getInstance());
     allFactories.add(SqrtPrimFactory.getInstance());
     allFactories.add(SubtractionPrimFactory.getInstance());
-    //allFactories.add(ToArgumentsArrayNodeFactory.getInstance());
+    // allFactories.add(ToArgumentsArrayNodeFactory.getInstance());
     allFactories.add(UnequalsPrimFactory.getInstance());
     allFactories.add(new WhileWithStaticBlocksNodeFactory());
     return allFactories;

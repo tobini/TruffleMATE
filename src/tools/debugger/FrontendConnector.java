@@ -21,13 +21,10 @@ import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import com.sun.net.httpserver.HttpServer;
 
-import som.VmSettings;
-import som.interpreter.actors.Actor;
 import som.vmobjects.SSymbol;
 import tools.SourceCoordinate;
 import tools.SourceCoordinate.TaggedSourceCoordinate;
 import tools.Tagging;
-import tools.actors.ActorExecutionTrace;
 import tools.debugger.frontend.Suspension;
 import tools.debugger.message.Message;
 import tools.debugger.message.Message.OutgoingMessage;
@@ -39,13 +36,10 @@ import tools.debugger.message.StoppedMessage;
 import tools.debugger.message.SuspendedEventMessage;
 import tools.debugger.message.SymbolMessage;
 import tools.debugger.message.VariablesResponse;
-import tools.debugger.session.AsyncMessageReceiverBreakpoint;
 import tools.debugger.session.Breakpoints;
 import tools.debugger.session.LineBreakpoint;
 import tools.debugger.session.MessageReceiverBreakpoint;
 import tools.debugger.session.MessageSenderBreakpoint;
-import tools.debugger.session.PromiseResolutionBreakpoint;
-import tools.debugger.session.PromiseResolverBreakpoint;
 
 /**
  * Connect the debugger to the UI front-end.
@@ -72,7 +66,6 @@ public class FrontendConnector {
    * Sends requests to the client.
    */
   private WebSocket sender;
-
   private WebSocket binarySender;
 
   /**
@@ -219,13 +212,13 @@ public class FrontendConnector {
     log("[DEBUGGER] Waiting for debugger to connect.");
     try {
       sender = clientConnected.get();
-      if (VmSettings.ACTOR_TRACING) {
+      /*if (VmSettings.ACTOR_TRACING) {
         binarySender = binaryHandler.getConnection().get();
-      }
+      }*/
     } catch (InterruptedException | ExecutionException ex) {
       throw new RuntimeException(ex);
     }
-    ActorExecutionTrace.setFrontEnd(this);
+    // ActorExecutionTrace.setFrontEnd(this);
     log("[DEBUGGER] Debugger connected.");
   }
 
@@ -256,9 +249,7 @@ public class FrontendConnector {
   }
 
   public void sendTracingData() {
-    if (VmSettings.ACTOR_TRACING) {
-      Actor.forceSwapBuffers();
-    }
+    // Leave it for backward compatibility with somns by now.
   }
 
   public void registerOrUpdate(final LineBreakpoint bp) {
@@ -270,18 +261,6 @@ public class FrontendConnector {
   }
 
   public void registerOrUpdate(final MessageReceiverBreakpoint bp) {
-    breakpoints.addOrUpdate(bp);
-  }
-
-  public void registerOrUpdate(final AsyncMessageReceiverBreakpoint bp) {
-    breakpoints.addOrUpdate(bp);
-  }
-
-  public void registerOrUpdate(final PromiseResolutionBreakpoint bp) {
-    breakpoints.addOrUpdate(bp);
-  }
-
-  public void registerOrUpdate(final PromiseResolverBreakpoint bp) {
     breakpoints.addOrUpdate(bp);
   }
 

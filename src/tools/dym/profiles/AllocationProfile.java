@@ -66,9 +66,9 @@ public class AllocationProfile extends Counter {
     @Specialization(guards = "getFactory(obj) == factory", limit = "1")
     public void doDynamicObject(final DynamicObject obj,
         @Cached("create(getFactory(obj))") final DynamicObjectFactory factory) { }
-    
+
     @SuppressWarnings("unused")
-    protected static DynamicObjectFactory getFactory(final DynamicObject object){
+    protected static DynamicObjectFactory getFactory(final DynamicObject object) {
       return SClass.getFactory(SObject.getSOMClass(object));
     }
   }

@@ -4,9 +4,10 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
-import som.compiler.MixinDefinition.SlotDefinition;
+import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.object.Property;
+
 import som.interpreter.Types;
-import som.interpreter.objectstorage.StorageLocation;
 import som.vm.constants.Nil;
 import som.vmobjects.SArray;
 import som.vmobjects.SArray.PartiallyEmptyArray;
@@ -59,12 +60,12 @@ public final class VariablesResponse extends Response {
       final Suspension suspension) {
     ArrayList<Variable> results = new ArrayList<>();
 
-    if (obj instanceof SObject) {
-      SObject o = (SObject) obj;
-      for (Entry<SlotDefinition, StorageLocation> e :
-          o.getObjectLayout().getStorageLocations().entrySet()) {
+    if (obj instanceof DynamicObject) {
+      DynamicObject o = (DynamicObject) obj;
+      for (Property p :
+          o.getShape().getProperties()) {
         results.add(createVariable(
-            e.getKey().getName().getString(), e.getValue().read(o), suspension));
+            p.getKey().toString(), p.get(o, true), suspension));
       }
     } else {
       assert obj instanceof SArray;

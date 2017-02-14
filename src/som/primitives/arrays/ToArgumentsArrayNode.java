@@ -25,12 +25,12 @@ public abstract class ToArgumentsArrayNode extends ExpressionNode {
 
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 
-  //to have uniform create() for @Primitive
-  public ToArgumentsArrayNode(final boolean eagWrap) { 
-    super(Universe.emptySource.createUnavailableSection()); 
+  // to have uniform create() for @Primitive
+  public ToArgumentsArrayNode(final boolean eagWrap) {
+    super(Universe.emptySource.createUnavailableSection());
   }
 
-  public final static boolean isNull(final Object somArray) {
+  public static final boolean isNull(final Object somArray) {
     return somArray == null;
   }
 

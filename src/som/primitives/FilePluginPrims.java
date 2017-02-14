@@ -26,7 +26,7 @@ import com.oracle.truffle.api.source.SourceSection;
 
 
 public abstract class FilePluginPrims {
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "FilePluginPrims", selector = "imageFile")
   public abstract static class ImageFilePrim extends UnaryExpressionNode {
@@ -39,7 +39,7 @@ public abstract class FilePluginPrims {
       return System.getProperty("user.dir") + "/" + Universe.getCurrent().imageName();
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "StandardFileStream", selector = "primOpen:writable:")
   public abstract static class OpenFilePrim extends TernaryExpressionNode {
@@ -50,17 +50,17 @@ public abstract class FilePluginPrims {
     @Specialization
     public Object doGeneric(DynamicObject receiver, String filename, Boolean writable) {
       SFile file = new SFile(new File(filename), writable);
-      if (!file.getFile().exists()){
+      if (!file.getFile().exists()) {
         return Nil.nilObject;
       }
       return file;
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "StandardFileStream", selector = "primGetPosition:")
   public abstract static class GetPositionFilePrim extends BinaryExpressionNode {
-    
+
     public GetPositionFilePrim(final boolean eagWrap, SourceSection source) {
       super(false, source);
     }
@@ -70,7 +70,7 @@ public abstract class FilePluginPrims {
       return file.getPosition();
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "StandardFileStream", selector = "primSetPosition:to:")
   public abstract static class SetPositionFilePrim extends TernaryExpressionNode {
@@ -85,7 +85,7 @@ public abstract class FilePluginPrims {
       return position;
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "StandardFileStream", selector = "primSize:")
   public abstract static class SizeFilePrim extends BinaryExpressionNode {
@@ -98,7 +98,7 @@ public abstract class FilePluginPrims {
       return file.getFile().length();
     }
   }
-  
+
   @GenerateNodeFactory
   @NodeChildren({
     @NodeChild(value = "receiver", type = ExpressionNode.class),
@@ -110,35 +110,35 @@ public abstract class FilePluginPrims {
   @Primitive(klass = "StandardFileStream", selector = "primRead:into:startingAt:count:", eagerSpecializable = false)
   @ImportStatic(ArrayType.class)
   public abstract static class ReadIntoFilePrim extends ExpressionWithTagsNode {
-    public ReadIntoFilePrim(final boolean eagWrap, SourceSection source) { 
-      super(source); 
+    public ReadIntoFilePrim(final boolean eagWrap, SourceSection source) {
+      super(source);
     }
-    
+
     private final ValueProfile storageType = ValueProfile.createClassProfile();
-    
+
     @Specialization(guards = {"isByteType(collection)"})
     public long doEmptyBytes(DynamicObject receiver, SFile file, SArray collection, long startingAt, long count) {
-      if (ArrayType.isEmptyType(collection)){
+      if (ArrayType.isEmptyType(collection)) {
         collection.transitionTo(ArrayType.BYTE, new byte[(int) count]);
       }
       byte[] buffer = collection.getByteStorage(storageType);
-      return read(file, buffer, (int)startingAt - 1, (int)count);
+      return read(file, buffer, (int) startingAt - 1, (int) count);
     }
-    
+
     @TruffleBoundary
     @Specialization(guards = {"!isByteType(collection)"})
     public long doEmpty(DynamicObject receiver, SFile file, SArray collection, long startingAt, long count) {
       byte[] buffer = new byte[(int) count];
-      long countRead = read(file, buffer, (int)startingAt - 1, (int)count);
+      long countRead = read(file, buffer, (int) startingAt - 1, (int) count);
       /*TODO: Workaround this so in case the read is in a subpart of the array we do not lose the rest*/
       collection.transitionTo(ArrayType.CHAR, (new String(buffer)).toCharArray());
       return countRead;
     }
-    
+
     @TruffleBoundary
-    private static long read(SFile file, byte[] buffer, int start, int count){
+    private static long read(SFile file, byte[] buffer, int start, int count) {
       try {
-        return (long) file.getInputStream().read(buffer, start, (int)count);
+        return (long) file.getInputStream().read(buffer, start, (int) count);
       } catch (IOException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -146,7 +146,7 @@ public abstract class FilePluginPrims {
       return 0;
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "StandardFileStream", selector = "primAtEnd:")
   public abstract static class AtEndFilePrim extends BinaryExpressionNode {

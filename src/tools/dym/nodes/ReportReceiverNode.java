@@ -11,8 +11,8 @@ public class ReportReceiverNode extends ExecutionEventNode {
 
   public ReportReceiverNode(final CallsiteProfile profile) {
     typeProfile = TypeProfileNodeGen.create(profile);
-    //Is this neccesary? Receivers are already profiled by the callsiteProfiles
-    //profile.setReceiverProfile(typeProfile);
+    // Is this neccesary? Receivers are already profiled by the callsiteProfiles
+    // profile.setReceiverProfile(typeProfile);
   }
 
   @Override

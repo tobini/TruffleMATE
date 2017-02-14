@@ -23,14 +23,14 @@ import com.oracle.truffle.api.source.SourceSection;
 public abstract class BlockPrims {
 
   public interface ValuePrimitiveNode {
-    void adoptNewDispatchListHead(final AbstractDispatchNode node);
+    void adoptNewDispatchListHead(AbstractDispatchNode node);
   }
 
   @GenerateNodeFactory
   @Primitive(klass = "Block", selector = "restart", eagerSpecializable = false)
   public abstract static class RestartPrim extends UnaryExpressionNode {
-    public RestartPrim(final boolean eagWrap, SourceSection source) { 
-      super(eagWrap, source); 
+    public RestartPrim(final boolean eagWrap, SourceSection source) {
+      super(eagWrap, source);
     }
 
     @Specialization
@@ -53,7 +53,7 @@ public abstract class BlockPrims {
     public ValueNonePrim(final boolean eagWrap) {
       super(eagWrap, Universe.emptySource.createUnavailableSection());
     }
-    
+
     public ValueNonePrim(final boolean eagerlyWrapped, SourceSection source) {
       super(eagerlyWrapped, source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
@@ -87,7 +87,7 @@ public abstract class BlockPrims {
         return NodeCost.MEGAMORPHIC;
       }
     }
-    
+
     @Override
     protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpClosureApplication.class) {
@@ -107,7 +107,7 @@ public abstract class BlockPrims {
     public ValueOnePrim(final boolean eagWrap) {
       this(eagWrap, null);
     }
-    
+
     public ValueOnePrim(final boolean eagWrap, SourceSection source) {
       super(eagWrap, source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
@@ -137,7 +137,7 @@ public abstract class BlockPrims {
         return NodeCost.MEGAMORPHIC;
       }
     }
-    
+
     @Override
     protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpClosureApplication.class) {
@@ -147,7 +147,7 @@ public abstract class BlockPrims {
       }
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "Block3", selector = "value:with:",
       receiverType = {SBlock.class})
@@ -158,7 +158,7 @@ public abstract class BlockPrims {
     public ValueTwoPrim(final boolean eagerlyWrapped) {
       this(eagerlyWrapped, null);
     }
-    
+
     public ValueTwoPrim(final boolean eagerlyWrapped, SourceSection source) {
       super(eagerlyWrapped, source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
@@ -188,7 +188,7 @@ public abstract class BlockPrims {
         return NodeCost.MEGAMORPHIC;
       }
     }
-    
+
     @Override
     protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpClosureApplication.class) {
@@ -198,7 +198,7 @@ public abstract class BlockPrims {
       }
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "Block4", selector = "value:with:with:",
   receiverType = {SBlock.class})
@@ -209,7 +209,7 @@ public abstract class BlockPrims {
     public ValueThreePrim(final boolean eagerlyWrapped) {
       this(eagerlyWrapped, null);
     }
-    
+
     public ValueThreePrim(final boolean eagerlyWrapped, SourceSection source) {
       super(eagerlyWrapped, source);
       dispatchNode = new UninitializedValuePrimDispatchNode(this.sourceSection);
@@ -239,7 +239,7 @@ public abstract class BlockPrims {
         return NodeCost.MEGAMORPHIC;
       }
     }
-    
+
     @Override
     protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
       if (tag == OpClosureApplication.class) {

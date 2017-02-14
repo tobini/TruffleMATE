@@ -17,15 +17,13 @@ import com.oracle.truffle.tck.TruffleTCK;
 
 
 public class TruffleMateTCK extends TruffleTCK {
-  
+
   @Override
   protected PolyglotEngine prepareVM(final PolyglotEngine.Builder preparedBuilder) throws Exception {
     preparedBuilder.config(SomLanguage.MIME_TYPE, SomLanguage.CMD_ARGS, new String [] {"-cp", "Smalltalk:TestSuite/TruffleTCK:"});
-    //preparedBuilder.config(SomLanguage.MIME_TYPE, SomLanguage.AVOID_EXIT, true);
-    //preparedBuilder.config(SomLanguage.MIME_TYPE, SomLanguage.CMD_ARGS, arguments);
-    
-    
-    //String fname = vm.resolveClassFilePath("TruffleMateTCK");  
+    // preparedBuilder.config(SomLanguage.MIME_TYPE, SomLanguage.AVOID_EXIT, true);
+    // preparedBuilder.config(SomLanguage.MIME_TYPE, SomLanguage.CMD_ARGS, arguments);
+    // String fname = vm.resolveClassFilePath("TruffleMateTCK");  
     URL filepath = getClass().getResource("TruffleMateTCK.som");
     Source source = Source.newBuilder(new File(filepath.getPath())).mimeType(
         mimeType()).name("TruffleMateTCK").build();
@@ -35,7 +33,7 @@ public class TruffleMateTCK extends TruffleTCK {
     SClass.initialize(klass);
     return engine;
   }
-  
+
   @Override
   protected String mimeType() {
     return SomLanguage.MIME_TYPE;
@@ -60,22 +58,22 @@ public class TruffleMateTCK extends TruffleTCK {
   protected String countInvocations() {
     return "countInvocation";
   }
-  
+
   @Override
   protected String identity() {
     return "identity:";
   }
-  
+
   @Override
   protected String invalidCode() {
     return "this.foo() is more javaish than Smalltalk";
   }
-  
+
   @Override
   protected String plusInt() {
     return "sum:and:";
   }
-  
+
   @Override
   protected String compoundObject() {
     return "compoundObject";
@@ -105,12 +103,12 @@ public class TruffleMateTCK extends TruffleTCK {
   protected String complexAdd() {
     return "complexAdd";
   }
-  
+
   @Override
   protected String complexAddWithMethod() {
     return "complexAddWithMethod";
   }
-  
+
   @Override
   @Test
   @Ignore("todo: remove override")

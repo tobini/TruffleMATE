@@ -16,16 +16,16 @@ import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 @GenerateNodeFactory
 @ImportStatic(ArrayType.class)
-@Primitive(klass = "String", selector = "length", 
+@Primitive(klass = "String", selector = "length",
            receiverType = {String.class, Array.class})
-@Primitive(klass = "Array", selector = "length", 
+@Primitive(klass = "Array", selector = "length",
            eagerSpecializable = false)
 public abstract class LengthPrim extends UnaryExpressionNode {
 
-  public LengthPrim(final boolean eagerlyWrapped, final SourceSection source) { 
-    super(eagerlyWrapped, source); 
+  public LengthPrim(final boolean eagerlyWrapped, final SourceSection source) {
+    super(eagerlyWrapped, source);
   }
-  
+
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 
   @Specialization(guards = "isEmptyType(receiver)")
@@ -57,17 +57,17 @@ public abstract class LengthPrim extends UnaryExpressionNode {
   public final long doBooleanSArray(final SArray receiver) {
     return receiver.getBooleanStorage(storageType).length;
   }
-  
+
   @Specialization(guards = "isByteType(receiver)")
   public final long doByteSArray(final SArray receiver) {
     return receiver.getByteStorage(storageType).length;
   }
-  
+
   @Specialization(guards = "isCharType(receiver)")
   public final long doCharSArray(final SArray receiver) {
     return receiver.getCharStorage(storageType).length;
   }
-  
+
   public abstract long executeEvaluated(SArray receiver);
 
   @Specialization
@@ -79,7 +79,7 @@ public abstract class LengthPrim extends UnaryExpressionNode {
   public final long doSSymbol(final SSymbol receiver) {
     return receiver.getString().length();
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == OpLength.class || tag == BasicPrimitiveOperation.class) {

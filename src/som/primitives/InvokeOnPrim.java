@@ -32,7 +32,7 @@ import com.oracle.truffle.api.source.SourceSection;
 public abstract class InvokeOnPrim extends ExpressionWithTagsNode
   implements PreevaluatedExpression {
   @Child private InvokeOnCache callNode;
-  
+
   public abstract ExpressionNode getReceiver();
   public abstract ExpressionNode getTarget();
   public abstract ExpressionNode getSomArr();
@@ -42,9 +42,9 @@ public abstract class InvokeOnPrim extends ExpressionWithTagsNode
     super(source);
     callNode = InvokeOnCache.create();
   }
-  
-  public abstract Object executeEvaluated(final VirtualFrame frame,
-      final DynamicObject receiver, final Object target, final SArray somArr);
+
+  public abstract Object executeEvaluated(VirtualFrame frame,
+      DynamicObject receiver, Object target, SArray somArr);
 
   @Override
   public final Object doPreEvaluated(final VirtualFrame frame,
@@ -58,8 +58,8 @@ public abstract class InvokeOnPrim extends ExpressionWithTagsNode
       final Object[] argArr) {
     return callNode.executeDispatch(frame, receiver, argArr);
   }
-  
-  public Object[] evaluateArguments(final VirtualFrame frame){
+
+  public Object[] evaluateArguments(final VirtualFrame frame) {
     return this.getArgArr().executedEvaluated(this.getSomArr().executeGeneric(frame), this.getTarget().executeGeneric(frame));
   }
 }

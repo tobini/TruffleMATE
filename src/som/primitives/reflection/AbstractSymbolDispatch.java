@@ -25,14 +25,14 @@ import com.oracle.truffle.api.source.SourceSection;
 
 public abstract class AbstractSymbolDispatch extends Node {
   public static final int INLINE_CACHE_SIZE = 6;
-  
+
   private final SourceSection sourceSection;
 
   protected AbstractSymbolDispatch(final SourceSection source) {
     super();
     this.sourceSection = source;
   }
-  
+
   @Override
   public final SourceSection getSourceSection() {
     return sourceSection;
@@ -54,7 +54,7 @@ public abstract class AbstractSymbolDispatch extends Node {
       final Object receiver, final SSymbol selector, final Object argsArr,
       @Cached("selector") final SSymbol cachedSelector,
       @Cached("createForPerformNodes(selector)") final AbstractMessageSendNode cachedSend) {
-    Object[] arguments = { receiver };
+    Object[] arguments = {receiver};
 
     PreevaluatedExpression realCachedSend = cachedSend;
     return realCachedSend.doPreEvaluated(frame, arguments);
@@ -79,14 +79,14 @@ public abstract class AbstractSymbolDispatch extends Node {
     DynamicObject invokable = SClass.lookupInvokable(Types.getClassOf(receiver), selector);
 
     /*Todo: Analyze what is the best to do here with the Mate arguments*/
-    Object[] arguments = { receiver };
+    Object[] arguments = {receiver};
     CallTarget target;
-    if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta){
+    if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta) {
       target = InvokableLayoutImpl.INSTANCE.getCallTargetMeta(invokable);
     } else {
       target = InvokableLayoutImpl.INSTANCE.getCallTarget(invokable);
     }
-    return call.call(frame, target, SArguments.createSArguments(SArguments.getEnvironment(frame), ExecutionLevel.Base, arguments));
+    return call.call(target, SArguments.createSArguments(SArguments.getEnvironment(frame), ExecutionLevel.Base, arguments));
   }
 
   @Specialization(contains = "doCached")
@@ -98,11 +98,11 @@ public abstract class AbstractSymbolDispatch extends Node {
 
     Object[] arguments = toArgArray.executedEvaluated(argsArr, receiver);
     CallTarget target;
-    if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta){
+    if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta) {
       target = InvokableLayoutImpl.INSTANCE.getCallTargetMeta(invokable);
     } else {
       target = InvokableLayoutImpl.INSTANCE.getCallTarget(invokable);
     }
-    return call.call(frame, target, SArguments.createSArguments(SArguments.getEnvironment(frame), ExecutionLevel.Base, arguments));
+    return call.call(target, SArguments.createSArguments(SArguments.getEnvironment(frame), ExecutionLevel.Base, arguments));
   }
 }

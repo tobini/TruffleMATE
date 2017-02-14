@@ -10,7 +10,7 @@ import com.oracle.truffle.api.instrumentation.ProbeNode;
 import com.oracle.truffle.api.nodes.NodeCost;
 
 /*I needed to implement a special wrapper for the superRead nodes because 
- * dispatching/specialization for super sends depend on the argument node being a ISuperReadNode*/ 
+ * dispatching/specialization for super sends depend on the argument node being a ISuperReadNode*/
 public final class SuperReadWrapperFactory implements
     InstrumentableFactory<ExpressionNode> {
 
@@ -19,20 +19,20 @@ public final class SuperReadWrapperFactory implements
       ExpressionNode delegateNode, ProbeNode probeNode) {
     return new SuperReadWrapper(delegateNode, probeNode);
   }
-  
+
   private static final class SuperReadWrapper extends ExpressionNode
       implements WrapperNode, ISuperReadNode {
-    
+
     @Child private ExpressionNode delegateNode;
     @Child private ProbeNode      probeNode;
 
-    public SuperReadWrapper(final ExpressionNode delegateNode,
+    SuperReadWrapper(final ExpressionNode delegateNode,
         final ProbeNode probeNode) {
       super(delegateNode.getSourceSection());
       this.delegateNode = delegateNode;
       this.probeNode = probeNode;
     }
-    
+
     @Override
     public ExpressionNode getDelegateNode() {
       return delegateNode;
@@ -49,12 +49,12 @@ public final class SuperReadWrapperFactory implements
     }
     @Override
     public SSymbol getHolderClass() {
-      return ((ISuperReadNode)getDelegateNode()).getHolderClass();
+      return ((ISuperReadNode) getDelegateNode()).getHolderClass();
     }
-  
+
     @Override
     public boolean isClassSide() {
-      return ((ISuperReadNode)getDelegateNode()).isClassSide();
+      return ((ISuperReadNode) getDelegateNode()).isClassSide();
     }
 
     @Override
@@ -62,5 +62,4 @@ public final class SuperReadWrapperFactory implements
       return getDelegateNode().executeGeneric(frame);
     }
   }
-
 }

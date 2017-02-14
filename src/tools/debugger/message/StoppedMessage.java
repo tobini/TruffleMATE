@@ -1,7 +1,5 @@
 package tools.debugger.message;
 
-import som.interpreter.actors.Actor;
-import som.primitives.threading.ThreadPrimitives.SomThread;
 import som.vm.NotYetImplementedException;
 import tools.debugger.frontend.Suspension;
 import tools.debugger.message.Message.OutgoingMessage;
@@ -57,15 +55,15 @@ public final class StoppedMessage extends OutgoingMessage {
     }
 
     ActivityType type;
-    if (suspension.getActivity() instanceof Actor) {
+    /*if (suspension.getActivity() instanceof Actor) {
       type = ActivityType.Actor;
     } else if (suspension.getActivity() instanceof SomThread) {
       type = ActivityType.Thread;
     } else {
       // need to support this type of activity first
       throw new NotYetImplementedException();
-    }
-
+    }*/
+    type = ActivityType.Thread;
     return new StoppedMessage(reason, suspension.activityId, type, ""); // TODO: look into additional details that can be provided as text
   }
 }

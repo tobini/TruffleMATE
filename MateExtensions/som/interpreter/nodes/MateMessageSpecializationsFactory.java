@@ -34,13 +34,13 @@ public class MateMessageSpecializationsFactory extends
   public EagerTernaryPrimitiveNode ternaryPrimitiveFor(SSymbol selector,
       ExpressionNode receiver, ExpressionNode argument,
       ExpressionNode argument2, TernaryExpressionNode primitive) {
-    return new MateEagerTernaryPrimitiveNode(selector, receiver, argument, argument2, primitive);    
+    return new MateEagerTernaryPrimitiveNode(selector, receiver, argument, argument2, primitive);
   }
-  
+
   @Override
   public EagerQuaternaryPrimitiveNode quaternaryPrimitiveFor(SSymbol selector,
       ExpressionNode receiver, ExpressionNode argument,
       ExpressionNode argument2, ExpressionNode argument3, QuaternaryExpressionNode primitive) {
-    return new MateEagerQuaternaryPrimitiveNode(selector, receiver, argument, argument2, argument3, primitive);    
+    return new MateEagerQuaternaryPrimitiveNode(selector, receiver, argument, argument2, argument3, primitive);
   }
 }

@@ -29,14 +29,14 @@ public class EagerTernaryPrimitiveNode extends EagerPrimitive {
     this.argument1 = argument1;
     this.argument2 = argument2;
     this.primitive = primitive;
-    this.adoptChildren();
+    // this.adoptChildren();
   }
 
-  public ExpressionNode getReceiver(){return receiver;}
-  protected ExpressionNode getFirstArg(){return argument1;}
-  protected ExpressionNode getSecondArg(){return argument2;}
-  protected TernaryExpressionNode getPrimitive(){return primitive;}
-  
+  public ExpressionNode getReceiver() { return receiver; }
+  protected ExpressionNode getFirstArg() { return argument1; }
+  protected ExpressionNode getSecondArg() { return argument2; }
+  protected TernaryExpressionNode getPrimitive() { return primitive; }
+
   @Override
   public Object executeGenericWithReceiver(final VirtualFrame frame, Object receiver) {
     Object arg1 = argument1.executeGeneric(frame);
@@ -62,11 +62,11 @@ public class EagerTernaryPrimitiveNode extends EagerPrimitive {
         getSourceSection());
     return replace(node);
   }
-  
+
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     assert !(primitive instanceof WrapperNode);
-    boolean result = super.isTaggedWith(tag)? super.isTaggedWith(tag) : primitive.isTaggedWith(tag); 
+    boolean result = super.isTaggedWith(tag) ? super.isTaggedWith(tag) : primitive.isTaggedWith(tag);
     return result;
   }
 
@@ -74,7 +74,7 @@ public class EagerTernaryPrimitiveNode extends EagerPrimitive {
   public Object doPreEvaluated(VirtualFrame frame, Object[] args) {
     return executeEvaluated(frame, args[0], args[1], args[2]);
   }
-  
+
   @Override
   protected void setTags(final byte tagMark) {
     primitive.tagMark = tagMark;

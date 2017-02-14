@@ -1,55 +1,47 @@
 package tools.debugger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
-import org.java_websocket.WebSocket;
-import org.java_websocket.handshake.ClientHandshake;
-import org.java_websocket.server.WebSocketServer;
-
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
-import com.oracle.truffle.api.RootCallTarget;
-import com.oracle.truffle.api.debug.Breakpoint;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.oracle.truffle.api.debug.Debugger;
-import com.oracle.truffle.api.debug.ExecutionEvent;
+import com.oracle.truffle.api.debug.SuspendedCallback;
 import com.oracle.truffle.api.debug.SuspendedEvent;
-import com.oracle.truffle.api.frame.FrameInstance;
-import com.oracle.truffle.api.frame.FrameSlot;
-import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.instrumentation.Instrumenter;
 import com.oracle.truffle.api.instrumentation.TruffleInstrument;
 import com.oracle.truffle.api.instrumentation.TruffleInstrument.Registration;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.oracle.truffle.api.source.LineLocation;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
-import com.oracle.truffle.api.utilities.JSONHelper;
-import com.oracle.truffle.api.utilities.JSONHelper.JSONArrayBuilder;
-import com.oracle.truffle.api.utilities.JSONHelper.JSONObjectBuilder;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 
-import som.vm.NotYetImplementedException;
-import tools.Tagging;
-import tools.highlight.JsonWriter;
-import tools.highlight.Tags;
+import tools.debugger.frontend.Suspension;
+import tools.debugger.message.InitialBreakpointsMessage;
+import tools.debugger.message.Message.IncommingMessage;
+import tools.debugger.message.Message.OutgoingMessage;
+import tools.debugger.message.ScopesRequest;
+import tools.debugger.message.ScopesResponse;
+import tools.debugger.message.SourceMessage;
+import tools.debugger.message.StackTraceRequest;
+import tools.debugger.message.StackTraceResponse;
+import tools.debugger.message.StepMessage.Resume;
+import tools.debugger.message.StepMessage.Return;
+import tools.debugger.message.StepMessage.StepInto;
+import tools.debugger.message.StepMessage.StepOver;
+import tools.debugger.message.StepMessage.Stop;
+import tools.debugger.message.StoppedMessage;
+import tools.debugger.message.SuspendedEventMessage;
+import tools.debugger.message.SymbolMessage;
+import tools.debugger.message.UpdateBreakpoint;
+import tools.debugger.message.VariablesRequest;
+import tools.debugger.message.VariablesResponse;
+import tools.debugger.session.BreakpointInfo;
+import tools.debugger.session.Breakpoints;
+import tools.debugger.session.LineBreakpoint;
+import tools.debugger.session.MessageReceiverBreakpoint;
+import tools.debugger.session.MessageSenderBreakpoint;
 
 
 /**
@@ -57,99 +49,39 @@ import tools.highlight.Tags;
  * application using WebSockets and JSON.
  */
 @Registration(id = WebDebugger.ID)
-public class WebDebugger extends TruffleInstrument {
+public class WebDebugger extends TruffleInstrument implements SuspendedCallback {
 
   public static final String ID = "web-debugger";
 
-  private HttpServer httpServer;
-  private WebSocketHandler webSocketServer;
-  private Future<WebSocket> clientConnected;
+  private FrontendConnector connector;
+  private Instrumenter      instrumenter;
+  private Breakpoints       breakpoints;
+  private boolean debuggerProtocol;
 
-  private static Instrumenter instrumenter;
+  private final Map<Source, Map<SourceSection, Set<Class<? extends Tags>>>> loadedSourcesTags = new HashMap<>();
+  private final Map<Source, Set<RootNode>> rootNodes = new HashMap<>();
 
-  private static final Map<Source, Map<SourceSection, Set<Class<? extends Tags>>>> loadedSourcesTags = new HashMap<>();
+  private int nextActivityId = 0;
+  private final Map<Object, Suspension> activityToSuspension = new HashMap<>();
+  private final Map<Integer, Suspension> idToSuspension = new HashMap<>();
 
-  private static int nextSourceId = 0;
-  private static int nextSourceSectionId = 0;
-
-  private static final Map<Source, String> sourcesId = new HashMap<>();
-  private static final Map<String, Source> idSources = new HashMap<>();
-  private static final Map<SourceSection, String> sourceSectionId = new HashMap<>();
-  private static final Map<Source, Set<RootNode>> rootNodes = new HashMap<>();
-
-  private static WebDebugger debugger;
-  private static WebSocket client;
-  private static Debugger truffleDebugger;
-
-  public WebDebugger() {
-    debugger = this;
+  public void useDebuggerProtocol(final boolean debuggerProtocol) {
+    this.debuggerProtocol = debuggerProtocol;
   }
 
-  public static void reportSyntaxElement(final Class<? extends Tags> type,
+  public void reportSyntaxElement(final Class<? extends Tags> type,
       final SourceSection source) {
     Map<SourceSection, Set<Class<? extends Tags>>> sections = loadedSourcesTags.computeIfAbsent(
         source.getSource(), s -> new HashMap<>());
     Set<Class<? extends Tags>> tags = sections.computeIfAbsent(source, s -> new HashSet<>(2));
     tags.add(type);
-
-    createSourceId(source.getSource());
-
-    createSourceSectionId(source);
   }
 
-  private static String createSourceId(final Source source) {
-    return sourcesId.computeIfAbsent(source, src -> {
-      int n = nextSourceId;
-      nextSourceId += 1;
-      String id = "s-" + n;
-      idSources.put(id, src);
-      return id;
-    });
+  public void reportLoadedSource(final Source source) {
+    connector.sendLoadedSource(source, loadedSourcesTags, rootNodes);
   }
 
-  private static String createSourceSectionId(final SourceSection source) {
-    return sourceSectionId.computeIfAbsent(source, s -> {
-      int n = nextSourceSectionId;
-      nextSourceSectionId += 1;
-      return "ss-" + n;
-    });
-  }
-
-  private static final ArrayList<Source> notReady = new ArrayList<>();
-
-  public static void reportLoadedSource(final Source source) {
-    if (debugger == null || debugger.webSocketServer == null || client == null) {
-      notReady.add(source);
-      return;
-    }
-
-    ensureConnectionIsAvailable();
-
-    if (!notReady.isEmpty()) {
-      for (Source s : notReady) {
-        String json = createSourceAndSectionMessage(s);
-        client.send(json);
-      }
-      notReady.clear();
-    }
-
-    String json = createSourceAndSectionMessage(source);
-    client.send(json);
-  }
-
-  private static void ensureConnectionIsAvailable() {
-    assert debugger != null;
-    assert debugger.webSocketServer != null;
-    assert client != null;
-
-    assert client.isOpen();
-  }
-
-  private static String createSourceAndSectionMessage(final Source source) {
-    return JsonWriter.createJson("source", loadedSourcesTags.get(source), sourcesId, sourceSectionId);
-  }
-
-  public static void reportRootNodeAfterParsing(final RootNode rootNode) {
+  public void reportRootNodeAfterParsing(final RootNode rootNode) {
     assert rootNode.getSourceSection() != null : "RootNode without source section";
     Set<RootNode> roots = rootNodes.computeIfAbsent(
         rootNode.getSourceSection().getSource(), s -> new HashSet<>());
@@ -157,305 +89,115 @@ public class WebDebugger extends TruffleInstrument {
     roots.add(rootNode);
   }
 
-  public static void reportExecutionEvent(final ExecutionEvent e) {
-    truffleDebugger = e.getDebugger();
-    // TODO: prepare step and continue???
+  synchronized SuspendedEvent getSuspendedEvent(final int activityId) {
+    Suspension suspension = idToSuspension.get(activityId);
+    assert suspension != null;
+    assert suspension.getEvent() != null;
+    return suspension.getEvent();
   }
 
-
-  private static int nextSuspendEventId = 0;
-  private static final Map<String, SuspendedEvent> suspendEvents  = new HashMap<>();
-  private static final Map<String, CompletableFuture<Object>> suspendFutures = new HashMap<>();
-
-
-  private static String getNextSuspendEventId() {
-    int id = nextSuspendEventId;
-    nextSuspendEventId += 1;
-    return "se-" + id;
+  Suspension getSuspension(final int activityId) {
+    return idToSuspension.get(activityId);
   }
 
-  private static JSONObjectBuilder createJsonForSourceSections(final Source source) {
-    Set<SourceSection> sections = new HashSet<>();
+  private synchronized Suspension getSuspension(final Object activity) {
+    Suspension suspension = activityToSuspension.get(activity);
+    if (suspension == null) {
+      int id = nextActivityId;
+      nextActivityId += 1;
+      suspension = new Suspension(activity, id);
 
-    Map<SourceSection, Set<Class<? extends Tags>>> tagsForSections = loadedSourcesTags.get(source);
-    Tagging.collectSourceSectionsAndTags(rootNodes.get(source), tagsForSections, instrumenter);
-
-    for (SourceSection section : tagsForSections.keySet()) {
-      if (section.getSource() == source) {
-        sections.add(section);
-        createSourceSectionId(section);
-      }
+      activityToSuspension.put(activity, suspension);
+      idToSuspension.put(id, suspension);
     }
-
-    return JsonWriter.createJsonForSourceSections(sourcesId, sourceSectionId, sections, tagsForSections);
+    return suspension;
   }
 
-  public static void reportSuspendedEvent(final SuspendedEvent e) {
-    Node     suspendedNode = e.getNode();
-    RootNode suspendedRoot = suspendedNode.getRootNode();
-    Source suspendedSource = suspendedRoot.getSourceSection().getSource();
-
-    JSONObjectBuilder builder  = JSONHelper.object();
-    builder.add("type", "suspendEvent");
-
-    // first add the source info, because this builds up also tag info
-    builder.add("sourceId", sourcesId.get(suspendedSource));
-    builder.add("sections", createJsonForSourceSections(suspendedSource));
-
-    JSONArrayBuilder stackJson = JSONHelper.array();
-    List<FrameInstance> stack = e.getStack();
-
-
-    for (int stackIndex = 0; stackIndex < stack.size(); stackIndex++) {
-      final Node callNode = stackIndex == 0 ? suspendedNode : stack.get(stackIndex).getCallNode();
-      stackJson.add(createFrame(callNode, stack.get(stackIndex)));
-    }
-    builder.add("stack", stackJson);
-
-    builder.add("topFrame", createTopFrameJson(e.getFrame(), suspendedRoot));
-
-    String id = getNextSuspendEventId();
-    builder.add("id", id);
-
-    CompletableFuture<Object> future = new CompletableFuture<>();
-    suspendEvents.put(id, e);
-    suspendFutures.put(id, future);
-
-    ensureConnectionIsAvailable();
-
-    client.send(builder.toString());
-
-    try {
-      future.get();
-    } catch (InterruptedException | ExecutionException e1) {
-      log("[DEBUGGER] Future failed:");
-      e1.printStackTrace();
-    }
+  private Suspension getSuspension() {
+    return getSuspension(Thread.currentThread());
   }
 
-  private static void log(final String str) {
+  @Override
+  public void onSuspend(final SuspendedEvent e) {
+    Suspension suspension = getSuspension();
+    suspension.update(e);
+
+    if (debuggerProtocol) {
+      connector.sendStoppedMessage(suspension);
+    } else {
+      connector.sendSuspendedEvent(suspension);
+    }
+    suspension.suspend();
+  }
+
+  /*public void suspendExecution(final MaterializedFrame haltedFrame,
+      final SteppingLocation steppingLocation) {
+    breakpoints.doSuspend(haltedFrame, steppingLocation);
+  }*/
+
+  public static void log(final String str) {
     // Checkstyle: stop
     System.out.println(str);
     // Checkstyle: resume
   }
 
-  private static JSONObjectBuilder createTopFrameJson(final MaterializedFrame frame, final RootNode root) {
-    JSONArrayBuilder arguments = JSONHelper.array();
-    for (Object o : frame.getArguments()) {
-      arguments.add(o.toString());
-    }
-
-    JSONObjectBuilder slots = JSONHelper.object();
-    for (FrameSlot slot : root.getFrameDescriptor().getSlots()) {
-      Object value = frame.getValue(slot);
-      slots.add(slot.getIdentifier().toString(),
-          Objects.toString(value));
-    }
-
-    JSONObjectBuilder frameJson = JSONHelper.object();
-    frameJson.add("arguments", arguments);
-    frameJson.add("slots", slots);
-    return frameJson;
+  @Override
+  protected void onDispose(final Env env) {
+    connector.shutdown();
   }
-
-  private static JSONObjectBuilder createFrame(final Node node, final FrameInstance stackFrame) {
-    JSONObjectBuilder frame = JSONHelper.object();
-    if (node != null) {
-      SourceSection section = node.getEncapsulatingSourceSection();
-      if (section != null) {
-        Map<SourceSection, Set<Class<? extends Tags>>> tagsForSections = loadedSourcesTags.get(section.getSource());
-        frame.add("sourceSection", JsonWriter.sectionToJson(
-            section, createSourceSectionId(section), sourcesId,
-            (tagsForSections == null) ? null : tagsForSections.get(section)));
-      }
-    }
-
-    RootCallTarget rct = (RootCallTarget) stackFrame.getCallTarget();
-    SourceSection rootSource = rct.getRootNode().getSourceSection();
-    String methodName;
-    if (rootSource != null) {
-      methodName = rootSource.getShortDescription();
-    } else {
-      methodName = rct.toString();
-    }
-    frame.add("methodName", methodName);
-
-    // TODO: stack frame content, or on demand?
-    // stackFrame.getFrame(FrameAccess.READ_ONLY, true);
-    return frame;
-}
 
   @Override
   protected void onCreate(final Env env) {
     instrumenter = env.getInstrumenter();
-
-    // Checkstyle: stop
-    try {
-      System.out.println("[DEBUGGER] Initialize HTTP and WebSocket Server for Debugger");
-      int port = 8889;
-      initializeWebSocket(8889);
-      System.out.println("[DEBUGGER] Started WebSocket Server");
-
-      port = 8888;
-      initializeHttpServer(port);
-      System.out.println("[DEBUGGER] Started HTTP Server");
-      System.out.println("[DEBUGGER]   URL: http://localhost:" + port + "/index.html");
-    } catch (IOException e) {
-      e.printStackTrace();
-      System.out.println("Failed starting WebSocket and/or HTTP Server");
-    }
-
-    assert clientConnected != null;
-    System.out.println("[DEBUGGER] Waiting for debugger to connect.");
-    try {
-      client = clientConnected.get();
-//      System.out.println("SLEEEP");
-//      Thread.sleep(Long.MAX_VALUE);
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    System.out.println("[DEBUGGER] Debugger connected.");
-    // Checkstyle: resume
+    env.registerService(this);
   }
 
-  private void initializeHttpServer(final int port) throws IOException {
-    if (httpServer == null) {
-      InetSocketAddress address = new InetSocketAddress(port);
-      httpServer = HttpServer.create(address, 0);
-      httpServer.createContext("/", new WebHandler());
-      httpServer.setExecutor(null);
-      httpServer.start();
-    }
+  public void startServer(final Debugger dbg) {
+    breakpoints = new Breakpoints(dbg, this);
+    connector = new FrontendConnector(breakpoints, instrumenter, this,
+        createJsonProcessor());
+    connector.awaitClient();
   }
 
-  private static class WebHandler implements HttpHandler {
-
-    @Override
-    public void handle(final HttpExchange exchange) throws IOException {
-      log("[REQ] " + exchange.getRequestURI().toString());
-      String rootFolder = "/Users/smarr/Projects/SOM/SOMns/tools";
-      String requestedFile = exchange.getRequestURI().toString();
-      if (requestedFile.equals("/")) {
-        requestedFile = "/index.html";
-      }
-
-      switch (requestedFile) {
-        case "/index.html":
-        case "/source.js":
-        case "/visualizations.js":
-          File f = new File(rootFolder + requestedFile);
-          exchange.sendResponseHeaders(200, f.length());
-          copy(f, exchange.getResponseBody());
-          return;
-        case "/favicon.ico":
-          exchange.sendResponseHeaders(404, 0);
-          exchange.close();
-          return;
-      }
-
-      log("[REQ] not yet implemented");
-      throw new NotYetImplementedException();
-    }
-
-    private static void copy(final File f, final OutputStream out) throws IOException {
-      byte[] buf = new byte[8192];
-
-      InputStream in = new FileInputStream(f);
-
-      int c = 0;
-      while ((c = in.read(buf, 0, buf.length)) > 0) {
-        out.write(buf, 0, c);
-//        out.flush();
-      }
-
-      out.close();
-      in.close();
-    }
+  public Breakpoints getBreakpoints() {
+    return breakpoints;
   }
 
-  private void initializeWebSocket(final int port) {
-    if (webSocketServer == null) {
-      clientConnected = new CompletableFuture<WebSocket>();
-      InetSocketAddress addess = new InetSocketAddress(port);
-      webSocketServer = new WebSocketHandler(
-          addess, (CompletableFuture<WebSocket>) clientConnected);
-      webSocketServer.start();
-    }
-  }
+  // TODO: to be removed
+  private static final String INITIAL_BREAKPOINTS = "initialBreakpoints";
+  private static final String UPDATE_BREAKPOINT   = "updateBreakpoint";
 
-  private static class WebSocketHandler extends WebSocketServer {
-    private static final int NUM_THREADS = 1;
+  public static Gson createJsonProcessor() {
+    ClassHierarchyAdapterFactory<OutgoingMessage> outMsgAF = new ClassHierarchyAdapterFactory<>(OutgoingMessage.class, "type");
+    outMsgAF.register("source",       SourceMessage.class);
+    outMsgAF.register("suspendEvent", SuspendedEventMessage.class);
+    outMsgAF.register("StoppedEvent", StoppedMessage.class);
+    outMsgAF.register("symbolMessage",      SymbolMessage.class);
+    outMsgAF.register("StackTraceResponse", StackTraceResponse.class);
+    outMsgAF.register("ScopesResponse",     ScopesResponse.class);
+    outMsgAF.register("VariablesResponse",  VariablesResponse.class);
 
-    private final CompletableFuture<WebSocket> clientConnected;
+    ClassHierarchyAdapterFactory<IncommingMessage> inMsgAF = new ClassHierarchyAdapterFactory<>(IncommingMessage.class, "action");
+    inMsgAF.register(INITIAL_BREAKPOINTS, InitialBreakpointsMessage.class);
+    inMsgAF.register(UPDATE_BREAKPOINT,   UpdateBreakpoint.class);
+    inMsgAF.register("stepInto", StepInto.class);
+    inMsgAF.register("stepOver", StepOver.class);
+    inMsgAF.register("return",   Return.class);
+    inMsgAF.register("resume",   Resume.class);
+    inMsgAF.register("stop",     Stop.class);
+    inMsgAF.register("StackTraceRequest", StackTraceRequest.class);
+    inMsgAF.register("ScopesRequest",     ScopesRequest.class);
+    inMsgAF.register("VariablesRequest",  VariablesRequest.class);
 
-    WebSocketHandler(final InetSocketAddress address,
-        final CompletableFuture<WebSocket> clientConnected) {
-      super(address, NUM_THREADS);
-      this.clientConnected = clientConnected;
-    }
+    ClassHierarchyAdapterFactory<BreakpointInfo> breakpointAF = new ClassHierarchyAdapterFactory<>(BreakpointInfo.class, "type");
+    breakpointAF.register(LineBreakpoint.class);
+    breakpointAF.register(MessageSenderBreakpoint.class);
+    breakpointAF.register(MessageReceiverBreakpoint.class);
 
-    @Override
-    public void onOpen(final WebSocket conn, final ClientHandshake handshake) {
-      clientConnected.complete(conn);
-    }
-
-    @Override
-    public void onClose(final WebSocket conn, final int code, final String reason,
-        final boolean remote) {
-      log("onClose: code=" + code + " " + reason);
-    }
-
-    @Override
-    public void onMessage(final WebSocket conn, final String message) {
-      JsonObject msg = Json.parse(message).asObject();
-
-      switch(msg.getString("action", null)) {
-        case "updateBreakpoint":
-          log("UPDATE BREAKPOINT");
-          String sourceId   = msg.getString("sourceId", null);
-          String sourceName = msg.getString("sourceName", null);
-          int lineNumber    = msg.getInt("line", -1);
-          boolean enabled   = msg.getBoolean("enabled", false);
-          log(sourceId + ":" + lineNumber + " " + enabled);
-
-          Source source = idSources.get(sourceId);
-          LineLocation line = source.createLineLocation(lineNumber);
-
-          assert truffleDebugger != null : "debugger has not be initialized yet";
-          Breakpoint bp = truffleDebugger.getBreakpoints().iterator().next();
-              //getBreakpoint(line);
-
-          if (enabled && bp == null) {
-            try {
-              log("SetLineBreakpoint line:" + line);
-              truffleDebugger.setLineBreakpoint(0, line, false);
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
-          } else if (bp != null) {
-            bp.setEnabled(enabled);
-          }
-          return;
-        case "stepInto":
-          String id = msg.getString("suspendEvent", null);
-          SuspendedEvent event = suspendEvents.get(id);
-          assert event != null : "didn't find SuspendEvent";
-          event.prepareStepInto(1);
-          suspendFutures.get(id).complete(new Object());
-          return;
-      }
-
-      log("not supported: onMessage: " + message);
-    }
-
-    @Override
-    public void onError(final WebSocket conn, final Exception ex) {
-      log("error:");
-      ex.printStackTrace();
-    }
+    return new GsonBuilder().
+        registerTypeAdapterFactory(outMsgAF).
+        registerTypeAdapterFactory(inMsgAF).
+        registerTypeAdapterFactory(breakpointAF).
+        create();
   }
 }

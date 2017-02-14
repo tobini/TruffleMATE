@@ -49,7 +49,7 @@ public abstract class ExpressionWithTagsNode extends ExpressionNode {
   public ExpressionWithTagsNode(final SourceSection sourceSection) {
     super(sourceSection);
   }
-  
+
   public ExpressionWithTagsNode(final ExpressionNode wrappedNode) {
     super(wrappedNode);
   }

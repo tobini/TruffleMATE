@@ -42,7 +42,7 @@ public abstract class ExpressionNode extends SOMNode {
   public ExpressionNode(final SourceSection sourceSection) {
     super(sourceSection);
   }
-  
+
   protected ExpressionNode(final ExpressionNode wrappedNode) {
     super(null);
   }
@@ -54,11 +54,11 @@ public abstract class ExpressionNode extends SOMNode {
   public void markAsVirtualInvokeReceiver() { throw new UnsupportedOperationException(); }
   public boolean isMarkedAsRootExpression() { throw new UnsupportedOperationException(); }
 
-  public abstract Object executeGeneric(final VirtualFrame frame);
-  
+  public abstract Object executeGeneric(VirtualFrame frame);
+
   @Override
   public ExpressionNode getFirstMethodBodyNode() { return this; }
-  
+
   public boolean executeBoolean(final VirtualFrame frame) throws UnexpectedResultException {
     return TypesGen.expectBoolean(executeGeneric(frame));
   }
@@ -74,7 +74,7 @@ public abstract class ExpressionNode extends SOMNode {
   public String executeString(final VirtualFrame frame) throws UnexpectedResultException {
     return TypesGen.expectString(executeGeneric(frame));
   }
-  
+
   public Character executeCharacter(final VirtualFrame frame) throws UnexpectedResultException {
     return TypesGen.expectCharacter(executeGeneric(frame));
   }
@@ -110,8 +110,8 @@ public abstract class ExpressionNode extends SOMNode {
   public Object[] executeArgumentArray(final VirtualFrame frame) throws UnexpectedResultException {
     return TypesGen.expectObjectArray(executeGeneric(frame));
   }
-  
-  public ReflectiveOp reflectiveOperation(){
+
+  public ReflectiveOp reflectiveOperation() {
     return ReflectiveOp.None;
   }
 }

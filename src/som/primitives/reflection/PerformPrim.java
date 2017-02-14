@@ -17,7 +17,7 @@ public abstract class PerformPrim extends BinaryExpressionNode {
 
   public PerformPrim(final boolean eagWrap, final SourceSection source) {
     super(false, source);
-    dispatch = AbstractSymbolDispatchNodeGen.create(source); 
+    dispatch = AbstractSymbolDispatchNodeGen.create(source);
   }
 
   @Specialization

@@ -39,11 +39,11 @@ public abstract class WhileCache extends BinaryExpressionNode {
          WhileWithDynamicBlocksNode whileNode) {
     return whileNode.doWhileUnconditionally(frame, loopCondition, loopBody);
   }
-  
-  protected static ExecutionLevel getExecutionLevel(final VirtualFrame frame){
+
+  protected static ExecutionLevel getExecutionLevel(final VirtualFrame frame) {
     return SArguments.getExecutionLevel(frame);
   }
-  
+
   private boolean obj2bool(final Object o) {
     if (o instanceof Boolean) {
       return (boolean) o;
@@ -75,7 +75,7 @@ public abstract class WhileCache extends BinaryExpressionNode {
     }
     return Nil.nilObject;
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == LoopNode.class) {

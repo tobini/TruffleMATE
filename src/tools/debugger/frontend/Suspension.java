@@ -7,8 +7,7 @@ import com.oracle.truffle.api.debug.DebugStackFrame;
 import com.oracle.truffle.api.debug.SuspendedEvent;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 
-import som.interpreter.LexicalScope.MethodScope;
-import som.interpreter.objectstorage.ObjectTransitionSafepoint;
+import som.interpreter.LexicalScope;
 import som.primitives.ObjectPrims.HaltPrim;
 import tools.debugger.FrontendConnector;
 import tools.debugger.frontend.ApplicationThreadTask.Resume;
@@ -47,7 +46,7 @@ public class Suspension {
   }
 
   public synchronized int addScope(final MaterializedFrame frame,
-      final MethodScope lexicalScope) {
+      final LexicalScope lexicalScope) {
     return stack.addScope(frame, lexicalScope);
   }
 
@@ -125,9 +124,6 @@ public class Suspension {
    * Suspend the current thread, and process tasks from the front-end.
    */
   public void suspend() {
-    // don't participate in safepoints while being suspended
-    ObjectTransitionSafepoint.INSTANCE.unregister();
-
     boolean continueWaiting = true;
     while (continueWaiting) {
       try {
@@ -138,8 +134,6 @@ public class Suspension {
       suspendedEvent = null;
       stack = null;
     }
-
-    ObjectTransitionSafepoint.INSTANCE.register();
   }
 
   public Object getActivity() { return activity; }

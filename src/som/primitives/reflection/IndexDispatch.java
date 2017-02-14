@@ -32,7 +32,7 @@ public abstract class IndexDispatch extends Node implements DispatchChain {
 
   private static final class UninitializedDispatchNode extends IndexDispatch {
 
-    public UninitializedDispatchNode(final int depth) {
+    UninitializedDispatchNode(final int depth) {
       super(depth);
     }
 
@@ -89,7 +89,7 @@ public abstract class IndexDispatch extends Node implements DispatchChain {
     // TODO: have a second cached class for the writing...
     @Child private IndexDispatch next;
 
-    public CachedReadDispatchNode(final DynamicObject clazz, final int index,
+    CachedReadDispatchNode(final DynamicObject clazz, final int index,
         final IndexDispatch next, final int depth) {
       super(depth);
       assert SClass.isSClass(clazz);
@@ -126,7 +126,7 @@ public abstract class IndexDispatch extends Node implements DispatchChain {
     @Child private WriteFieldNode access;
     @Child private IndexDispatch next;
 
-    public CachedWriteDispatchNode(final DynamicObject clazz, final int index,
+    CachedWriteDispatchNode(final DynamicObject clazz, final int index,
         final IndexDispatch next, final int depth) {
       super(depth);
       assert SClass.isSClass(clazz);
@@ -159,7 +159,7 @@ public abstract class IndexDispatch extends Node implements DispatchChain {
 
   private static final class GenericDispatchNode extends IndexDispatch {
 
-    public GenericDispatchNode() {
+    GenericDispatchNode() {
       super(0);
     }
 

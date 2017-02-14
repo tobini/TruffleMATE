@@ -22,16 +22,16 @@ import com.oracle.truffle.api.source.SourceSection;
 
 
 public final class SystemPrims {
-  public static final boolean receiverIsSystemObject(final DynamicObject receiver) {
+  public static boolean receiverIsSystemObject(final DynamicObject receiver) {
     return receiver == Globals.systemObject;
   }
 
   @GenerateNodeFactory
   public abstract static class BinarySystemNode extends BinaryExpressionNode {
     protected final Universe universe;
-    protected BinarySystemNode(final boolean eagWrap, final SourceSection source) { 
-      super(eagWrap, source); 
-      this.universe = Universe.getCurrent(); 
+    protected BinarySystemNode(final boolean eagWrap, final SourceSection source) {
+      super(eagWrap, source);
+      this.universe = Universe.getCurrent();
     }
   }
 
@@ -42,23 +42,23 @@ public final class SystemPrims {
       super(eagWrap, source);
     }
 
-    @Specialization(guards = "receiverIsSystemObject(receiver)", assumptions="cachedAssumption")
+    @Specialization(guards = "receiverIsSystemObject(receiver)", assumptions = "cachedAssumption")
     public final Object doSObject(final DynamicObject receiver, final SSymbol argument,
         @Cached("currentUniverse()") final Universe currentUniverse,
         @Cached("getAssumption(currentUniverse)") final Assumption cachedAssumption) {
       DynamicObject result = currentUniverse.loadClass(argument);
       return result != null ? result : Nil.nilObject;
     }
-    
+
     /*This may be the best to do for all system primitives since the universe may change.
      * It is mandatory for this primitive because the classpath changes, for instance, between test classes 
      */
-    public static Universe currentUniverse(){
+    public static Universe currentUniverse() {
       return Universe.getCurrent();
     }
-    
-    public static Assumption getAssumption(Universe uni){
-      return uni.getValidUniverseAssumption();
+
+    public static Assumption getAssumption(Universe universe) {
+      return universe.getValidUniverseAssumption();
     }
   }
 
@@ -81,7 +81,7 @@ public final class SystemPrims {
   @Primitive(klass = "System", selector = "global:put:", eagerSpecializable = false)
   public abstract static class GlobalPutPrim extends TernaryExpressionNode {
     private final Universe universe;
-    public GlobalPutPrim(final boolean eagWrap, final SourceSection source)  { 
+    public GlobalPutPrim(final boolean eagWrap, final SourceSection source) {
       super(false, source);
       this.universe = Universe.getCurrent();
     }
@@ -194,7 +194,7 @@ public final class SystemPrims {
       return doString(obj, method, name.getString());
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "System Class", selector = "current", eagerSpecializable = false)
   public abstract static class CurrentInstancePrim extends UnaryExpressionNode {
@@ -204,11 +204,11 @@ public final class SystemPrims {
 
     @Specialization
     public final DynamicObject doSObject(final DynamicObject receiver) {
-      assert(SClass.getName(receiver).equals("system"));
+      assert (SClass.getName(receiver).equals("system"));
       return Universe.getCurrent().getSystemObject();
     }
   }
-  
+
   {
     startMicroTime = System.nanoTime() / 1000L;
     startTime = startMicroTime / 1000L;

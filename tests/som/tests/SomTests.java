@@ -81,12 +81,12 @@ public class SomTests {
     vm.execute();
     assertEquals(0, vm.lastExitCode());
   }
-  
-  protected String[] getArguments(){
+
+  protected String[] getArguments() {
     String[] arg = {
-        "-cp", 
-        "Smalltalk:TestSuite:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:TestSuite/FileSystem", 
-        "TestHarness", 
+        "-cp",
+        "Smalltalk:TestSuite:Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:TestSuite/FileSystem",
+        "TestHarness",
         testName};
     return arg;
   }

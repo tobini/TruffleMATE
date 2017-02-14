@@ -1,5 +1,7 @@
 package som.interpreter;
 
+import som.compiler.Variable;
+
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -9,6 +11,12 @@ public final class LexicalScope {
   private final FrameDescriptor frameDescriptor;
   private final LexicalScope    outerScope;
   @CompilationFinal private Method method;
+
+  /**
+   * All arguments, local and internal variables used in a method.
+   */
+  @CompilationFinal
+  private Variable[] variables;
 
   public LexicalScope(final FrameDescriptor frameDescriptor,
       final LexicalScope outerScope) {
@@ -51,5 +59,16 @@ public final class LexicalScope {
   @Override
   public String toString() {
     return "LexScp[" + frameDescriptor.toString() + "]";
+  }
+
+  public Variable[] getVariables() {
+    assert variables != null;
+    return variables;
+  }
+
+  public void setVariables(final Variable[] variables) {
+    assert variables != null : "variables are expected to be != null once set";
+    assert this.variables == null;
+    this.variables = variables;
   }
 }

@@ -26,7 +26,7 @@ import com.oracle.truffle.api.source.SourceSection;
 
 
 @GenerateNodeFactory
-@Primitive(klass = "Array", selector = "do:", 
+@Primitive(klass = "Array", selector = "do:",
            receiverType = SArray.class, disabled = true)
 @ImportStatic(ArrayType.class)
 public abstract class DoPrim extends BinaryExpressionNode
@@ -38,7 +38,7 @@ public abstract class DoPrim extends BinaryExpressionNode
     super(eagWrap, source);
     block = new UninitializedValuePrimDispatchNode(this.sourceSection);
   }
-  
+
   @Override
   public void adoptNewDispatchListHead(final AbstractDispatchNode node) {
     block = insert(node);
@@ -174,10 +174,10 @@ public abstract class DoPrim extends BinaryExpressionNode
     int length = storage.length;
     try {
       if (SArray.FIRST_IDX < length) {
-        execBlock(frame, block, (long)storage[SArray.FIRST_IDX]);
+        execBlock(frame, block, (long) storage[SArray.FIRST_IDX]);
       }
       for (long i = SArray.FIRST_IDX + 1; i < length; i++) {
-        execBlock(frame, block, (long)storage[(int) i]);
+        execBlock(frame, block, (long) storage[(int) i]);
       }
     } finally {
       if (CompilerDirectives.inInterpreter()) {
@@ -186,7 +186,7 @@ public abstract class DoPrim extends BinaryExpressionNode
     }
     return arr;
   }
-  
+
   @Specialization(guards = "isCharType(arr)")
   public final SArray doCharArray(final VirtualFrame frame,
       final SArray arr, final SBlock block) {

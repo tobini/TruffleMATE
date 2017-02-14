@@ -7,7 +7,7 @@ import som.vm.Universe;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public final class EmptyPrim extends UnaryExpressionNode {
-  
+
   private EmptyPrim(final ExpressionNode receiver) {
     super(false, null);
   }
@@ -18,7 +18,7 @@ public final class EmptyPrim extends UnaryExpressionNode {
   public Object executeGeneric(final VirtualFrame frame) {
     return executeEvaluated(frame, null);
   }
-  
+
   @Override
   public Object executeGenericWithReceiver(final VirtualFrame frame, final Object receiver) {
     return executeGeneric(frame);

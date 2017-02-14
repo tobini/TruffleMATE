@@ -16,7 +16,7 @@ public abstract class AbstractMessageSpecializationsFactory {
   public abstract EagerBinaryPrimitiveNode binaryPrimitiveFor(SSymbol selector, ExpressionNode receiver, ExpressionNode argument, BinaryExpressionNode primitive);
   public abstract EagerTernaryPrimitiveNode ternaryPrimitiveFor(SSymbol selector, ExpressionNode receiver, ExpressionNode argument, ExpressionNode argument2, TernaryExpressionNode primitive);
   public abstract EagerQuaternaryPrimitiveNode quaternaryPrimitiveFor(SSymbol selector, ExpressionNode receiver, ExpressionNode argument, ExpressionNode argument2, ExpressionNode argument3, QuaternaryExpressionNode primitive);
-  
+
   public static class SOMMessageSpecializationsFactory extends AbstractMessageSpecializationsFactory {
     @Override
     public EagerUnaryPrimitiveNode unaryPrimitiveFor(SSymbol selector,
@@ -35,14 +35,14 @@ public abstract class AbstractMessageSpecializationsFactory {
     public EagerTernaryPrimitiveNode ternaryPrimitiveFor(SSymbol selector,
         ExpressionNode receiver, ExpressionNode argument,
         ExpressionNode argument2, TernaryExpressionNode primitive) {
-      return new EagerTernaryPrimitiveNode(selector, receiver, argument, argument2, primitive);    
+      return new EagerTernaryPrimitiveNode(selector, receiver, argument, argument2, primitive);
     }
-    
+
     @Override
     public EagerQuaternaryPrimitiveNode quaternaryPrimitiveFor(SSymbol selector,
         ExpressionNode receiver, ExpressionNode argument,
         ExpressionNode argument2, ExpressionNode argument3, QuaternaryExpressionNode primitive) {
-      return new EagerQuaternaryPrimitiveNode(selector, receiver, argument, argument2, argument3, primitive);    
+      return new EagerQuaternaryPrimitiveNode(selector, receiver, argument, argument2, argument3, primitive);
     }
   }
 }

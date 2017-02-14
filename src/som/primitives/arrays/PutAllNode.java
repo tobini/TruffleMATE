@@ -30,7 +30,7 @@ import com.oracle.truffle.api.source.SourceSection;
 
 @GenerateNodeFactory
 @ImportStatic(ArrayType.class)
-@Primitive(klass= "Array", selector = "putAll:", disabled = true,
+@Primitive(klass = "Array", selector = "putAll:", disabled = true,
            extraChild = LengthPrimFactory.class)
 @NodeChild(value = "length", type = LengthPrim.class, executeWith = "receiver")
 public abstract class PutAllNode extends BinaryExpressionNode
@@ -41,17 +41,17 @@ public abstract class PutAllNode extends BinaryExpressionNode
     super(eagWrap, source);
     block = new UninitializedValuePrimDispatchNode(this.sourceSection);
   }
-  
+
   @Override
   public void adoptNewDispatchListHead(final AbstractDispatchNode node) {
     block = insert(node);
   }
 
-  protected final static boolean valueIsNil(final DynamicObject value) {
+  protected static final boolean valueIsNil(final DynamicObject value) {
     return value == Nil.nilObject;
   }
 
-  protected final static boolean valueOfNoOtherSpecialization(final Object value) {
+  protected static final boolean valueOfNoOtherSpecialization(final Object value) {
     return !(value instanceof Long)    &&
            !(value instanceof Double)  &&
            !(value instanceof Boolean) &&
@@ -106,7 +106,7 @@ public abstract class PutAllNode extends BinaryExpressionNode
     if (length <= 0) {
       return rcvr;
     }
-    //TODO: this version does not handle the case that a subsequent value is not of the expected type...
+    // TODO: this version does not handle the case that a subsequent value is not of the expected type...
     try {
       Object result = this.block.executeDispatch(frame, MateClasses.STANDARD_ENVIRONMENT, SArguments.getExecutionLevel(frame), new Object[] {block});
       if (result instanceof Long) {

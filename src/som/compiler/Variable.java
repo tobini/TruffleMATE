@@ -7,9 +7,11 @@ import static som.interpreter.SNodeFactory.createVariableWrite;
 import static som.interpreter.SNodeFactory.createThisContext;
 import static som.interpreter.TruffleCompiler.transferToInterpreterAndInvalidate;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
+import som.vm.Universe;
 import som.vmobjects.SSymbol;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.source.SourceSection;
 
@@ -38,8 +40,8 @@ public abstract class Variable {
     return isReadOutOfContext;
   }
 
-  public abstract ExpressionWithTagsNode getReadNode(final int contextLevel,
-      final SourceSection source);
+  public abstract ExpressionWithTagsNode getReadNode(int contextLevel,
+      SourceSection source);
 
   public final ExpressionWithTagsNode getSuperReadNode(final int contextLevel,
       final SSymbol holderClass, final boolean classSide,
@@ -50,10 +52,16 @@ public abstract class Variable {
     }
     return createSuperRead(contextLevel, holderClass, classSide, source);
   }
-  
+
   public final ExpressionWithTagsNode getThisContextNode(final SourceSection source) {
     return createThisContext(source);
   }
+
+  /** Access method for the debugger and tools. Not to be used in language. */
+  public abstract Object read(Frame frame);
+
+  /** Not meant to be shown in debugger or other tools. */
+  public boolean isInternal() { return false; }
 
   public static final class Argument extends Variable {
     public final int index;
@@ -76,6 +84,12 @@ public abstract class Variable {
         isReadOutOfContext = true;
       }
       return createArgumentRead(this, contextLevel, source);
+    }
+
+    @Override
+    public Object read(final Frame frame) {
+      Universe.callerNeedsToBeOptimized("Not to be used outside of tools");
+      return frame.getArguments()[index];
     }
   }
 
@@ -137,6 +151,12 @@ public abstract class Variable {
         isWrittenOutOfContext = true;
       }
       return createVariableWrite(this, contextLevel, valueExpr, source);
+    }
+
+    @Override
+    public Object read(final Frame frame) {
+      Universe.callerNeedsToBeOptimized("Not to be used outside of tools");
+      return frame.getValue(slot);
     }
   }
 }

@@ -53,7 +53,7 @@ public class BasicInterpreterTests {
         {"NonLocalReturn", "test3",  3, Long.class },
         {"NonLocalReturn", "test4", 42, Long.class },
         {"NonLocalReturn", "test5", 22, Long.class },
-        
+
         {"NonLocalVars", "writeDifferentTypes", 3.75, Double.class },
 
         {"Blocks", "arg1",  42, Long.class },
@@ -103,9 +103,9 @@ public class BasicInterpreterTests {
         {"BlockInlining", "testDeepDeepNestedFalse",                 43, Long.class },
 
         {"BlockInlining", "testToDoNestDoNestIfTrue",                 2, Long.class },
-        
+
         {"ObjectFieldAccess", "test",                                 4, Long.class },
-        
+
         {"LocalVarAccess", "test",                                    1, Long.class }
 
     });
@@ -133,7 +133,7 @@ public class BasicInterpreterTests {
       assertEquals(expected, actual);
       return;
     }
-    
+
     if (resultType == Double.class) {
       double expected = (double) expectedResult;
       double actual   = (double) actualResult;
@@ -164,7 +164,7 @@ public class BasicInterpreterTests {
     Object actualResult = vm.execute(testClass, testSelector);
     assertEqualsSOMValue(expectedResult, actualResult);
   }
-  
+
   protected String[] getVMArguments() {
     return new String[] {
         "-cp",

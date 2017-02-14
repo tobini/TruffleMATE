@@ -34,11 +34,11 @@ public class EagerQuaternaryPrimitiveNode extends EagerPrimitive {
     this.primitive = primitive;
   }
 
-  public ExpressionNode getReceiver(){return receiver;}
-  protected ExpressionNode getFirstArg(){return argument1;}
-  protected ExpressionNode getSecondArg(){return argument2;}
-  protected ExpressionNode getPrimitive(){return primitive;}
-  
+  public ExpressionNode getReceiver() { return receiver; }
+  protected ExpressionNode getFirstArg() { return argument1; }
+  protected ExpressionNode getSecondArg() { return argument2; }
+  protected ExpressionNode getPrimitive() { return primitive; }
+
   @Override
   public Object executeGenericWithReceiver(final VirtualFrame frame, Object receiver) {
     Object arg1 = argument1.executeGeneric(frame);
@@ -65,15 +65,15 @@ public class EagerQuaternaryPrimitiveNode extends EagerPrimitive {
         getSourceSection());
     return replace(node);
   }
-  
+
   public ExpressionNode getThirdArg() {
     return argument3;
   }
-  
+
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     assert !(primitive instanceof WrapperNode);
-    boolean result = super.isTaggedWith(tag)? super.isTaggedWith(tag) : primitive.isTaggedWith(tag); 
+    boolean result = super.isTaggedWith(tag) ? super.isTaggedWith(tag) : primitive.isTaggedWith(tag);
     return result;
   }
 
@@ -81,7 +81,7 @@ public class EagerQuaternaryPrimitiveNode extends EagerPrimitive {
   public Object doPreEvaluated(VirtualFrame frame, Object[] args) {
     return executeEvaluated(frame, args[0], args[1], args[2], args[3]);
   }
-  
+
   @Override
   protected void setTags(final byte tagMark) {
     primitive.tagMark = tagMark;

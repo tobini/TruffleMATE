@@ -6,6 +6,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInterface;
 
 public interface ExpressionWithReceiver extends NodeInterface {
-  public abstract ExpressionNode getReceiver();
-  public abstract Object executeGenericWithReceiver(final VirtualFrame frame, final Object receiver);
+  ExpressionNode getReceiver();
+  Object executeGenericWithReceiver(VirtualFrame frame, Object receiver);
 }

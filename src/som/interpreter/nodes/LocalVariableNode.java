@@ -5,9 +5,9 @@ import som.compiler.Variable.Local;
 import som.interpreter.SplitterForLexicallyEmbeddedCode;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.constants.Nil;
+import tools.debugger.Tags.LocalVariableTag;
 import tools.dym.Tags.LocalVarRead;
 import tools.dym.Tags.LocalVarWrite;
-import tools.highlight.Tags.LocalVariableTag;
 
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -32,7 +32,7 @@ public abstract class LocalVariableNode extends ExpressionWithTagsNode {
   public final Object getSlotIdentifier() {
     return slot.getIdentifier();
   }
-  
+
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     if (tag == LocalVariableTag.class) {
@@ -41,7 +41,7 @@ public abstract class LocalVariableNode extends ExpressionWithTagsNode {
       return super.isTaggedWith(tag);
     }
   }
-  
+
   public abstract static class LocalVariableReadNode extends LocalVariableNode {
 
     public LocalVariableReadNode(final Local variable,
@@ -94,8 +94,8 @@ public abstract class LocalVariableNode extends ExpressionWithTagsNode {
       return frame.getDouble(slot);
     }
 
-    @Specialization(guards = {"isObject(frame)"}, 
-        contains = {"doBoolean", "doLong", "doDouble"}, 
+    @Specialization(guards = {"isObject(frame)"},
+        contains = {"doBoolean", "doLong", "doDouble"},
         rewriteOn = {FrameSlotTypeException.class})
     public final Object doObject(final VirtualFrame frame) throws FrameSlotTypeException {
       return frame.getObject(slot);
@@ -104,12 +104,12 @@ public abstract class LocalVariableNode extends ExpressionWithTagsNode {
     protected final boolean isUninitialized(final VirtualFrame frame) {
       return slot.getKind() == FrameSlotKind.Illegal;
     }
-    
+
     @Override
     public Node asMateNode() {
       return new MateLocalVariableNode.MateLocalVariableReadNode(this);
     }
-    
+
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
       if (tag == LocalVarRead.class) {
@@ -210,12 +210,12 @@ public abstract class LocalVariableNode extends ExpressionWithTagsNode {
       CompilerAsserts.neverPartOfCompilation("replaceWithIndependentCopyForInlining");
       throw new RuntimeException("Should not be part of an uninitalized tree. And this should only be done with uninitialized trees.");
     }
-    
+
     @Override
     public Node asMateNode() {
       return new MateLocalVariableNode.MateLocalVariableWriteNode(this);
     }
-    
+
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
       if (tag == LocalVarWrite.class) {

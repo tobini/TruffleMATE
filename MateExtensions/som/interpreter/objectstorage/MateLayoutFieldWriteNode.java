@@ -12,7 +12,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 public final class MateLayoutFieldWriteNode extends WriteFieldNode {
   @Child private IntercessionHandling ih;
   @Child private WriteFieldNode write;
-  
+
   public MateLayoutFieldWriteNode(final WriteFieldNode node) {
     super(node.getFieldIndex());
     ih = IntercessionHandling.createForOperation(ReflectiveOp.LayoutWriteField);
@@ -22,7 +22,7 @@ public final class MateLayoutFieldWriteNode extends WriteFieldNode {
 
   public Object write(final VirtualFrame frame, final DynamicObject receiver, final Object value) {
     Object val = ih.doMateSemantics(frame, new Object[] {receiver, (long) this.getFieldIndex(), value});
-    if (val == null){
+    if (val == null) {
      val = write.executeWrite(receiver, value);
     }
     return val;
@@ -31,7 +31,7 @@ public final class MateLayoutFieldWriteNode extends WriteFieldNode {
   @Override
   public Object executeWrite(DynamicObject obj, Object value) {
     /*Should never enter here*/
-    assert(false);
+    assert (false);
     Universe.errorExit("Mate enters an unexpected method");
     return value;
   }

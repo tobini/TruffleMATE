@@ -25,21 +25,21 @@ import com.oracle.truffle.api.source.SourceSection;
 public abstract class IfMessageNode extends BinaryExpressionNode {
   protected final ConditionProfile condProf = ConditionProfile.createCountingProfile();
   private final boolean expected;
-  
+
   @GenerateNodeFactory
-  @Primitive(selector = "ifTrue:", 
+  @Primitive(selector = "ifTrue:",
              receiverType = Boolean.class, noWrapper = true)
   public abstract static class IfTrueMessageNode extends IfMessageNode {
     public IfTrueMessageNode(final boolean eagWrap, final SourceSection source) { super(eagWrap, source, true); assert !eagWrap; }
   }
 
   @GenerateNodeFactory
-  @Primitive(selector = "ifFalse:", 
+  @Primitive(selector = "ifFalse:",
              receiverType = Boolean.class, noWrapper = true)
   public abstract static class IfFalseMessageNode extends IfMessageNode {
     public IfFalseMessageNode(final boolean eagWrap, final SourceSection source) { super(eagWrap, source, false); assert !eagWrap; }
   }
-  
+
   protected IfMessageNode(final boolean eagWrap, final SourceSection source, final boolean expected) {
     super(false, source);
     this.expected = expected;
@@ -52,7 +52,7 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
   protected static IndirectCallNode createIndirect() {
     return Truffle.getRuntime().createIndirectCallNode();
   }
-  
+
   protected static ExecutionLevel executionLevel(VirtualFrame frame) {
     return SArguments.getExecutionLevel(frame);
   }
@@ -63,7 +63,7 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
       @Cached("arg.getMethod()") final DynamicObject method,
       @Cached("createDirect(method, executionLevel(frame))") final DirectCallNode callTarget) {
     if (condProf.profile(rcvr == expected)) {
-      return callTarget.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), arg});
+      return callTarget.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), arg});
     } else {
       return Nil.nilObject;
     }
@@ -74,7 +74,7 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
       final SBlock arg,
       @Cached("createIndirect()") final IndirectCallNode callNode) {
     if (condProf.profile(rcvr == expected)) {
-      return callNode.call(frame, SInvokable.getCallTarget(arg.getMethod(), executionLevel(frame)), new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), arg});
+      return callNode.call(SInvokable.getCallTarget(arg.getMethod(), executionLevel(frame)), new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), arg});
     } else {
       return Nil.nilObject;
     }
@@ -92,7 +92,7 @@ public abstract class IfMessageNode extends BinaryExpressionNode {
       return Nil.nilObject;
     }
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == ControlFlowCondition.class) {

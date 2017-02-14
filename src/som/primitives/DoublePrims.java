@@ -39,7 +39,7 @@ public abstract class DoublePrims  {
       return (long) receiver;
     }
   }
-  
+
   public static class IsDoubleClass extends Specializer<ExpressionNode> {
     public IsDoubleClass(final Primitive prim, final NodeFactory<ExpressionNode> fact) { super(prim, fact); }
 
@@ -50,7 +50,7 @@ public abstract class DoublePrims  {
   }
 
   @GenerateNodeFactory
-  @Primitive(klass = "Double Class", selector = "PositiveInfinity", 
+  @Primitive(klass = "Double Class", selector = "PositiveInfinity",
              noWrapper = true, specializer = IsDoubleClass.class)
   public abstract static class PositiveInfinityPrim extends UnaryExpressionNode {
     public PositiveInfinityPrim(final boolean eagWrap, SourceSection source) {
@@ -66,7 +66,7 @@ public abstract class DoublePrims  {
       return Double.POSITIVE_INFINITY;
     }
   }
-  
+
   @GenerateNodeFactory
   @Primitive(klass = "Double", selector = "floor", receiverType = Double.class)
   public abstract static class FloorPrim extends UnaryExpressionNode {

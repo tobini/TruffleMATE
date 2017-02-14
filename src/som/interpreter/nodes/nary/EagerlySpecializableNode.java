@@ -56,7 +56,6 @@ public abstract class EagerlySpecializableNode extends ExpressionWithTagsNode
   /**
    * Create an eager primitive wrapper, which wraps this node.
    */
-  public abstract EagerPrimitive wrapInEagerWrapper(
-      final EagerlySpecializableNode prim, final SSymbol selector,
-      final ExpressionNode[] arguments);
+  public abstract EagerPrimitive wrapInEagerWrapper(EagerlySpecializableNode prim,
+      SSymbol selector, ExpressionNode[] arguments);
 }

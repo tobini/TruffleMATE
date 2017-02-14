@@ -66,12 +66,12 @@ public abstract class ContextualNode extends ExpressionWithTagsNode {
     // so, we record explicitly a class profile
     return frameType.profile(self.getContext());
   }
-  
+
   @Override
   public abstract void replaceWithLexicallyEmbeddedNode(
-      final InlinerForLexicallyEmbeddedMethods inlinerForLexicallyEmbeddedMethods);
+      InlinerForLexicallyEmbeddedMethods inlinerForLexicallyEmbeddedMethods);
 
   @Override
   public abstract void replaceWithCopyAdaptedToEmbeddedOuterContext(
-      final InlinerAdaptToEmbeddedOuterContext inlinerAdaptToEmbeddedOuterContext);
+      InlinerAdaptToEmbeddedOuterContext inlinerAdaptToEmbeddedOuterContext);
 }

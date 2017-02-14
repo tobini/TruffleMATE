@@ -46,7 +46,7 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
       } else {
         callTarget = null;
       }
-      
+
       UninitializedDispatchNode newChainEnd = new UninitializedDispatchNode(this.sourceSection, selector);
       DispatchGuard guard = DispatchGuard.create(rcvr);
       AbstractCachedDispatchNode node;
@@ -71,7 +71,7 @@ public final class UninitializedDispatchNode extends AbstractDispatchNode {
   }
 
   @Override
-  public Object executeDispatch(final VirtualFrame frame, 
+  public Object executeDispatch(final VirtualFrame frame,
       final DynamicObject environment, final ExecutionLevel exLevel, final Object[] arguments) {
     transferToInterpreterAndInvalidate("Initialize a dispatch node.");
     return specialize(frame, arguments).

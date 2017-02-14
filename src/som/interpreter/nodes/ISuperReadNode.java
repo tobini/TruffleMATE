@@ -32,8 +32,8 @@ import som.vmobjects.SSymbol;
 public interface ISuperReadNode extends NodeInterface{
   SSymbol getHolderClass();
   boolean isClassSide();
-  
-  public default DynamicObject getLexicalSuperClass() {
+
+  default DynamicObject getLexicalSuperClass() {
     DynamicObject clazz = (DynamicObject) Universe.getCurrent().getGlobal(this.getHolderClass());
     if (this.isClassSide()) {
       clazz = SObject.getSOMClass(clazz);

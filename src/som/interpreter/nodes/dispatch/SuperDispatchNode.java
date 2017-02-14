@@ -80,12 +80,13 @@ public abstract class SuperDispatchNode extends AbstractDispatchNode {
     private CachedDispatchNode(final SourceSection source, final DirectCallNode superMethod) {
       super(source);
       this.cachedSuperMethod = superMethod;
+      this.adoptChildren();
     }
 
     @Override
     public Object executeDispatch(
         final VirtualFrame frame, final DynamicObject environment, final ExecutionLevel exLevel, final Object[] arguments) {
-      return cachedSuperMethod.call(frame, SArguments.createSArguments(environment, exLevel, arguments));
+      return cachedSuperMethod.call(SArguments.createSArguments(environment, exLevel, arguments));
     }
   }
 

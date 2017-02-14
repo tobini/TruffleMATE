@@ -17,24 +17,24 @@ public abstract class EagerPrimitive extends ExpressionWithTagsNode
     super(source);
     selector = sel;
   }
-  
+
   @Override
-  public Object executeGeneric(final VirtualFrame frame){
+  public Object executeGeneric(final VirtualFrame frame) {
     return executeGenericWithReceiver(frame, this.getReceiver().executeGeneric(frame));
   }
 
   protected abstract void setTags(byte tagMark);
-  
-  protected SSymbol getSelector(){
+
+  protected SSymbol getSelector() {
     return selector;
   }
-  
+
    @Override
   public String getOperation() {
     return selector.getString();
   }
-   
-  public ReflectiveOp reflectiveOperation(){
+
+  public ReflectiveOp reflectiveOperation() {
     return ReflectiveOp.MessageLookup;
   }
 }

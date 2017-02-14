@@ -48,10 +48,10 @@ public abstract class IntDownToDoMessageNode extends TernaryExpressionNode {
   public final long doIntDownToDo(final VirtualFrame frame, final long receiver, final long limit, final SBlock block) {
     try {
       if (receiver >= limit) {
-        valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
+        valueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, receiver});
       }
       for (long i = receiver - 1; i >= limit; i--) {
-        valueSend.call(frame, new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
+        valueSend.call(new Object[] {SArguments.getEnvironment(frame), SArguments.getExecutionLevel(frame), block, i});
       }
     } finally {
       if (CompilerDirectives.inInterpreter() && (receiver - limit) > 0) {
@@ -69,10 +69,10 @@ public abstract class IntDownToDoMessageNode extends TernaryExpressionNode {
   public final long doIntDownToDo(final VirtualFrame frame, final long receiver, final double limit, final SBlock block) {
     try {
       if (receiver >= limit) {
-        valueSend.call(frame, new Object[] {block, receiver});
+        valueSend.call(new Object[] {block, receiver});
       }
       for (long i = receiver - 1; i >= limit; i--) {
-        valueSend.call(frame, new Object[] {block, i});
+        valueSend.call(new Object[] {block, i});
       }
     } finally {
       if (CompilerDirectives.inInterpreter() && (receiver - (int) limit) > 0) {
@@ -92,13 +92,13 @@ public abstract class IntDownToDoMessageNode extends TernaryExpressionNode {
       ((Invokable) current).propagateLoopCountThroughoutLexicalScope(count);
     }
   }
-  
+
   @Override
-  public void wrapIntoMateNode(){
+  public void wrapIntoMateNode() {
     super.wrapIntoMateNode();
     Universe.getCurrent().mateifyMethod(blockMethod);
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == LoopNode.class) {

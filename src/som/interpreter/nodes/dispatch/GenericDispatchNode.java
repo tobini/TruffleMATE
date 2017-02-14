@@ -26,7 +26,7 @@ public final class GenericDispatchNode extends AbstractDispatchNode {
   }
 
   @Override
-  public Object executeDispatch(final VirtualFrame frame, 
+  public Object executeDispatch(final VirtualFrame frame,
       final DynamicObject environment, final ExecutionLevel exLevel, final Object[] arguments) {
     Object rcvr = arguments[0];
     DynamicObject rcvrClass = Types.getClassOf(rcvr);
@@ -44,7 +44,7 @@ public final class GenericDispatchNode extends AbstractDispatchNode {
       args = new Object[] {environment, exLevel, arguments[SArguments.RCVR_ARGUMENTS_OFFSET], selector, argumentsArray};
       target = CachedDnuNode.getDnuCallTarget(rcvrClass, exLevel);
     }
-    return call.call(frame, target, args);
+    return call.call(target, args);
   }
 
   @Override

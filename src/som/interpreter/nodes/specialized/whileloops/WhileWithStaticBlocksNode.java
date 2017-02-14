@@ -24,7 +24,7 @@ import com.oracle.truffle.api.source.SourceSection;
 public final class WhileWithStaticBlocksNode extends AbstractWhileNode {
   @Child protected BlockNode receiver;
   @Child protected BlockNode argument;
-  
+
   public abstract static class WhileSplzr extends Specializer<WhileWithStaticBlocksNode> {
     private final boolean whileTrueOrFalse;
     protected WhileSplzr(final Primitive prim,
@@ -50,10 +50,10 @@ public final class WhileWithStaticBlocksNode extends AbstractWhileNode {
       SBlock    argBlock     = (SBlock)    arguments[1];
       return new WhileWithStaticBlocksNode(
           (BlockNode) unwrapIfNecessary(argNodes[0]), argBlockNode,
-          (SBlock) arguments[0], argBlock, whileTrueOrFalse, section, (ExecutionLevel)arguments[0]);
+          (SBlock) arguments[0], argBlock, whileTrueOrFalse, section, (ExecutionLevel) arguments[0]);
     }
   }
-  
+
   public static final class WhileTrueSplzr extends WhileSplzr {
     public WhileTrueSplzr(final Primitive prim,
         final NodeFactory<WhileWithStaticBlocksNode> fact) { super(prim, fact, true); }
@@ -63,12 +63,12 @@ public final class WhileWithStaticBlocksNode extends AbstractWhileNode {
     public WhileFalseSplzr(final Primitive prim,
         final NodeFactory<WhileWithStaticBlocksNode> fact) { super(prim, fact, false); }
   }
-  
+
   @Override
-  public ExpressionNode getReceiver(){
+  public ExpressionNode getReceiver() {
     return receiver;
   }
-  
+
   private WhileWithStaticBlocksNode(final BlockNode receiver,
       final BlockNode argument, final SBlock rcvr, final SBlock arg,
       final boolean predicateBool, final SourceSection source, ExecutionLevel level) {
@@ -78,31 +78,31 @@ public final class WhileWithStaticBlocksNode extends AbstractWhileNode {
   }
 
   @Override
-  public final Object executeGeneric(final VirtualFrame frame) {
+  public Object executeGeneric(final VirtualFrame frame) {
     SBlock rcvr = receiver.executeSBlock(frame);
     return executeGenericWithReceiver(frame, rcvr);
   }
-  
+
   @Override
-  public final Object executeGenericWithReceiver(final VirtualFrame frame, final Object receiver) {
+  public Object executeGenericWithReceiver(final VirtualFrame frame, final Object receiver) {
     SBlock arg  = argument.executeSBlock(frame);
     return executeEvaluated(frame, receiver, arg);
   }
 
   @Override
-  protected final DynamicObject doWhileConditionally(final VirtualFrame frame,
+  protected DynamicObject doWhileConditionally(final VirtualFrame frame,
       final SBlock loopCondition,
       final SBlock loopBody) {
     return doWhileUnconditionally(frame, loopCondition, loopBody);
   }
-  
+
   public static final class WhileWithStaticBlocksNodeFactory implements NodeFactory<WhileWithStaticBlocksNode> {
 
     @Override
     public WhileWithStaticBlocksNode createNode(final Object... args) {
       return new WhileWithStaticBlocksNode((BlockNode) args[0],
           (BlockNode) args[1], (SBlock) args[2], (SBlock) args[3],
-          (Boolean) args[4], (SourceSection) args[5], (ExecutionLevel)args[6]);
+          (Boolean) args[4], (SourceSection) args[5], (ExecutionLevel) args[6]);
     }
 
     @Override

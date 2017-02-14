@@ -19,7 +19,7 @@ import com.oracle.truffle.api.source.SourceSection;
 public abstract class Invokable extends RootNode implements MateNode{
 
   @Child protected ExpressionNode expressionOrSequence;
-  
+
   protected final ExpressionNode uninitializedBody;
   @CompilationFinal protected DynamicObject belongsToMethod;
 
@@ -29,7 +29,7 @@ public abstract class Invokable extends RootNode implements MateNode{
       final ExpressionNode uninitialized,
       DynamicObject method) {
     super(SomLanguage.class, sourceSection, frameDescriptor);
-    if (Universe.getCurrent().vmReflectionEnabled()){
+    if (Universe.getCurrent().vmReflectionEnabled()) {
       this.uninitializedBody = this.mateifyUninitializedNode(uninitialized);
     } else {
       this.uninitializedBody = uninitialized;
@@ -43,7 +43,7 @@ public abstract class Invokable extends RootNode implements MateNode{
     return expressionOrSequence.executeGeneric(frame);
   }
 
-  public abstract Invokable cloneWithNewLexicalContext(final LexicalScope outerContext);
+  public abstract Invokable cloneWithNewLexicalContext(LexicalScope outerContext);
   public ExpressionNode inline(final MethodGenerationContext mgenc,
       final Local[] locals) {
     return InlinerForLexicallyEmbeddedMethods.doInline(uninitializedBody, mgenc,
@@ -54,42 +54,42 @@ public abstract class Invokable extends RootNode implements MateNode{
   public final boolean isCloningAllowed() {
     return true;
   }
-  
+
   @Override
   public ExecutionContext getExecutionContext() {
     return Universe.getCurrent();
   }
-  
+
   public DynamicObject getBelongsToMethod() {
-    return this.belongsToMethod; 
+    return this.belongsToMethod;
   }
-  
+
   public final RootCallTarget createCallTarget() {
     return Truffle.getRuntime().createCallTarget(this);
   }
 
-  public abstract void propagateLoopCountThroughoutLexicalScope(final long count);
-  
+  public abstract void propagateLoopCountThroughoutLexicalScope(long count);
+
   public void wrapIntoMateNode() {
-    if (this.asMateNode() != null) this.replace(this.asMateNode());
+    if (this.asMateNode() != null) { this.replace(this.asMateNode()); }
     /*if (!(this.expressionOrSequence instanceof MateReturnNode)){
       this.expressionOrSequence.replace(new MateReturnNode(this.expressionOrSequence));
       uninitializedBody.accept(new MateifyVisitor());
     }*/
   }
-  
-  private ExpressionNode mateifyUninitializedNode(ExpressionNode uninitialized){
+
+  private ExpressionNode mateifyUninitializedNode(ExpressionNode uninitialized) {
     ExpressionNode node = (ExpressionNode) uninitialized.asMateNode();
-    if (node != null){
+    if (node != null) {
       return node;
     }
     return uninitialized;
   }
-  
+
   public void setMethod(DynamicObject method) {
     this.belongsToMethod = method;
   }
-  
+
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     if (tag == RootTag.class) {

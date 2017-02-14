@@ -27,28 +27,27 @@ public abstract class AtPutPrim extends TernaryExpressionNode {
 
   private final ValueProfile storageType = ValueProfile.createClassProfile();
 
-  protected final static boolean valueIsNil(final Object value) {
+  protected static final boolean valueIsNil(final Object value) {
     return value == Nil.nilObject;
   }
 
-  protected final static boolean valueIsNotNil(final Object value) {
+  protected static final boolean valueIsNotNil(final Object value) {
     return value != Nil.nilObject;
   }
 
-  protected final static boolean valueIsNotLong(final Object value) {
+  protected static final boolean valueIsNotLong(final Object value) {
     return !(value instanceof Long);
   }
 
-  protected final static boolean valueIsNotDouble(final Object value) {
+  protected static final boolean valueIsNotDouble(final Object value) {
     return !(value instanceof Double);
   }
 
-  protected final static boolean valueIsNotBoolean(final Object value) {
+  protected static final boolean valueIsNotBoolean(final Object value) {
     return !(value instanceof Boolean);
   }
 
-
-  protected final static boolean valueNotLongDoubleBoolean(final Object value) {
+  protected static final boolean valueNotLongDoubleBoolean(final Object value) {
     return !(value instanceof Long) &&
         !(value instanceof Double) &&
         !(value instanceof Boolean);
@@ -263,15 +262,15 @@ public abstract class AtPutPrim extends TernaryExpressionNode {
     newStorage[(int) idx] = value;
     return value;
   }
-  
+
   @Specialization(guards = "isByteType(receiver)")
   public final Object doByteSArray(final SArray receiver, final long index,
       final long value) {
     long idx = index - 1;
-    receiver.getByteStorage(storageType)[(int) idx] = (byte)value;
+    receiver.getByteStorage(storageType)[(int) idx] = (byte) value;
     return value;
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == BasicPrimitiveOperation.class) {

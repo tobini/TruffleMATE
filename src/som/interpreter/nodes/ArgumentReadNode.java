@@ -10,9 +10,9 @@ import som.interpreter.nodes.nary.ExpressionWithTagsNode;
 import som.vm.Universe;
 import som.vm.constants.ExecutionLevel;
 import som.vmobjects.SSymbol;
+import tools.debugger.Tags.ArgumentTag;
+import tools.debugger.Tags.KeywordTag;
 import tools.dym.Tags.LocalArgRead;
-import tools.highlight.Tags.ArgumentTag;
-import tools.highlight.Tags.KeywordTag;
 
 import com.oracle.truffle.api.TruffleRuntime;
 import com.oracle.truffle.api.frame.Frame;
@@ -36,7 +36,7 @@ public abstract class ArgumentReadNode {
       assert argumentIndex >= 0;
       this.argumentIndex = argumentIndex;
     }
-    
+
     // For Wrapper use only
     protected LocalArgumentReadNode(final LocalArgumentReadNode wrappedNode) {
       super(wrappedNode);
@@ -47,22 +47,22 @@ public abstract class ArgumentReadNode {
     public Object executeGeneric(final VirtualFrame frame) {
       return SArguments.arg(frame, argumentIndex);
     }
-    
+
     @Override
     public void replaceWithLexicallyEmbeddedNode(
         final InlinerForLexicallyEmbeddedMethods inliner) {
       replace(inliner.getReplacementForLocalArgument(argumentIndex,
           getSourceSection()));
     }
-    
+
     @Override
     public Node asMateNode() {
       return new MateArgumentReadNode.MateLocalArgumentReadNode(this);
     }
-    
+
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
-      if (tag == KeywordTag.class && SArguments.RCVR_IDX == argumentIndex) {
+      if (tag == tools.debugger.Tags.KeywordTag.class && SArguments.RCVR_IDX == argumentIndex) {
         return true;
       } else if (tag == LocalArgRead.class || tag == ArgumentTag.class) {
         return true;
@@ -74,7 +74,7 @@ public abstract class ArgumentReadNode {
 
   public static class NonLocalArgumentReadNode extends ContextualNode {
     protected final int argumentIndex;
-    
+
     public NonLocalArgumentReadNode(final int argumentIndex,
         final int contextLevel, final SourceSection source) {
       super(contextLevel, source);
@@ -124,12 +124,12 @@ public abstract class ArgumentReadNode {
         return;
       }
     }
-    
+
     @Override
     public Node asMateNode() {
       return new MateArgumentReadNode.MateNonLocalArgumentReadNode(this);
     }
-    
+
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
       if (tag == KeywordTag.class && SArguments.RCVR_IDX == argumentIndex) {
@@ -165,12 +165,12 @@ public abstract class ArgumentReadNode {
     public boolean isClassSide() {
       return classSide;
     }
-    
+
     @Override
     public Node asMateNode() {
       return new MateArgumentReadNode.MateLocalSuperReadNode(this);
     }
-    
+
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
       if (tag == KeywordTag.class) {
@@ -216,12 +216,12 @@ public abstract class ArgumentReadNode {
     public boolean isClassSide() {
       return classSide;
     }
-    
+
     @Override
     public Node asMateNode() {
       return new MateArgumentReadNode.MateNonLocalSuperReadNode(this);
     }
-    
+
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
       if (tag == KeywordTag.class) {
@@ -231,7 +231,7 @@ public abstract class ArgumentReadNode {
       }
     }
   }
-  
+
   public static class ThisContextNode extends ExpressionWithTagsNode {
     public ThisContextNode(final SourceSection source) {
       super(source);
@@ -239,21 +239,21 @@ public abstract class ArgumentReadNode {
 
     @Override
     public FrameInstance executeGeneric(final VirtualFrame frame) {
-      TruffleRuntime runtime = ((Universe)((ExpressionNode)this).getRootNode().getExecutionContext()).getTruffleRuntime(); 
+      TruffleRuntime runtime = ((Universe) ((ExpressionNode) this).getRootNode().getExecutionContext()).getTruffleRuntime();
       FrameInstance currentFrame;
-      if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta){
+      if (SArguments.getExecutionLevel(frame) == ExecutionLevel.Meta) {
         currentFrame = runtime.iterateFrames(new MateVisitors.FindFirstBaseLevelFrame());
       } else {
         currentFrame = runtime.getCurrentFrame();
       }
-      final Frame materialized = currentFrame.getFrame(FrameAccess.MATERIALIZE, true);
-      if (materialized.getFrameDescriptor().findFrameSlot(Universe.frameOnStackSlotName()) == null){
+      final Frame materialized = currentFrame.getFrame(FrameAccess.MATERIALIZE);
+      if (materialized.getFrameDescriptor().findFrameSlot(Universe.frameOnStackSlotName()) == null) {
         FrameSlot frameOnStackMarker = materialized.getFrameDescriptor().addFrameSlot(Universe.frameOnStackSlotName(), FrameSlotKind.Object);
         materialized.setObject(frameOnStackMarker, new FrameOnStackMarker());
       }
       return currentFrame;
     }
-    
+
     @Override
     protected boolean isTaggedWith(final Class<?> tag) {
       if (tag == KeywordTag.class) {

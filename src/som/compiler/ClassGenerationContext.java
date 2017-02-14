@@ -125,19 +125,19 @@ public final class ClassGenerationContext {
     DynamicObject superClass = Universe.getCurrent().loadClass(superName);
 
     // Allocate the class of the resulting class
-    DynamicObject resultClass = SClass.createSClass(Classes.metaclassClass, objectMemory.symbolFor(ccname), SObject.getSOMClass(superClass), 
+    DynamicObject resultClass = SClass.createSClass(Classes.metaclassClass, objectMemory.symbolFor(ccname), SObject.getSOMClass(superClass),
         SArray.create(classFields.toArray(new Object[0])), SArray.create(classMethods.toArray(new Object[0])));
-    
+
     // Allocate the resulting class
     DynamicObject result = SClass.createSClass(resultClass, name, superClass, SArray.create(instanceFields.toArray(new Object[0])),
         SArray.create(instanceMethods.toArray(new Object[0])));
     return result;
   }
-  
+
   @TruffleBoundary
   public void assembleSystemClass(final DynamicObject systemClass) {
-    for (Object invokable : instanceMethods){
-      SInvokable.setHolder((DynamicObject)invokable,systemClass);
+    for (Object invokable : instanceMethods) {
+      SInvokable.setHolder((DynamicObject) invokable, systemClass);
     }
     SClass.setInstanceInvokables(systemClass,
         SArray.create(instanceMethods.toArray(new Object[0])));
@@ -145,8 +145,8 @@ public final class ClassGenerationContext {
         SArray.create(instanceFields.toArray(new Object[0])));
     // class-bound == class-instance-bound
     DynamicObject superMClass = SObject.getSOMClass(systemClass);
-    for (Object invokable : instanceMethods){
-      SInvokable.setHolder((DynamicObject)invokable,systemClass);
+    for (Object invokable : instanceMethods) {
+      SInvokable.setHolder((DynamicObject) invokable, systemClass);
     }
     SClass.setInstanceInvokables(superMClass,
         SArray.create(classMethods.toArray(new Object[0])));

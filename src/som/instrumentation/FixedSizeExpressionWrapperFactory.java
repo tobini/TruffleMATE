@@ -16,20 +16,20 @@ public final class FixedSizeExpressionWrapperFactory implements
       ExpressionNode delegateNode, ProbeNode probeNode) {
     return new FixedSizeWrapper(delegateNode, probeNode);
   }
-  
+
   private static final class FixedSizeWrapper extends ExpressionNode
       implements WrapperNode {
-    
+
     @Child private ExpressionNode delegateNode;
     @Child private ProbeNode      probeNode;
 
-    public FixedSizeWrapper(final ExpressionNode delegateNode,
+    FixedSizeWrapper(final ExpressionNode delegateNode,
         final ProbeNode probeNode) {
       super(delegateNode.getSourceSection());
       this.delegateNode = delegateNode;
       this.probeNode = probeNode;
     }
-    
+
     @Override
     public ExpressionNode getDelegateNode() {
       return delegateNode;
@@ -44,7 +44,7 @@ public final class FixedSizeExpressionWrapperFactory implements
     public NodeCost getCost() {
       return NodeCost.NONE;
     }
-    
+
     @Override
     public Object executeGeneric(final VirtualFrame frame) {
       try {
@@ -57,7 +57,7 @@ public final class FixedSizeExpressionWrapperFactory implements
         throw t;
       }
     }
-    
+
     @SuppressWarnings("unused")
     public Object doPreEvaluated(final VirtualFrame frame, final Object[] args) {
       try {

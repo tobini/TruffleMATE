@@ -26,7 +26,8 @@ import som.compiler.Variable.Local;
 import som.interpreter.nodes.ExpressionNode;
 import som.interpreter.nodes.PreevaluatedExpression;
 import som.interpreter.nodes.nary.ExpressionWithTagsNode;
-import tools.highlight.Tags.LiteralTag;
+import som.vm.Universe;
+import tools.debugger.Tags.LiteralTag;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeCost;
@@ -40,9 +41,9 @@ public abstract class LiteralNode extends ExpressionWithTagsNode
   public LiteralNode(final SourceSection source) {
     super(source);
   }
-  
-  public Object[] evaluateArguments(final VirtualFrame frame){
-    System.out.print("Error in evaluateArguments of literalNODE!!!!!!!!!!!!!!!!!!!!");
+
+  public Object[] evaluateArguments(final VirtualFrame frame) {
+    Universe.print("Error in evaluateArguments of literalNODE!!!!!!!!!!!!!!!!!!!!");
     return null;
   }
 
@@ -56,7 +57,7 @@ public abstract class LiteralNode extends ExpressionWithTagsNode
       final Local... blockArguments) {
     return this;
   }
-  
+
   @Override
   protected boolean isTaggedWith(final Class<?> tag) {
     if (tag == LiteralTag.class) {

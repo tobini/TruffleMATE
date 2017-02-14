@@ -20,7 +20,7 @@ import com.oracle.truffle.api.source.SourceSection;
 @ImportStatic(SClass.class)
 @Primitive(klass = "Class", selector = "basicNew")
 public abstract class NewObjectPrim extends UnaryExpressionNode {
-  private final static SObject layoutClass = Universe.getCurrent().getInstanceArgumentsBuilder(); 
+  private static final SObject layoutClass = Universe.getCurrent().getInstanceArgumentsBuilder();
 
   public NewObjectPrim(final boolean eagWrap, final SourceSection source) {
     super(eagWrap, source);
@@ -30,7 +30,6 @@ public abstract class NewObjectPrim extends UnaryExpressionNode {
   public final DynamicObject cachedClass(final DynamicObject receiver,
       @Cached("receiver") final DynamicObject cachedClass,
       @Cached("getFactory(cachedClass)") final DynamicObjectFactory factory) {
-    //The parameter is only valid for SReflectiveObjects
     return factory.newInstance(layoutClass.buildArguments());
   }
 
@@ -39,7 +38,7 @@ public abstract class NewObjectPrim extends UnaryExpressionNode {
   public DynamicObject uncached(final DynamicObject receiver) {
     return SClass.getFactory(receiver).newInstance(layoutClass.buildArguments());
   }
-  
+
   @Override
   protected boolean isTaggedWithIgnoringEagerness(final Class<?> tag) {
     if (tag == NewObject.class) {

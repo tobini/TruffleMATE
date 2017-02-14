@@ -85,7 +85,7 @@ public class SomLanguage extends TruffleLanguage<Universe> {
   public static Source getSyntheticSource(final String text, final String name) {
     return Source.newBuilder(text).internal().name(name).mimeType(SomLanguage.MIME_TYPE).build();
   }
-  
+
   private static final class ParseResult extends RootNode {
     private final DynamicObject klass;
 
@@ -99,7 +99,7 @@ public class SomLanguage extends TruffleLanguage<Universe> {
       return klass;
     }
   }
-  
+
   @Override
   protected Universe createContext(final Env env) {
     Universe vm;
@@ -110,12 +110,12 @@ public class SomLanguage extends TruffleLanguage<Universe> {
     }
     return vm;
   }
-  
+
   @SuppressWarnings("unchecked")
   public FindContextNode<Universe> createNewFindContextNode() {
     return (FindContextNode<Universe>) super.createFindContextNode();
   }
-  
+
   private static class StartInterpretation extends RootNode {
 
     private final FindContextNode<Universe> contextNode;
@@ -132,11 +132,11 @@ public class SomLanguage extends TruffleLanguage<Universe> {
       return vm.execute();
     }
   }
-  
+
   private CallTarget createStartCallTarget() {
     return Truffle.getRuntime().createCallTarget(new StartInterpretation(createFindContextNode()));
   }
-  
+
   @Override
   protected CallTarget parse(final Source code, final Node context,
       final String... argumentNames) throws IOException {
