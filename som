@@ -14,6 +14,10 @@ GRAAL_LOCATIONS = ['/home/smarr/Projects/SOM/graal/jvmci',
 if sys.argv[0].endswith('oficial'):
     GRAAL_LOCATIONS.insert(0, BASE_DIR + '/../graalvm-0.19-re')
     JAVA_BIN  = '/bin/javao'
+    if GRAAL_FLAGS:
+        flags = [GRAAL_FLAGS]
+    else:
+        flags = []
 else:
     JAVA_BIN  = '/bin/java'
     if GRAAL_FLAGS:
@@ -44,12 +48,13 @@ def addBaseDir( path ):
     paths = path.split(":")
     return ':'.join([BASE_DIR + '/' + s for s in paths])
 
+                   
 defaultClassPath = ['Smalltalk:Smalltalk/Mate/:Smalltalk/Mate/MOP:' + 
                    'Smalltalk/Collections/Streams:' +
                    'Smalltalk/FileSystem/Core:Smalltalk/FileSystem/Disk:Smalltalk/FileSystem/Streams:' + 
                    'Examples/Benchmarks:Examples/Benchmarks/LanguageFeatures:Examples/Benchmarks/DeltaBlueInstrumented:Examples/Benchmarks/DeltaBlue:Examples/Benchmarks/NBody:Examples/Benchmarks/Mate:Examples/Benchmarks/Mate/DelegationProxies:Examples/Benchmarks/Mate/Tracing:Examples/Benchmarks/Json:Examples/Benchmarks/Mate/IndividualOperations:Examples/Benchmarks/Mate/Profiling:Examples/Benchmarks/Mate/Columnar']
 
-defaultClassPath = map(addBaseDir, defaultClassPath)
+defaultClassPath = ''.join(map(addBaseDir, defaultClassPath))
 
 parser.add_argument('-cp', '--classpath', help='classpath, default: all benchs and core-lib',
                     dest='som_cp', default=defaultClassPath)
@@ -229,10 +234,19 @@ if args.threads:
     flags += ['-Dsom.threads=%s' % args.threads ]
 if args.java_interpreter:
     flags += ['-Xint']
+
+
+if args.truffle_debugger:
+    SOM_ARGS += ['--debug']    
+if args.web_debugger:
+    SOM_ARGS += ['--web-debug']
     
 if (args.truffle_profile or args.truffle_debugger or args.web_debugger or
     args.dynamic_metrics or args.highlight_file):
     flags += ['-Dsom.instrumentation=true']    
+    
+if (args.truffle_debugger or args.web_debugger):
+    flags += ['-Dsom.truffleDebugger=true']
 
 mate_args = []
 if args.mate:
