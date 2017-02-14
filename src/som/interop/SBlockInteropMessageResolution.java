@@ -30,7 +30,7 @@ public class SBlockInteropMessageResolution {
     public Object access(final VirtualFrame frame, final SBlock rcvr,
         final Object[] args) {
       Object[] arguments = ValueConversion.convertToArgArray(convert, rcvr, args);
-      Object result = block.executeDispatch(frame, Nil.nilObject, 
+      Object result = block.executeDispatch(frame, Nil.nilObject,
           ExecutionLevel.Base, arguments);
       if (result == Nil.nilObject) {
         return null;

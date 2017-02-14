@@ -44,7 +44,7 @@ public class InstrumentableDirectCallNode extends DirectCallNode {
 
   @Override
   public Object call(final VirtualFrame frame, final Object[] arguments) {
-    return callNode.call(frame, arguments);
+    return callNode.call(arguments);
   }
 
   @Override

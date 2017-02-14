@@ -449,7 +449,7 @@ public final class MetricsCsvWriter {
   private static String getSourceSectionAbbrv(final SourceSection source) {
     String result;
     if (source.getSource() == null) {
-      result = source.getShortDescription();
+      result = String.format("%s:%d", source.getSource().getName(), source.getStartLine());
     } else {
       result = source.getSource().getName() + " pos=" + source.getCharIndex() + " len=" + source.getCharLength();
     }
@@ -495,8 +495,8 @@ public final class MetricsCsvWriter {
       for (DynamicObject clazz : sortMD(structuralProbe.getClasses())) {
         file.write(
             SClass.getName(clazz), // TODO: get fully qualified name
-            //What does it mean the sourceSection of class?
-            //getSourceSectionAbbrv(clazz.getSourceSection()),
+            // What does it mean the sourceSection of class?
+            // getSourceSectionAbbrv(clazz.getSourceSection()),
             "?",
             numExecutedMethods(clazz, profiles.values()));
       }

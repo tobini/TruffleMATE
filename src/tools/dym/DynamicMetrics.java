@@ -30,6 +30,7 @@ import som.instrumentation.InstrumentableDirectCallNode.InstrumentableBlockApply
 import som.interpreter.Invokable;
 import som.interpreter.nodes.OperationNode;
 import som.vm.NotYetImplementedException;
+import tools.debugger.Tags.LiteralTag;
 import tools.dym.Tags.BasicPrimitiveOperation;
 import tools.dym.Tags.CachedClosureInvoke;
 import tools.dym.Tags.CachedVirtualInvoke;
@@ -69,7 +70,6 @@ import tools.dym.profiles.InvocationProfile;
 import tools.dym.profiles.LoopProfile;
 import tools.dym.profiles.OperationProfile;
 import tools.dym.profiles.ReadValueProfile;
-import tools.highlight.Tags.LiteralTag;
 import tools.language.StructuralProbe;
 
 
@@ -235,8 +235,7 @@ public class DynamicMetrics extends TruffleInstrument {
     filters.tagIs(PrimitiveArgument.class);
 
     instrumenter.attachFactory(filters.build(), (final EventContext ctx) -> {
-      //ExecutionEventNode parent = ctx.findDirectParentEventNode(factory);
-      ExecutionEventNode parent = null;
+      ExecutionEventNode parent = ctx.findDirectParentEventNode(factory);
 
       if (parent == null) {
         return new LateReportResultNode(ctx, factory);
@@ -248,8 +247,8 @@ public class DynamicMetrics extends TruffleInstrument {
     });
   }
 
-  //Probably not neccesary because receivers are already tracked by Callsites
-  /*private void addReceiverInstrumentation(final Instrumenter instrumenter,
+  // Probably not neccesary because receivers are already tracked by Callsites
+  /* private void addReceiverInstrumentation(final Instrumenter instrumenter,
       final ExecutionEventNodeFactory virtInvokeFactory) {
     Builder filters = SourceSectionFilter.newBuilder();
     filters.tagIs(VirtualInvokeReceiver.class);
@@ -270,8 +269,7 @@ public class DynamicMetrics extends TruffleInstrument {
     filters.tagIs(CachedVirtualInvoke.class);
 
     instrumenter.attachFactory(filters.build(), (final EventContext ctx) -> {
-      //ExecutionEventNode parent = ctx.findParentEventNode(virtInvokeFactory);
-      ExecutionEventNode parent = null;
+      ExecutionEventNode parent = ctx.findParentEventNode(virtInvokeFactory);
       InstrumentableDirectCallNode disp = (InstrumentableDirectCallNode) ctx.getInstrumentedNode();
 
       if (parent == null) {
@@ -292,8 +290,7 @@ public class DynamicMetrics extends TruffleInstrument {
     filters.tagIs(CachedClosureInvoke.class);
 
     instrumenter.attachFactory(filters.build(), (final EventContext ctx) -> {
-      //ExecutionEventNode parent = ctx.findParentEventNode(factory);
-      ExecutionEventNode parent = null;
+      ExecutionEventNode parent = ctx.findParentEventNode(factory);
       InstrumentableBlockApplyNode disp = (InstrumentableBlockApplyNode) ctx.getInstrumentedNode();
 
       if (parent == null) {
@@ -320,8 +317,8 @@ public class DynamicMetrics extends TruffleInstrument {
         instrumenter, methodCallsiteProfiles,
         new Class<?>[] {VirtualInvoke.class}, NO_TAGS,
         CallsiteProfile::new, CountingNode<CallsiteProfile>::new);
-    //The receiver isn't already tracked inside the callTarget???
-    //addReceiverInstrumentation(instrumenter, virtInvokeFactory);
+    // The receiver isn't already tracked inside the callTarget???
+    // addReceiverInstrumentation(instrumenter, virtInvokeFactory);
     addCalltargetInstrumentation(instrumenter, virtInvokeFactory);
 
     ExecutionEventNodeFactory closureApplicationFactory = addInstrumentation(
@@ -387,8 +384,7 @@ public class DynamicMetrics extends TruffleInstrument {
     filters.tagIs(LoopBody.class);
 
     instrumenter.attachFactory(filters.build(), (final EventContext ctx) -> {
-      //ExecutionEventNode parent = ctx.findDirectParentEventNode(loopProfileFactory);
-      ExecutionEventNode parent = null;
+      ExecutionEventNode parent = ctx.findDirectParentEventNode(loopProfileFactory);
       assert parent != null : "Direct parent does not seem to be set up properly with event node and/or wrapping";
       LoopProfilingNode p = (LoopProfilingNode) parent;
       return new LoopIterationReportNode(p.getProfile());
@@ -405,7 +401,7 @@ public class DynamicMetrics extends TruffleInstrument {
     MetricsCsvWriter.fileOut(data, metricsFolder, structuralProbe,
         maxStackDepth, getAllStatementsAlsoNotExecuted());
 
-    //outputAllTruffleMethodsToIGV();
+    // outputAllTruffleMethodsToIGV();
   }
 
   private List<SourceSection> getAllStatementsAlsoNotExecuted() {

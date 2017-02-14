@@ -39,11 +39,11 @@ public class DynamicObjectInteropMessageResolution {
       }
     }
   }
-  
+
   @Resolve(message = "IS_BOXED")
   public abstract static class DynamicObjectIsBoxedNode extends Node {
     protected Object access(final VirtualFrame frame, final DynamicObject rcvr) {
-      //TODO: Check what'd be the proper answer
+      // TODO: Check what'd be the proper answer
       return false;
     }
   }

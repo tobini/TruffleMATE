@@ -21,8 +21,7 @@ public class LateReportResultNode extends ExecutionEventNode {
   }
 
   private ExecutionEventNode specialize() {
-    //ExecutionEventNode parent = ctx.findDirectParentEventNode(factory);
-    ExecutionEventNode parent = null;
+    ExecutionEventNode parent = ctx.findDirectParentEventNode(factory);
 
     if (parent == null) {
       return this;

@@ -18,7 +18,7 @@ public class CallsiteProfile extends Counter implements CreateCounter {
   private final Map<Invokable, Counter> callTargetMap;
   private final Map<Shape, Integer> receiverMap;
   private final List<ProfileCounter> counters;
-  //private TypeProfileNode typeProfile;
+  // private TypeProfileNode typeProfile;
 
   public CallsiteProfile(final SourceSection source) {
     super(source);

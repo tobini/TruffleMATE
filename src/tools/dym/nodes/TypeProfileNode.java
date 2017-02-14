@@ -28,7 +28,7 @@ public abstract class TypeProfileNode extends Node {
   protected ProfileCounter create(final Object obj) {
       return profile.createCounter(Types.getClassOf(obj).getShape());
   }
-  
+
   @Specialization
   public void doLong(final long obj,
       @Cached("create(obj)") final ProfileCounter cnt) {
