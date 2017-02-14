@@ -64,10 +64,10 @@ public final class IfTrueIfFalseInlinedLiteralsNode extends ExpressionWithTagsNo
       return falseNode.executeGeneric(frame);
     }
   }
-  
+
   @Override
   public Node asMateNode() {
-    //Must do someting with inlined if and mate!
+    // Must do someting with inlined if and mate!
     return null;
   }
 }

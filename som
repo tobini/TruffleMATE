@@ -23,7 +23,7 @@ else:
     if GRAAL_FLAGS:
         flags = [GRAAL_FLAGS]
     else:
-        flags = ['-Djvmci.class.path.append=' + BASE_DIR + '/../graal-core/mxbuild/dists/graal.jar']
+        flags = ['-Djvmci.class.path.append=' + BASE_DIR + '/../graal/graal-core/mxbuild/dists/graal.jar']
 
     
 JDK_VERSIONS = ['jdk1.8.0_111', 'jdk1.8.0_65']
@@ -144,7 +144,7 @@ else:
     else:
         java_bin = graal_home
         for v in JDK_VERSIONS:
-            p = graal_home + '/' + v + '/product'
+	    p = graal_home + '/' + v + '/product'
             if os.path.isdir(p):
                 java_bin = p + JAVA_BIN
                 break
