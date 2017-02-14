@@ -29,7 +29,9 @@ import static som.vm.constants.Classes.systemClass;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import som.VMOptions;
@@ -54,6 +56,7 @@ import som.vmobjects.SObject;
 import som.vmobjects.SObjectLayoutImpl;
 import som.vmobjects.SReflectiveObject;
 import som.vmobjects.SReflectiveObjectLayoutImpl;
+import som.vmobjects.SReflectiveObjectLayoutImpl.SReflectiveObjectType;
 import som.vmobjects.SSymbol;
 import tools.debugger.Tags;
 import tools.dym.DynamicMetrics;
@@ -72,6 +75,7 @@ import com.oracle.truffle.api.instrumentation.InstrumentableFactory.WrapperNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectFactory;
+import com.oracle.truffle.api.object.ObjectType;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.vm.PolyglotEngine;
@@ -446,6 +450,27 @@ public class Universe extends ExecutionContext {
     return this.globalSemantics;
   }
 
+  public void cacheNewObjectType(DynamicObject klass, ObjectType type) {
+    if (objectTypes.containsKey(klass)) {
+      objectTypes.get(klass).add(type);
+    } else {
+      ArrayList<ObjectType> list = new ArrayList<ObjectType>();
+      list.add(type);
+      objectTypes.put(klass, list);
+    }
+  }
+
+  public ObjectType getCachedObjectType(DynamicObject klass, DynamicObject environment) {
+    if (objectTypes.containsKey(klass)) {
+      for (ObjectType type : objectTypes.get(klass)) {
+        if (((SReflectiveObjectType) type).getEnvironment() == environment) {
+          return type;
+        }
+      }
+    }
+    return null;
+  }
+
   public void activatedMate() {
     if (this.getMateDeactivatedAssumption().isValid()) {
       this.getMateDeactivatedAssumption().invalidate();
@@ -551,4 +576,5 @@ public class Universe extends ExecutionContext {
   @CompilationFinal private Assumption globalSemanticsDeactivated;
   @CompilationFinal private DynamicObject globalSemantics;
   @CompilationFinal private Assumption validUniverse;
+  @CompilationFinal private Map<DynamicObject, List<ObjectType>> objectTypes = new HashMap<DynamicObject, List<ObjectType>>();
 }

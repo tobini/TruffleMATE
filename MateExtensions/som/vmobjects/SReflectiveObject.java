@@ -24,6 +24,7 @@
 
 package som.vmobjects;
 
+import som.vm.Universe;
 import som.vm.constants.Nil;
 
 import com.oracle.truffle.api.object.DynamicObject;
@@ -64,7 +65,13 @@ public class SReflectiveObject extends SObject {
   }
 
   public static final void setEnvironment(final DynamicObject obj, final DynamicObject value) {
-    SReflectiveObjectLayoutImpl.INSTANCE.setEnvironment(obj, value);
+    ObjectType cachedType = Universe.getCurrent().getCachedObjectType(SObject.getSOMClass(obj), value);
+    if (cachedType != null) {
+      obj.getShape().changeType(cachedType);
+    } else {
+      SReflectiveObjectLayoutImpl.INSTANCE.setEnvironment(obj, value);
+      Universe.getCurrent().cacheNewObjectType(SObject.getSOMClass(obj), obj.getShape().getObjectType());
+    }
   }
 
   public static boolean isSReflectiveObject(final DynamicObject obj) {
